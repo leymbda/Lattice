@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Lattice.WorkerNode</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Types\GatewayEventHandler.fs" />
+    <Compile Include="Managers\Shard.fs" />
+    <Compile Include="Factories\ServiceBusFactory.fs" />
+    <Compile Include="Factories\ShardFactory.fs" />
+    <Compile Include="Node.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.13.1" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.18.2" />
+	<PackageReference Include="FSharp.Discord" Version="0.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="8.0.403" />
+  </ItemGroup>
+
+</Project>

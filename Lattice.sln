@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35506.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.WorkerNode", "Lattice.WorkerNode\Lattice.WorkerNode.fsproj", "{2B0CE0E9-D2C6-4C3E-B269-25BCDE9812C6}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Presentation", "Lattice.Orchestrator.Presentation\Lattice.Orchestrator.Presentation.fsproj", "{CECDF63B-A9F9-4D61-B0CF-96CC964A3FA5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0B9F285C-06BC-42D1-9596-F8F3834C71F5}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.WorkerNode.Tests.Unit", "Tests\Lattice.WorkerNode.Tests.Unit\Lattice.WorkerNode.Tests.Unit.fsproj", "{93E0C53F-462E-497D-BC35-B0F183A4A02B}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Presentation.Tests.Unit", "Tests\Lattice.Orchestrator.Presentation.Tests.Unit\Lattice.Orchestrator.Presentation.Tests.Unit.fsproj", "{B4290E72-2EF1-42E6-9AF5-C15B2D675C2F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2B0CE0E9-D2C6-4C3E-B269-25BCDE9812C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B0CE0E9-D2C6-4C3E-B269-25BCDE9812C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B0CE0E9-D2C6-4C3E-B269-25BCDE9812C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B0CE0E9-D2C6-4C3E-B269-25BCDE9812C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CECDF63B-A9F9-4D61-B0CF-96CC964A3FA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CECDF63B-A9F9-4D61-B0CF-96CC964A3FA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CECDF63B-A9F9-4D61-B0CF-96CC964A3FA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CECDF63B-A9F9-4D61-B0CF-96CC964A3FA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93E0C53F-462E-497D-BC35-B0F183A4A02B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93E0C53F-462E-497D-BC35-B0F183A4A02B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93E0C53F-462E-497D-BC35-B0F183A4A02B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93E0C53F-462E-497D-BC35-B0F183A4A02B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4290E72-2EF1-42E6-9AF5-C15B2D675C2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4290E72-2EF1-42E6-9AF5-C15B2D675C2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4290E72-2EF1-42E6-9AF5-C15B2D675C2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4290E72-2EF1-42E6-9AF5-C15B2D675C2F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{93E0C53F-462E-497D-BC35-B0F183A4A02B} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
+		{B4290E72-2EF1-42E6-9AF5-C15B2D675C2F} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
+	EndGlobalSection
+EndGlobal
