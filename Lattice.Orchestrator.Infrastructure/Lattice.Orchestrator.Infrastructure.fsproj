@@ -6,11 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Enums\DisabledApplicationReason.fs" />
-    <Compile Include="Types\Bid.fs" />
-    <Compile Include="Types\Handler.fs" />
-    <Compile Include="Entities\Application.fs" />
-    <Compile Include="Entities\Shard.fs" />
+    <ProjectReference Include="..\Lattice.Orchestrator.Application\Lattice.Orchestrator.Application.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
