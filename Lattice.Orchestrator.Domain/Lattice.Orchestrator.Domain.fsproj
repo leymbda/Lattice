@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Enums\DisabledApplicationReason.fs" />
+    <Compile Include="Types\Handler.fs" />
+    <Compile Include="Entities\Application.fs" />
+    <Compile Include="Entities\Shard.fs" />
+  </ItemGroup>
+
+</Project>
