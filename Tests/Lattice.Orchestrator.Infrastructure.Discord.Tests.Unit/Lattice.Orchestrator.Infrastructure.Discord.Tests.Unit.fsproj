@@ -25,7 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Lattice.Orchestrator.Infrastructure\Lattice.Orchestrator.Infrastructure.fsproj" />
+		<ProjectReference Include="..\..\Lattice.Orchestrator.Infrastructure.Discord\Lattice.Orchestrator.Infrastructure.Discord.fsproj" />
 	</ItemGroup>
 
 	<ItemGroup>

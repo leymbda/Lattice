@@ -1,4 +1,4 @@
-﻿module Lattice.Orchestrator.Infrastructure.ShardMapper
+﻿module Lattice.Orchestrator.Infrastructure.Persistence.ShardMapper
 
 open Lattice.Orchestrator.Domain
 open System

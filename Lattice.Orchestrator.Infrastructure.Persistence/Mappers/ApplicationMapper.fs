@@ -1,4 +1,4 @@
-﻿module Lattice.Orchestrator.Infrastructure.ApplicationMapper
+﻿module Lattice.Orchestrator.Infrastructure.Persistence.ApplicationMapper
 
 open Lattice.Orchestrator.Domain
 

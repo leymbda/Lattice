@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Infrastructure
+﻿namespace Lattice.Orchestrator.Infrastructure.Persistence
 
 open System.Text.Json
 open System.Text.Json.Serialization

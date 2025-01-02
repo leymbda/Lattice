@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Mappers\DiscordApplicationMapper.fs" />
+    <Compile Include="DiscordApi.fs" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FSharp.Discord" Version="0.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Lattice.Orchestrator.Application\Lattice.Orchestrator.Application.fsproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Update="FSharp.Core" Version="8.0.403" />
+	</ItemGroup>
+
+</Project>

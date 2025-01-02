@@ -1,4 +1,5 @@
-﻿namespace Lattice.Orchestrator.Application
+﻿[<AutoOpen>]
+module Lattice.Orchestrator.Application.Persistence
 
 open Lattice.Orchestrator.Domain
 open System.Threading.Tasks

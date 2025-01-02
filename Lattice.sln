@@ -21,9 +21,13 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Applic
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Application.Tests.Unit", "Tests\Lattice.Orchestrator.Application.Tests.Unit\Lattice.Orchestrator.Application.Tests.Unit.fsproj", "{60DAE6B9-C925-4EC0-86D8-94674762A2D9}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure", "Lattice.Orchestrator.Infrastructure\Lattice.Orchestrator.Infrastructure.fsproj", "{64CA63DB-762D-4084-9918-B586EFF98E2E}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure.Persistence", "Lattice.Orchestrator.Infrastructure.Persistence\Lattice.Orchestrator.Infrastructure.Persistence.fsproj", "{64CA63DB-762D-4084-9918-B586EFF98E2E}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure.Tests.Unit", "Tests\Lattice.Orchestrator.Infrastructure.Tests.Unit\Lattice.Orchestrator.Infrastructure.Tests.Unit.fsproj", "{9376CFE5-9D5A-48BC-A5B3-A3697B7AC172}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure.Persistence.Tests.Unit", "Tests\Lattice.Orchestrator.Infrastructure.Tests.Unit\Lattice.Orchestrator.Infrastructure.Persistence.Tests.Unit.fsproj", "{9376CFE5-9D5A-48BC-A5B3-A3697B7AC172}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure.Discord", "Lattice.Orchestrator.Infrastructure.Discord\Lattice.Orchestrator.Infrastructure.Discord.fsproj", "{9EB3FCCF-9239-49FE-9CD0-C8DD5180C08B}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure.Discord.Tests.Unit", "Tests\Lattice.Orchestrator.Infrastructure.Discord.Tests.Unit\Lattice.Orchestrator.Infrastructure.Discord.Tests.Unit.fsproj", "{47460510-84B3-40FF-BFD3-5EB78DC8407B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +75,14 @@ Global
 		{9376CFE5-9D5A-48BC-A5B3-A3697B7AC172}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9376CFE5-9D5A-48BC-A5B3-A3697B7AC172}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9376CFE5-9D5A-48BC-A5B3-A3697B7AC172}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EB3FCCF-9239-49FE-9CD0-C8DD5180C08B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EB3FCCF-9239-49FE-9CD0-C8DD5180C08B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EB3FCCF-9239-49FE-9CD0-C8DD5180C08B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EB3FCCF-9239-49FE-9CD0-C8DD5180C08B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47460510-84B3-40FF-BFD3-5EB78DC8407B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47460510-84B3-40FF-BFD3-5EB78DC8407B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47460510-84B3-40FF-BFD3-5EB78DC8407B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47460510-84B3-40FF-BFD3-5EB78DC8407B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,5 +93,6 @@ Global
 		{CBF7FA1E-203D-4407-85DD-3670A0DFEA3E} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
 		{60DAE6B9-C925-4EC0-86D8-94674762A2D9} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
 		{9376CFE5-9D5A-48BC-A5B3-A3697B7AC172} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
+		{47460510-84B3-40FF-BFD3-5EB78DC8407B} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
 	EndGlobalSection
 EndGlobal

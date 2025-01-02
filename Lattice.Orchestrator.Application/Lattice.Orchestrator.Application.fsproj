@@ -7,7 +7,8 @@
 
   <ItemGroup>
     <Compile Include="Common\Constants.fs" />
-    <Compile Include="Abstractions\Database.fs" />
+    <Compile Include="Abstractions\Discord.fs" />
+    <Compile Include="Abstractions\Persistence.fs" />
     <Compile Include="Modules\Application.fs" />
     <Compile Include="Modules\Shard.fs" />
   </ItemGroup>

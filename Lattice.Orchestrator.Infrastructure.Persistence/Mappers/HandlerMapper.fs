@@ -1,4 +1,4 @@
-﻿module Lattice.Orchestrator.Infrastructure.HandlerMapper
+﻿module Lattice.Orchestrator.Infrastructure.Persistence.HandlerMapper
 
 open Lattice.Orchestrator.Domain
 
