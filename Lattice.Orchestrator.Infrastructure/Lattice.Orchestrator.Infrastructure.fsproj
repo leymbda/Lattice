@@ -3,7 +3,22 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Models\HandlerModel.fs" />
+    <Compile Include="Models\ApplicationModel.fs" />
+    <Compile Include="Models\ShardModel.fs" />
+    <Compile Include="Mappers\HandlerMapper.fs" />
+    <Compile Include="Mappers\ApplicationMapper.fs" />
+    <Compile Include="Mappers\ShardMapper.fs" />
+    <Compile Include="CosmosDatabase.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.46.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Lattice.Orchestrator.Application\Lattice.Orchestrator.Application.fsproj" />
