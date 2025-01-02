@@ -11,8 +11,7 @@ and BiddingShard = {
     Id:                   string
     ApplicationId:        string
     ShardUnit:            (int * int)
-    GreatestBid:          int
-    GreatestBidderNodeId: string
+    GreatestBid:          Bid option
     BiddingExpiry:        DateTime
 }
 

@@ -17,6 +17,10 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Domain
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Domain.Tests.Unit", "Tests\Lattice.Orchestrator.Domain.Tests.Unit\Lattice.Orchestrator.Domain.Tests.Unit.fsproj", "{CBF7FA1E-203D-4407-85DD-3670A0DFEA3E}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Application", "Lattice.Orchestrator.Application\Lattice.Orchestrator.Application.fsproj", "{D47452C1-C0A7-4139-B25D-01D447C1896E}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Application.Tests.Unit", "Tests\Lattice.Orchestrator.Application.Tests.Unit\Lattice.Orchestrator.Application.Tests.Unit.fsproj", "{60DAE6B9-C925-4EC0-86D8-94674762A2D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +51,14 @@ Global
 		{CBF7FA1E-203D-4407-85DD-3670A0DFEA3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBF7FA1E-203D-4407-85DD-3670A0DFEA3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBF7FA1E-203D-4407-85DD-3670A0DFEA3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D47452C1-C0A7-4139-B25D-01D447C1896E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D47452C1-C0A7-4139-B25D-01D447C1896E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D47452C1-C0A7-4139-B25D-01D447C1896E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D47452C1-C0A7-4139-B25D-01D447C1896E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60DAE6B9-C925-4EC0-86D8-94674762A2D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60DAE6B9-C925-4EC0-86D8-94674762A2D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60DAE6B9-C925-4EC0-86D8-94674762A2D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60DAE6B9-C925-4EC0-86D8-94674762A2D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,5 +67,6 @@ Global
 		{93E0C53F-462E-497D-BC35-B0F183A4A02B} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
 		{B4290E72-2EF1-42E6-9AF5-C15B2D675C2F} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
 		{CBF7FA1E-203D-4407-85DD-3670A0DFEA3E} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
+		{60DAE6B9-C925-4EC0-86D8-94674762A2D9} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
 	EndGlobalSection
 EndGlobal

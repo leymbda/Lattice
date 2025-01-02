@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Domain
+﻿namespace Lattice.Orchestrator.Application
 
 open Microsoft.VisualStudio.TestTools.UnitTesting
 

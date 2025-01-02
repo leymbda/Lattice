@@ -1,8 +1,8 @@
 ﻿namespace Lattice.Orchestrator.Domain
 
 type Application =
-    | REGISTERED of RegisteredApplication
-    | ACTIVATED  of ActivatedApplication
+    | REGISTERED  of RegisteredApplication
+    | ACTIVATED   of ActivatedApplication
 
 and RegisteredApplication = {
     Id:              string
@@ -14,6 +14,6 @@ and ActivatedApplication = {
     DiscordBotToken:       string
     Intents:               int
     ProvisionedShardCount: int
-    Handler:               Handler
+    Handler:               Handler option
     DisabledReasons:       int
 }
