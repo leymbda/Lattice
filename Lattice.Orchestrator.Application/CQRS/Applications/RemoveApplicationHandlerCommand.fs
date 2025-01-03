@@ -14,7 +14,7 @@ type RemoveApplicationHandlerCommand (
 
     member val ApplicationId = applicationId with get, set
 
-type RegisterApplicationCommandHandler () =
+type RemoveApplicationHandlerCommandHandler () =
     interface IRequestHandler<RemoveApplicationHandlerCommand, RemoveApplicationHandlerCommandResponse> with
         member _.Handle (req, ct) = task {
             return Error NotImplemented

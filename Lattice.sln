@@ -23,7 +23,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Applic
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure.Persistence", "Lattice.Orchestrator.Infrastructure.Persistence\Lattice.Orchestrator.Infrastructure.Persistence.fsproj", "{64CA63DB-762D-4084-9918-B586EFF98E2E}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure.Persistence.Tests.Unit", "Tests\Lattice.Orchestrator.Infrastructure.Tests.Unit\Lattice.Orchestrator.Infrastructure.Persistence.Tests.Unit.fsproj", "{9376CFE5-9D5A-48BC-A5B3-A3697B7AC172}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure.Persistence.Tests.Unit", "Tests\Lattice.Orchestrator.Infrastructure.Persistence.Tests.Unit\Lattice.Orchestrator.Infrastructure.Persistence.Tests.Unit.fsproj", "{9376CFE5-9D5A-48BC-A5B3-A3697B7AC172}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure.Discord", "Lattice.Orchestrator.Infrastructure.Discord\Lattice.Orchestrator.Infrastructure.Discord.fsproj", "{9EB3FCCF-9239-49FE-9CD0-C8DD5180C08B}"
 EndProject
