@@ -9,6 +9,15 @@
   <ItemGroup>
     <Content Include="local.settings.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="host.json" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="Modules\NameValueCollection.fs" />
+    <Compile Include="Payloads\RegisterApplicationPayload.fs" />
+    <Compile Include="Payloads\UpdateApplicationPayload.fs" />
+    <Compile Include="Payloads\SetApplicationHandlerPayload.fs" />
+    <Compile Include="Responses\ErrorResponse.fs" />
+    <Compile Include="Responses\PaginatedResponse.fs" />
+    <Compile Include="Responses\HandlerResponse.fs" />
+    <Compile Include="Responses\ApplicationResponse.fs" />
+    <Compile Include="Controllers\ApplicationController.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 	
@@ -18,6 +27,7 @@
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.CosmosDB" Version="4.11.0" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.2.2" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.2.0" />
+	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.OpenApi" Version="1.5.1" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.22.0" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.0" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
