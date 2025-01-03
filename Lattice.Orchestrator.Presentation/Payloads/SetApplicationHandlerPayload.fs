@@ -10,11 +10,11 @@ type SetApplicationHandlerPayloadType =
 type SetWebhookApplicationHandlerPayload = {
     [<JsonPropertyName "type">] Type: SetApplicationHandlerPayloadType
     [<JsonPropertyName "endpoint">] Endpoint: string
-    [<JsonPropertyName "ed25519PublicKey">] Ed25519PublicKey: string
 }
 
 type SetServiceBusApplicationHandlerPayload = {
     [<JsonPropertyName "type">] Type: SetApplicationHandlerPayloadType
+    [<JsonPropertyName "connectionString">] ConnectionString: string
     [<JsonPropertyName "queueName">] QueueName: string
 }
 

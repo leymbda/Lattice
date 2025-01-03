@@ -1,5 +1,7 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
+open Lattice.Orchestrator.Application
+open MediatR
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Azure.Functions.Worker.Http
 open Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes
@@ -9,7 +11,7 @@ open System
 open System.Net
 
 type ApplicationController (
-    // TODO: Decide on CQRS approach and inject here
+    sender: ISender
 ) =
     [<Function "RegisterApplication">]
     [<OpenApiOperation(operationId = "RegisterApplication", tags = [| "application" |], Summary = "Register an application", Description = "Uses the Discord bot token to setup and handle the Discord gateway connection", Visibility = OpenApiVisibilityType.Advanced)>]
@@ -21,7 +23,10 @@ type ApplicationController (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "post", "applications")>] req: HttpRequestData,
         [<FromBody>] payload: RegisterApplicationPayload
     ) = task {
-        return req.CreateResponse HttpStatusCode.NotImplemented
+        let command = RegisterApplicationCommand(payload.DiscordBotToken)
+
+        match! sender.Send command with
+        | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }
 
     [<Function "GetApplications">]
@@ -47,9 +52,11 @@ type ApplicationController (
             |> Option.map Int32.TryParse
             |> Option.filter fst
             |> Option.map snd
-            |> Option.defaultValue 100
 
-        return req.CreateResponse HttpStatusCode.NotImplemented
+        let query = GetApplicationsQuery(before, after, limit)
+
+        match! sender.Send query with
+        | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }
 
     [<Function "GetApplication">]
@@ -61,7 +68,10 @@ type ApplicationController (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "get", "applications/{applicationId}")>] req: HttpRequestData,
         applicationId: string
     ) = task {
-        return req.CreateResponse HttpStatusCode.NotImplemented
+        let query = GetApplicationQuery(applicationId)
+
+        match! sender.Send query with
+        | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }
 
     [<Function "UpdateApplication">]
@@ -76,7 +86,10 @@ type ApplicationController (
         [<FromBody>] payload: UpdateApplicationPayload,
         applicationId: string
     ) = task {
-        return req.CreateResponse HttpStatusCode.NotImplemented
+        let command = UpdateApplicationCommand(applicationId, payload.DiscordBotToken, payload.Intents, payload.ShardCount, payload.DisabledReasons)
+
+        match! sender.Send command with
+        | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }
 
     [<Function "DeleteApplication">]
@@ -88,7 +101,10 @@ type ApplicationController (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", "applications/{applicationId}")>] req: HttpRequestData,
         applicationId: string
     ) = task {
-        return req.CreateResponse HttpStatusCode.NotImplemented
+        let command = DeleteApplicationCommand(applicationId)
+
+        match! sender.Send command with
+        | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }
 
     [<Function "SetApplicationHandler">]
@@ -103,7 +119,18 @@ type ApplicationController (
         [<FromBody>] payload: SetApplicationHandlerPayload,
         applicationId: string
     ) = task {
-        return req.CreateResponse HttpStatusCode.NotImplemented
+        match payload with
+        | SetApplicationHandlerPayload.WEBHOOK payload ->
+            let command = SetWebhookApplicationHandlerCommand(applicationId, payload.Endpoint)
+
+            match! sender.Send command with
+            | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
+
+        | SetApplicationHandlerPayload.SERVICE_BUS payload ->
+            let command = SetServiceBusApplicationHandlerCommand(applicationId, payload.ConnectionString, payload.QueueName)
+
+            match! sender.Send command with
+            | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }
 
     [<Function "RemoveApplicationHandler">]
@@ -115,5 +142,8 @@ type ApplicationController (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", "applications/{applicationId}/handler")>] req: HttpRequestData,
         applicationId: string
     ) = task {
-        return req.CreateResponse HttpStatusCode.NotImplemented
+        let command = RemoveApplicationHandlerCommand(applicationId)
+
+        match! sender.Send command with
+        | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }
