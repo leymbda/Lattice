@@ -1,0 +1,79 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+env:
+  RG_NAME: rg-lattice
+  REGION: eastus
+
+jobs:
+  setup-acr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: azure/arm-deploy@v1
+        id: bicep
+        with:
+          scope: resourcegroup
+          resourceGroupName: ${{ env.RG_NAME }}
+          template: bicep/acr.bicep
+          parameters: |
+            principalId=${{ secrets.AZURE_PRINCIPAL_ID }}
+          failOnStdErr: false
+          region: ${{ env.REGION }}
+
+    outputs:
+      loginServer: ${{ steps.bicep.outputs.loginServer }}
+      name: ${{ steps.bicep.outputs.name }}
+
+  publish-container:
+    runs-on: ubuntu-latest
+    needs: setup-acr
+    env:
+      IMAGE_NAME: lattice-worker
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - run: az acr login --name ${{ needs.setup-acr.outputs.name }}
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ needs.setup-acr.outputs.loginServer }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ needs.setup-acr.outputs.loginServer }}/${{ env.IMAGE_NAME }}:latest
+          file: ../../Lattice.WorkerNode/Dockerfile
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: publish-container
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: azure/arm-deploy@v1
+        id: bicep
+        with:
+          scope: resourcegroup
+          resourceGroupName: ${{ env.RG_NAME }}
+          template: bicep/main.bicep
+          parameters: |
+            adminUsername: ${{ secrets.ADMIN_USERNAME }}
+            adminPassword: ${{ secrets.ADMIN_PASSWORD }}
+          failOnStdErr: false
+          region: ${{ env.REGION }}
