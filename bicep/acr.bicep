@@ -14,14 +14,14 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   }
 }
 
-resource registryRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(subscription().subscriptionId, resourceGroup().name, name, roleId, principalId)
-  scope: acr
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleId)
-    principalId: principalId
-  }
-}
+// resource registryRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+//   name: guid(subscription().subscriptionId, resourceGroup().name, name, roleId, principalId)
+//   scope: acr
+//   properties: {
+//     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleId)
+//     principalId: principalId
+//   }
+// }
 
 output loginServer string = acr.properties.loginServer
 output name string = acr.name
