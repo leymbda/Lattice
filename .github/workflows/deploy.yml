@@ -58,6 +58,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: publish-container
+    if: ${{ !failure() && !cancelled() }}
     steps:
       - uses: actions/checkout@v3
 
@@ -72,7 +73,7 @@ jobs:
           resourceGroupName: ${{ env.RG_NAME }}
           template: bicep/main.bicep
           parameters: |
-            adminUsername: ${{ secrets.ADMIN_USERNAME }}
-            adminPassword: ${{ secrets.ADMIN_PASSWORD }}
+            adminUsername=${{ secrets.ADMIN_USERNAME }}
+            adminPassword=${{ secrets.ADMIN_PASSWORD }}
           failOnStdErr: false
           region: ${{ env.REGION }}
