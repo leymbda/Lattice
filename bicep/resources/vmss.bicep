@@ -89,12 +89,12 @@ resource vmss 'Microsoft.Compute/virtualMachineScaleSets@2024-07-01' = {
 }
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: 'ra-${name}'
+  name: guid(resourceGroup().id, vmssName, 'AcrPull')
   scope: vmss
   properties: {
     principalId: vmss.identity.principalId
     principalType: 'ServicePrincipal'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d') // AcrPull
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
   }
 }
 
