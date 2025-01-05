@@ -26,8 +26,8 @@ jobs:
           scope: resourcegroup
           resourceGroupName: ${{ env.RG_NAME }}
           template: bicep/acr.bicep
-          parameters: |
-            principalId=${{ secrets.AZURE_PRINCIPAL_ID }}
+          # parameters: |
+          #   principalId=${{ secrets.AZURE_PRINCIPAL_ID }}
           failOnStdErr: false
           region: ${{ env.REGION }}
 

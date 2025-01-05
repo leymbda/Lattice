@@ -1,7 +1,7 @@
-param principalId string
+// param principalId string
 
 var name = 'acr-lattice'
-var roleId = '8311e382-0749-4cb8-b61a-304f252e45ec' // AcrPush role
+// var roleId = '8311e382-0749-4cb8-b61a-304f252e45ec' // AcrPush role
 
 resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   name: name
