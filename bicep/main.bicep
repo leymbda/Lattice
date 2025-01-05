@@ -7,7 +7,7 @@ module vmss 'resources/vmss.bicep' = {
   params: {
     name: 'pool-lattice'
     location: resourceGroup().location
-    vmSku: 'B2pts_v2'
+    vmSku: 'B1ls'
     instanceCount: 1
     adminUsername: adminUsername
     adminPassword: adminPassword
