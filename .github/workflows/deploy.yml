@@ -1,6 +1,9 @@
 name: Deploy
 
 on:
+  push:
+    branches:
+      - bicep
   workflow_dispatch:
 
 env:
