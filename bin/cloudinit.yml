@@ -9,3 +9,8 @@ groups:
 system_info:
   default_user:
     groups: [docker]
+
+runcmd:
+  - az acr login --name acrlattice
+  - docker pull acrlattice.azurecr.io/lattice-worker:latest
+  - docker run -d acrlattice.azurecr.io/lattice-worker:latest

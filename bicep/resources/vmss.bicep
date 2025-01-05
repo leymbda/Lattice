@@ -36,6 +36,9 @@ resource vmss 'Microsoft.Compute/virtualMachineScaleSets@2024-07-01' = {
     tier: 'Standard'
     capacity: instanceCount
   }
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     overprovision: true
     upgradePolicy: {
@@ -46,6 +49,10 @@ resource vmss 'Microsoft.Compute/virtualMachineScaleSets@2024-07-01' = {
         osDisk: {
           caching: 'ReadWrite'
           createOption: 'FromImage'
+          diskSizeGB: 10
+          managedDisk: {
+            storageAccountType: 'Standard_LRS'
+          }
         }
         imageReference: {
           publisher: 'Canonical'
@@ -81,12 +88,17 @@ resource vmss 'Microsoft.Compute/virtualMachineScaleSets@2024-07-01' = {
           }
         ]
       }
-      extensionProfile: {
-        extensions: [
-          // TODO: Setup docker and run container (here?)
-        ]
-      }
     }
+  }
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: 'ra-${name}'
+  scope: vmss
+  properties: {
+    principalId: vmss.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d') // AcrPull
   }
 }
 
