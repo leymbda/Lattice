@@ -50,9 +50,6 @@ resource vmss 'Microsoft.Compute/virtualMachineScaleSets@2024-07-01' = {
           caching: 'ReadWrite'
           createOption: 'FromImage'
           diskSizeGB: 10
-          managedDisk: {
-            storageAccountType: 'Standard_LRS'
-          }
         }
         imageReference: {
           publisher: 'Canonical'
