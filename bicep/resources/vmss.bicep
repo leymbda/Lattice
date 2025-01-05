@@ -90,23 +90,23 @@ resource vmss 'Microsoft.Compute/virtualMachineScaleSets@2024-07-01' = {
   }
 }
 
-resource autoscalehost 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
-  name: 'autoscalehost'
-  location: location
-  properties: {
-    name: 'autoscalehost'
-    targetResourceLocation: vmss.id
-    enabled: true
-    profiles: [{
-      name: 'Profile1'
-      capacity: {
-        minimum: '1'
-        maximum: '10'
-        default: '1'
-      }
-      rules: [
-        // TODO: Scale in/out rules here
-      ]
-    }]
-  }
-}
+// resource autoscalehost 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
+//   name: 'autoscalehost'
+//   location: location
+//   properties: {
+//     name: 'autoscalehost'
+//     targetResourceLocation: vmss.id
+//     enabled: true
+//     profiles: [{
+//       name: 'Profile1'
+//       capacity: {
+//         minimum: '1'
+//         maximum: '10'
+//         default: '1'
+//       }
+//       rules: [
+//         // TODO: Scale in/out rules here
+//       ]
+//     }]
+//   }
+// }
