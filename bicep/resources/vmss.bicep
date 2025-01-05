@@ -65,6 +65,7 @@ resource vmss 'Microsoft.Compute/virtualMachineScaleSets@2024-07-01' = {
           {
             name: 'nic-${vmssName}'
             properties: {
+              primary: true
               ipConfigurations: [
                 {
                   name: 'ipconfig-${vmssName}'
@@ -72,6 +73,7 @@ resource vmss 'Microsoft.Compute/virtualMachineScaleSets@2024-07-01' = {
                     subnet: {
                       id: vnet.properties.subnets[0].id
                     }
+                    primary: true
                   }
                 }
               ]
