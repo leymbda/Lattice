@@ -60,6 +60,25 @@ resource vmss 'Microsoft.Compute/virtualMachineScaleSets@2024-07-01' = {
         adminPassword: adminPassword
         customData: cloudInit
       }
+      networkProfile: {
+        networkInterfaceConfigurations: [
+          {
+            name: 'nic-${vmssName}'
+            properties: {
+              ipConfigurations: [
+                {
+                  name: 'ipconfig-${vmssName}'
+                  properties: {
+                    subnet: {
+                      id: vnet.properties.subnets[0].id
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
       extensionProfile: {
         extensions: [
           // TODO: Setup docker and run container (here?)
