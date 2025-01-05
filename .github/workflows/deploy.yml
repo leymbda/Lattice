@@ -26,8 +26,7 @@ jobs:
           scope: resourcegroup
           resourceGroupName: ${{ env.RG_NAME }}
           template: bicep/acr.bicep
-          # parameters: |
-          #   principalId=${{ secrets.AZURE_PRINCIPAL_ID }}
+          # parameters: principalId=${{ secrets.AZURE_PRINCIPAL_ID }}
           failOnStdErr: false
           region: ${{ env.REGION }}
 
@@ -72,8 +71,6 @@ jobs:
           scope: resourcegroup
           resourceGroupName: ${{ env.RG_NAME }}
           template: bicep/main.bicep
-          parameters: |
-            adminUsername=${{ secrets.ADMIN_USERNAME }}
-            adminPassword=${{ secrets.ADMIN_PASSWORD }}
+          parameters: adminUsername=${{ secrets.ADMIN_USERNAME }} adminPassword=${{ secrets.ADMIN_PASSWORD }}
           failOnStdErr: false
           region: ${{ env.REGION }}
