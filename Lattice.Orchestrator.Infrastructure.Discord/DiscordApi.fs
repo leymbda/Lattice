@@ -1,7 +1,6 @@
 ﻿module Lattice.Orchestrator.Infrastructure.Discord.DiscordApi
 
 open FSharp.Discord.Rest
-open FSharp.Discord.Rest.Modules
 open Lattice.Orchestrator.Application
 open System.Net.Http
 
