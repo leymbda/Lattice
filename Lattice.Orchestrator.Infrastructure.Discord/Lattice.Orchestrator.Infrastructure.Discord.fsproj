@@ -6,12 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Factories\DiscordApiClientFactory.fs" />
     <Compile Include="Mappers\DiscordApplicationMapper.fs" />
     <Compile Include="DiscordApi.fs" />
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FSharp.Discord" Version="0.0.2" />
+		<PackageReference Include="FSharp.Discord" Version="0.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
 	</ItemGroup>
 
