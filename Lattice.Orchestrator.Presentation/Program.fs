@@ -26,6 +26,7 @@ HostBuilder()
         !services.AddLogging()
         !services.AddApplicationInsightsTelemetryWorkerService()
         !services.ConfigureFunctionsApplicationInsights()
+        // TODO: Inject cosmos client
         !services.AddSingleton<IEnv, Env>()
 
         // Setup OpenAPI

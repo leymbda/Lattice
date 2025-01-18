@@ -13,7 +13,7 @@
     <Compile Include="Mappers\HandlerMapper.fs" />
     <Compile Include="Mappers\ApplicationMapper.fs" />
     <Compile Include="Mappers\ShardMapper.fs" />
-    <Compile Include="CosmosDatabase.fs" />
+    <Compile Include="Cosmos.fs" />
   </ItemGroup>
 
   <ItemGroup>

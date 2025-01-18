@@ -1,6 +1,5 @@
-﻿module Lattice.Orchestrator.Infrastructure.Persistence.CosmosDatabase
+﻿module Lattice.Orchestrator.Infrastructure.Persistence.Cosmos
 
-open Lattice.Orchestrator.Application
 open Lattice.Orchestrator.Domain
 open Microsoft.Azure.Cosmos
 open System.Threading.Tasks
@@ -15,7 +14,7 @@ let getApplicationContainer (cosmosClient: CosmosClient) =
 let getShardContainer (cosmosClient: CosmosClient) =
     cosmosClient.GetContainer(COSMOS_DATABASE_NAME, SHARD_CONTAINER_NAME)
 
-let getApplicationById (cosmosClient: CosmosClient): GetApplicationById = fun id -> task {
+let getApplicationById (cosmosClient: CosmosClient) id = task {
     let container = getApplicationContainer cosmosClient
 
     try
@@ -25,7 +24,7 @@ let getApplicationById (cosmosClient: CosmosClient): GetApplicationById = fun id
         return Error ()
 }
 
-let upsertApplication (cosmosClient: CosmosClient): UpsertApplication = fun application -> task {
+let upsertApplication (cosmosClient: CosmosClient) application = task {
     let container = getApplicationContainer cosmosClient
 
     let id = application |> function
@@ -39,7 +38,7 @@ let upsertApplication (cosmosClient: CosmosClient): UpsertApplication = fun appl
         return Error ()
 }
 
-let deleteApplicationById (cosmosClient: CosmosClient): DeleteApplicationById = fun id -> task {
+let deleteApplicationById (cosmosClient: CosmosClient) id = task {
     let container = getApplicationContainer cosmosClient
 
     try
@@ -49,7 +48,7 @@ let deleteApplicationById (cosmosClient: CosmosClient): DeleteApplicationById = 
         return Error ()
 }
 
-let getShardById (cosmosClient: CosmosClient): GetShardById = fun id -> task {
+let getShardById (cosmosClient: CosmosClient) id = task {
     let container = getShardContainer cosmosClient
 
     try
@@ -59,11 +58,11 @@ let getShardById (cosmosClient: CosmosClient): GetShardById = fun id -> task {
         return Error ()
 }
 
-let getShardsByApplicationId (cosmosClient: CosmosClient): GetShardsByApplicationId = fun applicationId -> task {
+let getShardsByApplicationId (cosmosClient: CosmosClient) id = task {
     let container = getShardContainer cosmosClient
 
     try
-        let query = $"SELECT * FROM c WHERE c.applicationId = '{applicationId}'"
+        let query = $"SELECT * FROM c WHERE c.applicationId = '{id}'"
         let iterator = container.GetItemQueryIterator<ShardModel>(query)
 
         let rec loop (iterator: FeedIterator<ShardModel>) results = task {
@@ -81,7 +80,7 @@ let getShardsByApplicationId (cosmosClient: CosmosClient): GetShardsByApplicatio
         return Error ()
 }
 
-let upsertShard (cosmosClient: CosmosClient): UpsertShard = fun shard -> task {
+let upsertShard (cosmosClient: CosmosClient) shard = task {
     let container = getShardContainer cosmosClient
     let id = shard |> function
         | Shard.BIDDING shard -> shard.Id
@@ -95,7 +94,7 @@ let upsertShard (cosmosClient: CosmosClient): UpsertShard = fun shard -> task {
         return Error ()
 }
 
-let deleteShardById (cosmosClient: CosmosClient): DeleteShardById = fun id -> task {
+let deleteShardById (cosmosClient: CosmosClient) id = task {
     let container = getShardContainer cosmosClient
 
     try
