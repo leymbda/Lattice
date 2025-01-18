@@ -1,7 +1,6 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
 open Lattice.Orchestrator.Application
-open MediatR
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Azure.Functions.Worker.Http
 open Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes
@@ -10,9 +9,7 @@ open Microsoft.OpenApi.Models
 open System
 open System.Net
 
-type ApplicationController (
-    sender: ISender
-) =
+type ApplicationController (env: IEnv) =
     [<Function "RegisterApplication">]
     [<OpenApiOperation(operationId = "RegisterApplication", tags = [| "application" |], Summary = "Register an application", Description = "Uses the Discord bot token to setup and handle the Discord gateway connection", Visibility = OpenApiVisibilityType.Advanced)>]
     [<OpenApiRequestBody("application/json", typeof<RegisterApplicationPayload>, Required = true, Description = "The required payload for this endpoint")>]
@@ -23,9 +20,11 @@ type ApplicationController (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "post", "applications")>] req: HttpRequestData,
         [<FromBody>] payload: RegisterApplicationPayload
     ) = task {
-        let command = RegisterApplicationCommand(payload.DiscordBotToken)
+        let! res = RegisterApplicationCommand.run env {
+            DiscordBotToken = payload.DiscordBotToken
+        }
 
-        match! sender.Send command with
+        match res with
         | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }
 
@@ -53,9 +52,13 @@ type ApplicationController (
             |> Option.filter fst
             |> Option.map snd
 
-        let query = GetApplicationsQuery(before, after, limit)
+        let! res = GetApplicationsQuery.run env {
+            Before = before
+            After = after
+            Limit = limit
+        }
 
-        match! sender.Send query with
+        match res with
         | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }
 
@@ -68,9 +71,11 @@ type ApplicationController (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "get", "applications/{applicationId}")>] req: HttpRequestData,
         applicationId: string
     ) = task {
-        let query = GetApplicationQuery(applicationId)
+        let! res = GetApplicationQuery.run env {
+            ApplicationId = applicationId
+        }
 
-        match! sender.Send query with
+        match res with
         | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }
 
@@ -86,9 +91,15 @@ type ApplicationController (
         [<FromBody>] payload: UpdateApplicationPayload,
         applicationId: string
     ) = task {
-        let command = UpdateApplicationCommand(applicationId, payload.DiscordBotToken, payload.Intents, payload.ShardCount, payload.DisabledReasons)
+        let! res = UpdateApplicationCommand.run env {
+            ApplicationId = applicationId
+            DiscordBotToken = payload.DiscordBotToken
+            Intents = payload.Intents
+            ShardCount = payload.ShardCount
+            DisabledReasons = payload.DisabledReasons
+        }
 
-        match! sender.Send command with
+        match res with
         | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }
 
@@ -101,9 +112,11 @@ type ApplicationController (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", "applications/{applicationId}")>] req: HttpRequestData,
         applicationId: string
     ) = task {
-        let command = DeleteApplicationCommand(applicationId)
+        let! res = DeleteApplicationCommand.run env {
+            ApplicationId = applicationId
+        }
 
-        match! sender.Send command with
+        match res with
         | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }
 
@@ -121,15 +134,22 @@ type ApplicationController (
     ) = task {
         match payload with
         | SetApplicationHandlerPayload.WEBHOOK payload ->
-            let command = SetWebhookApplicationHandlerCommand(applicationId, payload.Endpoint)
+            let! res = SetWebhookApplicationHandlerCommand.run env {
+                ApplicationId = applicationId
+                Endpoint = payload.Endpoint
+            }
 
-            match! sender.Send command with
+            match res with
             | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
 
         | SetApplicationHandlerPayload.SERVICE_BUS payload ->
-            let command = SetServiceBusApplicationHandlerCommand(applicationId, payload.ConnectionString, payload.QueueName)
+            let! res = SetServiceBusApplicationHandlerCommand.run env {
+                ApplicationId = applicationId
+                ConnectionString = payload.ConnectionString
+                QueueName = payload.QueueName
+            }
 
-            match! sender.Send command with
+            match res with
             | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }
 
@@ -142,8 +162,10 @@ type ApplicationController (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", "applications/{applicationId}/handler")>] req: HttpRequestData,
         applicationId: string
     ) = task {
-        let command = RemoveApplicationHandlerCommand(applicationId)
+        let! res = RemoveApplicationHandlerCommand.run env {
+            ApplicationId = applicationId
+        }
 
-        match! sender.Send command with
+        match res with
         | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
     }

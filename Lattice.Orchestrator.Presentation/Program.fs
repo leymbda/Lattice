@@ -1,4 +1,4 @@
-﻿open Lattice.Orchestrator.Application
+﻿open Lattice.Orchestrator.Presentation
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions
 open Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations
@@ -26,7 +26,7 @@ HostBuilder()
         !services.AddLogging()
         !services.AddApplicationInsightsTelemetryWorkerService()
         !services.ConfigureFunctionsApplicationInsights()
-        !services.AddMediatR(fun cfg -> !cfg.RegisterServicesFromAssemblyContaining<RegisterApplicationCommand>()) // TODO: Nicer approach than referencing a specific command/query here?
+        !services.AddSingleton<IEnv, Env>()
 
         // Setup OpenAPI
         !services.AddSingleton<IOpenApiConfigurationOptions>(fun _ ->

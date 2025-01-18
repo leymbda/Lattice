@@ -7,22 +7,18 @@
 
   <ItemGroup>
     <Compile Include="Common\Constants.fs" />
-    <Compile Include="Abstractions\Discord.fs" />
+    <Compile Include="Abstractions\IDiscord.fs" />
     <Compile Include="Abstractions\Persistence.fs" />
     <Compile Include="Modules\Application.fs" />
     <Compile Include="Modules\Shard.fs" />
-    <Compile Include="CQRS\Applications\RegisterApplicationCommand.fs" />
-    <Compile Include="CQRS\Applications\GetApplicationsQuery.fs" />
-    <Compile Include="CQRS\Applications\GetApplicationQuery.fs" />
-    <Compile Include="CQRS\Applications\UpdateApplicationCommand.fs" />
-    <Compile Include="CQRS\Applications\DeleteApplicationCommand.fs" />
-    <Compile Include="CQRS\Applications\SetWebhookApplicationHandlerCommand.fs" />
-    <Compile Include="CQRS\Applications\SetServiceBusApplicationHandlerCommand.fs" />
-    <Compile Include="CQRS\Applications\RemoveApplicationHandlerCommand.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MediatR" Version="12.4.1" />
+    <Compile Include="Operations\Applications\RegisterApplicationCommand.fs" />
+    <Compile Include="Operations\Applications\GetApplicationsQuery.fs" />
+    <Compile Include="Operations\Applications\GetApplicationQuery.fs" />
+    <Compile Include="Operations\Applications\UpdateApplicationCommand.fs" />
+    <Compile Include="Operations\Applications\DeleteApplicationCommand.fs" />
+    <Compile Include="Operations\Applications\SetWebhookApplicationHandlerCommand.fs" />
+    <Compile Include="Operations\Applications\SetServiceBusApplicationHandlerCommand.fs" />
+    <Compile Include="Operations\Applications\RemoveApplicationHandlerCommand.fs" />
   </ItemGroup>
 
   <ItemGroup>
