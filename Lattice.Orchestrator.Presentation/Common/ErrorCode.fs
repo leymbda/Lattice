@@ -1,21 +1,16 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
-type ErrorCode = | ErrorCode // Placeholder for actual error codes (not currently needed
+type ErrorCode =
+    | INTERNAL_SERVER_ERROR = 1000
+    | APPLICATION_NOT_FOUND = 2001
+    | INVALID_TOKEN = 3000
+    | DIFFERENT_BOT_TOKEN = 3001
 
 module ErrorCode =
-    let getMessage (errorCode: ErrorCode) =
-        match errorCode with
-        | _ -> "Unknown error"
-
-type ErrorResponseCode =
-    | INVALID_TOKEN = 4000
-    | APPLICATION_NOT_FOUND = 4001
-    | INTERNAL_SERVER_ERROR = 5000
-
-module ErrorResponseCode =
-    let getMessage (errorCode: ErrorResponseCode) =
-        match errorCode with
-        | ErrorResponseCode.INVALID_TOKEN -> "Invalid Discord bot token provided"
-        | ErrorResponseCode.APPLICATION_NOT_FOUND -> "Application not found"
-        | ErrorResponseCode.INTERNAL_SERVER_ERROR -> "Internal server error"
+    let getMessage (code: ErrorCode) =
+        match code with
+        | ErrorCode.INTERNAL_SERVER_ERROR -> "Internal server error"
+        | ErrorCode.APPLICATION_NOT_FOUND -> "Application not found"
+        | ErrorCode.INVALID_TOKEN -> "Invalid Discord bot token provided"
+        | ErrorCode.DIFFERENT_BOT_TOKEN -> "Provided Discord bot token is for a different application"
         | _ -> "Unknown error"

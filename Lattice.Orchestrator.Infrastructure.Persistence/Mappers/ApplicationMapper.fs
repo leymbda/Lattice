@@ -8,6 +8,7 @@ let toDomain model =
         Application.REGISTERED {
             Id = model.Id
             DiscordBotToken = model.DiscordBotToken
+            DisabledReasons = model.DisabledReasons
         }
 
     | ApplicationModel.ACTIVATED model ->
@@ -27,6 +28,7 @@ let fromDomain application =
             Id = application.Id
             Type = ApplicationModelType.REGISTERED
             DiscordBotToken = application.DiscordBotToken
+            DisabledReasons = application.DisabledReasons
         }
 
     | Application.ACTIVATED application ->

@@ -27,12 +27,12 @@ type ApplicationController (env: IEnv) =
         match res with
         | Error RegisterApplicationCommandError.InvalidToken ->
             let res = req.CreateResponse HttpStatusCode.BadRequest
-            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorResponseCode.INVALID_TOKEN)
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
             return res
 
         | Error RegisterApplicationCommandError.RegistrationFailed ->
             let res = req.CreateResponse HttpStatusCode.InternalServerError
-            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorResponseCode.INTERNAL_SERVER_ERROR)
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
             return res
 
         | Ok application ->
@@ -91,7 +91,7 @@ type ApplicationController (env: IEnv) =
         match res with
         | Error GetApplicationQueryError.ApplicationNotFound ->
             let res = req.CreateResponse HttpStatusCode.NotFound
-            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorResponseCode.APPLICATION_NOT_FOUND)
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
             return res
 
         | Ok application ->
@@ -119,9 +119,32 @@ type ApplicationController (env: IEnv) =
             ShardCount = payload.ShardCount
             DisabledReasons = payload.DisabledReasons
         }
-
+        
         match res with
-        | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
+        | Error UpdateApplicationCommandError.ApplicationNotFound ->
+            let res = req.CreateResponse HttpStatusCode.NotFound
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
+            return res
+
+        | Error UpdateApplicationCommandError.InvalidToken -> 
+            let res = req.CreateResponse HttpStatusCode.BadRequest
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
+            return res
+
+        | Error UpdateApplicationCommandError.DifferentBotToken -> 
+            let res = req.CreateResponse HttpStatusCode.BadRequest
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.DIFFERENT_BOT_TOKEN)
+            return res
+
+        | Error UpdateApplicationCommandError.UpdateFailed ->
+            let res = req.CreateResponse HttpStatusCode.InternalServerError
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
+            return res
+
+        | Ok application ->
+            let res = req.CreateResponse HttpStatusCode.OK
+            do! res.WriteAsJsonAsync (ApplicationResponse.fromDomain application)
+            return res            
     }
 
     [<Function "DeleteApplication">]
@@ -140,7 +163,7 @@ type ApplicationController (env: IEnv) =
         match res with
         | Error DeleteApplicationCommandError.ApplicationNotFound ->
             let res = req.CreateResponse HttpStatusCode.NotFound
-            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorResponseCode.APPLICATION_NOT_FOUND)
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
             return res
 
         | _ ->

@@ -6,7 +6,23 @@ let register id discordBotToken =
     {
         Id = id
         DiscordBotToken = discordBotToken
+        DisabledReasons = 0
     }
+
+let setDiscordBotToken discordBotToken (app: Application) =
+    match app with
+    | REGISTERED app -> REGISTERED { app with DiscordBotToken = discordBotToken }
+    | ACTIVATED app -> ACTIVATED { app with DiscordBotToken = discordBotToken }
+
+let addDisabledReason reason (app: Application) =
+    match app with
+    | REGISTERED app -> REGISTERED { app with DisabledReasons = app.DisabledReasons ||| reason }
+    | ACTIVATED app -> ACTIVATED { app with DisabledReasons = app.DisabledReasons ||| reason }
+
+let removeDisabledReason reason (app: Application) =
+    match app with
+    | REGISTERED app -> REGISTERED { app with DisabledReasons = app.DisabledReasons &&& (~~~reason) }
+    | ACTIVATED app -> ACTIVATED { app with DisabledReasons = app.DisabledReasons &&& (~~~reason) }
 
 let activate intents provisionedShardCount handler (app: RegisteredApplication) =
     {
@@ -15,7 +31,7 @@ let activate intents provisionedShardCount handler (app: RegisteredApplication) 
         Intents = intents
         ProvisionedShardCount = provisionedShardCount
         Handler = handler
-        DisabledReasons = 0
+        DisabledReasons = app.DisabledReasons
     }
 
 let addIntent intent (app: ActivatedApplication) =
@@ -35,9 +51,3 @@ let setHandler handler (app: ActivatedApplication) =
 
 let removeHandler (app: ActivatedApplication) =
     { app with Handler = None }
-
-let addDisabledReason reason (app: ActivatedApplication) =
-    { app with DisabledReasons = app.DisabledReasons ||| reason }
-
-let removeDisabledReason reason (app: ActivatedApplication) =
-    { app with DisabledReasons = app.DisabledReasons &&& (~~~reason) }

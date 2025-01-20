@@ -11,6 +11,7 @@ type RegisteredApplicationModel = {
     [<JsonPropertyName "id">] Id: string
     [<JsonPropertyName "type">] Type: ApplicationModelType
     [<JsonPropertyName "discordBotToken">] DiscordBotToken: string
+    [<JsonPropertyName "disabledReasons">] DisabledReasons: int
 }
 
 type ActivatedApplicationModel = {
@@ -19,8 +20,8 @@ type ActivatedApplicationModel = {
     [<JsonPropertyName "discordBotToken">] DiscordBotToken: string
     [<JsonPropertyName "intents">] Intents: int
     [<JsonPropertyName "provisionedShardCount">] ProvisionedShardCount: int
-    [<JsonPropertyName "handler">] Handler: HandlerModel option
     [<JsonPropertyName "disabledReasons">] DisabledReasons: int
+    [<JsonPropertyName "handler">] Handler: HandlerModel option
 }
 
 [<JsonConverter(typeof<ApplicationModelConverter>)>]

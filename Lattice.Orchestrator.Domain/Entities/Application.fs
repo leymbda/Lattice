@@ -7,6 +7,7 @@ type Application =
 and RegisteredApplication = {
     Id:              string
     DiscordBotToken: string
+    DisabledReasons: int
 }
 
 and ActivatedApplication = {
@@ -14,6 +15,6 @@ and ActivatedApplication = {
     DiscordBotToken:       string
     Intents:               int
     ProvisionedShardCount: int
-    Handler:               Handler option
     DisabledReasons:       int
+    Handler:               Handler option
 }
