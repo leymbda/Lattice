@@ -9,6 +9,7 @@
   <ItemGroup>
     <Content Include="local.settings.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="host.json" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="Common\ErrorCode.fs" />
     <Compile Include="Env.fs" />
     <Compile Include="Modules\NameValueCollection.fs" />
     <Compile Include="Payloads\RegisterApplicationPayload.fs" />

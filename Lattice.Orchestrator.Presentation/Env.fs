@@ -8,13 +8,14 @@ open Microsoft.Azure.Cosmos
 open System.Net.Http
 
 type IEnv =
-    inherit IDiscordApiClientFactory
+    inherit IDiscordClientFactory
     inherit IDiscord
+    inherit IPersistence
 
 type Env (httpClientFactory: IHttpClientFactory, cosmosClient: CosmosClient) as env =
     interface IEnv
 
-    interface IDiscordApiClientFactory with
+    interface IDiscordClientFactory with
         member _.CreateBotClient token = httpClientFactory.CreateClient() |> HttpClient.toBotClient token
         member _.CreateOAuthClient token = httpClientFactory.CreateClient() |> HttpClient.toOAuthClient token
         member _.CreateBasicClient clientId clientSecret = httpClientFactory.CreateClient() |> HttpClient.toBasicClient clientId clientSecret

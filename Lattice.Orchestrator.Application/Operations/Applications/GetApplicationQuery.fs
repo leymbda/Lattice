@@ -5,9 +5,12 @@ type GetApplicationQueryProps = {
 }
 
 type GetApplicationQueryError =
-    | InvalidToken
+    | ApplicationNotFound
 
 module GetApplicationQuery =
-    let run (env) (props: GetApplicationQueryProps) = task {
-        return Error GetApplicationQueryError.InvalidToken
+    let run (env: #IPersistence) (props: GetApplicationQueryProps) = task {
+        // Fetch application from db
+        match! env.GetApplicationById props.ApplicationId with
+        | Error _ -> return Error GetApplicationQueryError.ApplicationNotFound
+        | Ok application -> return Ok application
     }

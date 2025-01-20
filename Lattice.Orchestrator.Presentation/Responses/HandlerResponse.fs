@@ -1,5 +1,6 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
+open Lattice.Orchestrator.Domain
 open System.Text.Json
 open System.Text.Json.Serialization
 
@@ -45,3 +46,19 @@ and HandlerResponseConverter () =
             | HandlerResponse.SERVICE_BUS response -> JsonSerializer.Serialize response
 
         writer.WriteRawValue json
+
+module HandlerResponse =
+    let fromDomain (handler: Handler) =
+        match handler with
+        | Handler.WEBHOOK webhookHandler ->
+            HandlerResponse.WEBHOOK {
+                Type = HandlerResponseType.WEBHOOK
+                Endpoint = webhookHandler.Endpoint
+                Ed25519PublicKey = webhookHandler.Ed25519PublicKey
+            }
+
+        | Handler.SERVICE_BUS serviceBusHandler ->
+            HandlerResponse.SERVICE_BUS {
+                Type = HandlerResponseType.SERVICE_BUS
+                QueueName = serviceBusHandler.QueueName
+            }

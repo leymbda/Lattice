@@ -5,9 +5,11 @@ type DeleteApplicationCommandProps = {
 }
 
 type DeleteApplicationCommandError =
-    | InvalidToken
+    | ApplicationNotFound
 
 module DeleteApplicationCommand =
-    let run (env) (props: DeleteApplicationCommandProps) = task {
-        return Error DeleteApplicationCommandError.InvalidToken
+    let run (env: #IPersistence) (props: DeleteApplicationCommandProps) = task {
+        match! env.DeleteApplicationById props.ApplicationId with
+        | Error _ -> return Error DeleteApplicationCommandError.ApplicationNotFound
+        | Ok () -> return Ok ()
     }

@@ -25,7 +25,20 @@ type ApplicationController (env: IEnv) =
         }
 
         match res with
-        | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
+        | Error RegisterApplicationCommandError.InvalidToken ->
+            let res = req.CreateResponse HttpStatusCode.BadRequest
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorResponseCode.INVALID_TOKEN)
+            return res
+
+        | Error RegisterApplicationCommandError.RegistrationFailed ->
+            let res = req.CreateResponse HttpStatusCode.InternalServerError
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorResponseCode.INTERNAL_SERVER_ERROR)
+            return res
+
+        | Ok application ->
+            let res = req.CreateResponse HttpStatusCode.OK
+            do! res.WriteAsJsonAsync (ApplicationResponse.fromDomain application)
+            return res
     }
 
     [<Function "GetApplications">]
@@ -76,7 +89,15 @@ type ApplicationController (env: IEnv) =
         }
 
         match res with
-        | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
+        | Error GetApplicationQueryError.ApplicationNotFound ->
+            let res = req.CreateResponse HttpStatusCode.NotFound
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorResponseCode.APPLICATION_NOT_FOUND)
+            return res
+
+        | Ok application ->
+            let res = req.CreateResponse HttpStatusCode.OK
+            do! res.WriteAsJsonAsync (ApplicationResponse.fromDomain application)
+            return res
     }
 
     [<Function "UpdateApplication">]
@@ -117,7 +138,13 @@ type ApplicationController (env: IEnv) =
         }
 
         match res with
-        | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
+        | Error DeleteApplicationCommandError.ApplicationNotFound ->
+            let res = req.CreateResponse HttpStatusCode.NotFound
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorResponseCode.APPLICATION_NOT_FOUND)
+            return res
+
+        | _ ->
+            return req.CreateResponse HttpStatusCode.NoContent
     }
 
     [<Function "SetApplicationHandler">]

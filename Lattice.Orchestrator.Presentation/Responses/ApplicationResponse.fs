@@ -1,5 +1,6 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
+open Lattice.Orchestrator.Domain
 open System.Text.Json
 open System.Text.Json.Serialization
 
@@ -50,3 +51,24 @@ and ApplicationResponseConverter () =
             | ApplicationResponse.ACTIVATED response -> JsonSerializer.Serialize response
 
         writer.WriteRawValue json
+
+module ApplicationResponse =
+    let fromDomain (application: Application) =
+        match application with
+        | Application.REGISTERED registeredApplication ->
+            ApplicationResponse.REGISTERED {
+                Id = registeredApplication.Id
+                Type = ApplicationResponseType.REGISTERED
+                DiscordBotToken = registeredApplication.DiscordBotToken
+            }
+
+        | Application.ACTIVATED activatedApplication ->
+            ApplicationResponse.ACTIVATED {
+                Id = activatedApplication.Id
+                Type = ApplicationResponseType.ACTIVATED
+                DiscordBotToken = activatedApplication.DiscordBotToken
+                Intents = activatedApplication.Intents
+                ProvisionedShardCount = activatedApplication.ProvisionedShardCount
+                Handler = Option.map HandlerResponse.fromDomain activatedApplication.Handler
+                DisabledReasons = activatedApplication.DisabledReasons
+            }

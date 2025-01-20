@@ -1,17 +1,28 @@
 ﻿namespace Lattice.Orchestrator.Application
 
+open Lattice.Orchestrator.Domain
+
 type RegisterApplicationCommandProps = {
     DiscordBotToken: string
 }
 
 type RegisterApplicationCommandError =
     | InvalidToken
+    | RegistrationFailed
 
 module RegisterApplicationCommand =
-    let run (env: #IDiscord) (props: RegisterApplicationCommandProps) = task {
+    let run (env: #IDiscord & #IPersistence) (props: RegisterApplicationCommandProps) = task {
+        // Validate application with Discord
         match! env.GetApplicationInformation props.DiscordBotToken with
         | None -> return Error RegisterApplicationCommandError.InvalidToken
-        | Some app -> return Ok ()
+        | Some discordApplication ->
 
-        // TODO: Properly implement (currently just for testing DI)
+        // Create application and save to db
+        let application =
+            Application.register discordApplication.Id props.DiscordBotToken
+            |> Application.REGISTERED
+
+        match! env.UpsertApplication application with
+        | Error _ -> return Error RegisterApplicationCommandError.RegistrationFailed
+        | Ok application -> return Ok application
     }

@@ -11,7 +11,7 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FSharp.Discord" Version="0.0.7" />
+		<PackageReference Include="FSharp.Discord" Version="0.0.8" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
 	</ItemGroup>
 
