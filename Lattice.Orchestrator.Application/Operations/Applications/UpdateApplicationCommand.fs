@@ -50,8 +50,8 @@ module UpdateApplicationCommand =
                 function
                 | Application.ACTIVATED activatedApp ->
                     activatedApp
-                    |> Option.foldBack (fun intents app -> Application.setIntents intents app) props.Intents
-                    |> Option.foldBack (fun shardCount app -> Application.setProvisionedShardCount shardCount app) props.ShardCount
+                    |> Option.foldBack (fun intents app -> ActivatedApplication.setIntents intents app) props.Intents
+                    |> Option.foldBack (fun shardCount app -> ActivatedApplication.setProvisionedShardCount shardCount app) props.ShardCount
                     |> Application.ACTIVATED
                 | app -> app
             )

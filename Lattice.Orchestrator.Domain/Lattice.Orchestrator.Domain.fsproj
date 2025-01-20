@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Common\Constants.fs" />
     <Compile Include="Enums\ApplicationMemberRole.fs" />
     <Compile Include="Enums\DisabledApplicationReason.fs" />
     <Compile Include="Types\PrivilegedIntents.fs" />

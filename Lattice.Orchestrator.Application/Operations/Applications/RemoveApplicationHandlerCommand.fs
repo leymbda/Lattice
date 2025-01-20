@@ -22,7 +22,7 @@ module RemoveApplicationHandlerCommand =
         // Remove handler from application
         let updatedApp =
             app
-            |> Application.removeHandler
+            |> ActivatedApplication.removeHandler
             |> Application.ACTIVATED
 
         match! env.UpsertApplication updatedApp with

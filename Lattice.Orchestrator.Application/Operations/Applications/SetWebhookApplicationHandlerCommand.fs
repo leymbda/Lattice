@@ -29,7 +29,7 @@ module SetWebhookApplicationHandlerCommand =
         // Add handler to application
         let updatedApp =
             app
-            |> Application.setHandler (Handler.WEBHOOK (WebhookHandler.create props.Endpoint publicKey privateKey))
+            |> ActivatedApplication.setHandler (Handler.WEBHOOK (WebhookHandler.create props.Endpoint publicKey privateKey))
             |> Application.ACTIVATED
 
         match! env.UpsertApplication updatedApp with

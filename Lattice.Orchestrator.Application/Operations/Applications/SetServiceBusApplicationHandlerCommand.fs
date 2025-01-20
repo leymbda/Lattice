@@ -24,7 +24,7 @@ module SetServiceBusApplicationHandlerCommand =
         // Add handler to application
         let updatedApp =
             app
-            |> Application.setHandler (Handler.SERVICE_BUS (ServiceBusHandler.create props.ConnectionString props.QueueName))
+            |> ActivatedApplication.setHandler (Handler.SERVICE_BUS (ServiceBusHandler.create props.ConnectionString props.QueueName))
             |> Application.ACTIVATED
 
         match! env.UpsertApplication updatedApp with
