@@ -1,6 +1,7 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
 open Lattice.Orchestrator.Application
+open Lattice.Orchestrator.Domain
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Azure.Functions.Worker.Http
 open Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes
@@ -73,6 +74,8 @@ type ApplicationController (env: IEnv) =
 
         match res with
         | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
+
+        // TODO: Figure out how to correctly implement pagination in Cosmos DB. This endpoint may be unnecessary
     }
 
     [<Function "GetApplication">]
@@ -190,7 +193,25 @@ type ApplicationController (env: IEnv) =
             }
 
             match res with
-            | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
+            | Error SetWebhookApplicationHandlerCommandError.ApplicationNotFound ->
+                let res = req.CreateResponse HttpStatusCode.NotFound
+                do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
+                return res
+
+            | Error SetWebhookApplicationHandlerCommandError.ApplicationNotActivated ->
+                let res = req.CreateResponse HttpStatusCode.Conflict
+                do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_ACTIVATED)
+                return res
+
+            | Error SetWebhookApplicationHandlerCommandError.UpdateFailed ->
+                let res = req.CreateResponse HttpStatusCode.InternalServerError
+                do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
+                return res
+
+            | Ok handler ->
+                let res = req.CreateResponse HttpStatusCode.OK
+                do! res.WriteAsJsonAsync (HandlerResponse.fromDomain (Handler.WEBHOOK handler))
+                return res
 
         | SetApplicationHandlerPayload.SERVICE_BUS payload ->
             let! res = SetServiceBusApplicationHandlerCommand.run env {
@@ -200,7 +221,25 @@ type ApplicationController (env: IEnv) =
             }
 
             match res with
-            | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
+            | Error SetServiceBusApplicationHandlerCommandError.ApplicationNotFound ->
+                let res = req.CreateResponse HttpStatusCode.NotFound
+                do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
+                return res
+
+            | Error SetServiceBusApplicationHandlerCommandError.ApplicationNotActivated ->
+                let res = req.CreateResponse HttpStatusCode.Conflict
+                do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_ACTIVATED)
+                return res
+
+            | Error SetServiceBusApplicationHandlerCommandError.UpdateFailed ->
+                let res = req.CreateResponse HttpStatusCode.InternalServerError
+                do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
+                return res
+
+            | Ok handler ->
+                let res = req.CreateResponse HttpStatusCode.OK
+                do! res.WriteAsJsonAsync (HandlerResponse.fromDomain (Handler.SERVICE_BUS handler))
+                return res
     }
 
     [<Function "RemoveApplicationHandler">]
@@ -217,5 +256,21 @@ type ApplicationController (env: IEnv) =
         }
 
         match res with
-        | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
+        | Error RemoveApplicationHandlerCommandError.ApplicationNotFound ->
+            let res = req.CreateResponse HttpStatusCode.NotFound
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
+            return res
+
+        | Error RemoveApplicationHandlerCommandError.ApplicationNotActivated ->
+            let res = req.CreateResponse HttpStatusCode.Conflict
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_ACTIVATED)
+            return res
+
+        | Error RemoveApplicationHandlerCommandError.RemovalFailed ->
+            let res = req.CreateResponse HttpStatusCode.InternalServerError
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
+            return res
+
+        | Ok () ->
+            return req.CreateResponse HttpStatusCode.NoContent
     }

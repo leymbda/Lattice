@@ -9,6 +9,7 @@
     <Compile Include="Common\Constants.fs" />
     <Compile Include="Abstractions\IDiscord.fs" />
     <Compile Include="Abstractions\IPersistence.fs" />
+    <Compile Include="Modules\Handler.fs" />
     <Compile Include="Modules\Application.fs" />
     <Compile Include="Modules\Shard.fs" />
     <Compile Include="Operations\Applications\RegisterApplicationCommand.fs" />

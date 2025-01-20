@@ -39,7 +39,7 @@ module UpdateApplicationCommand =
         | Some err -> return Error err
         | None ->
 
-        // TODO: Reject request if intents or shard count provided when updating a registered application
+        // TODO: Reject request if intents or shard count provided when updating a registered application (maybe active with `None` handler if both provided?)
 
         // Update provided properties
         let updatedApp =
