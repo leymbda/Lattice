@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Mappers\DiscordApplicationMapper.fs" />
+    <Compile Include="Models\ApplicationModel.fs" />
     <Compile Include="Discord.fs" />
   </ItemGroup>
 

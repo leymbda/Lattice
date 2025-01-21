@@ -18,11 +18,11 @@ module RegisterApplicationCommand =
         | Some discordApplication ->
 
         // Create application and save to db
-        let application =
-            Application.register discordApplication.Id props.DiscordBotToken
-            |> Application.REGISTERED
+        let application = Application.register discordApplication.Id props.DiscordBotToken
 
-        match! env.UpsertApplication application with
+        // TODO: Figure out how to add/track info about who has access to the application's team (and intents?) (caching getApplicationInformation results in discord infra project?)
+
+        match! env.UpsertApplication (Application.REGISTERED application) with
         | Error _ -> return Error RegisterApplicationCommandError.RegistrationFailed
         | Ok application -> return Ok application
     }
