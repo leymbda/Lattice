@@ -7,7 +7,6 @@ open Microsoft.Azure.Functions.Worker.Http
 open Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes
 open Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums
 open Microsoft.OpenApi.Models
-open System
 open System.Net
 
 type ApplicationController (env: IEnv) =
@@ -18,7 +17,7 @@ type ApplicationController (env: IEnv) =
     [<OpenApiResponseWithBody(HttpStatusCode.BadRequest, "application/json", typeof<ErrorResponse>, Description = "Invalid values provided in payload")>]
     [<OpenApiResponseWithBody(HttpStatusCode.Conflict, "application/json", typeof<ErrorResponse>, Description = "Application already registered")>]
     member _.RegisterApplication (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "post", "applications")>] req: HttpRequestData,
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "applications")>] req: HttpRequestData,
         [<FromBody>] payload: RegisterApplicationPayload
     ) = task {
         let! res = RegisterApplicationCommand.run env {
@@ -42,49 +41,13 @@ type ApplicationController (env: IEnv) =
             return res
     }
 
-    [<Function "GetApplications">]
-    [<OpenApiOperation(operationId = "GetApplications", tags = [| "application" |], Summary = "Get a paginated list of applications setup", Description = "Returns a paginated list of applications setup", Visibility = OpenApiVisibilityType.Advanced)>]
-    [<OpenApiParameter("before", In = ParameterLocation.Query, Required = false, Type = typeof<string>, Summary = "List applications before this ID", Description = "The ID of the first application included in the previous query")>]
-    [<OpenApiParameter("after", In = ParameterLocation.Query, Required = false, Type = typeof<string>, Summary = "List applications after this ID", Description = "The ID of the last application included in the previous query")>]
-    [<OpenApiParameter("limit", In = ParameterLocation.Query, Required = false, Type = typeof<string>, Summary = "The maximum number of results returned", Description = "Limits the number of results returned per query to this amount")>]
-    [<OpenApiResponseWithBody(HttpStatusCode.OK, "application/json", typeof<ApplicationResponse list>, Description = "List of applications registered (can be empty)")>]
-    member _.GetApplications (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "get", "applications")>] req: HttpRequestData
-    ) = task {
-        let before =
-            req.Query
-            |> NameValueCollection.tryGetValue "before"
-
-        let after =
-            req.Query
-            |> NameValueCollection.tryGetValue "after"
-
-        let limit = 
-            req.Query
-            |> NameValueCollection.tryGetValue "limit"
-            |> Option.map Int32.TryParse
-            |> Option.filter fst
-            |> Option.map snd
-
-        let! res = GetApplicationsQuery.run env {
-            Before = before
-            After = after
-            Limit = limit
-        }
-
-        match res with
-        | _ -> return req.CreateResponse HttpStatusCode.NotImplemented
-
-        // TODO: Figure out how to correctly implement pagination in Cosmos DB. This endpoint may be unnecessary
-    }
-
     [<Function "GetApplication">]
     [<OpenApiOperation(operationId = "GetApplication", tags = [| "application" |], Summary = "Fetch an application by its ID", Description = "Checks if a bot is setup, and if so returns information about it", Visibility = OpenApiVisibilityType.Advanced)>]
     [<OpenApiParameter("applicationId", In = ParameterLocation.Path, Required = true, Type = typeof<string>, Summary = "The ID of the application", Description = "The ID of the application")>]
     [<OpenApiResponseWithBody(HttpStatusCode.OK, "application/json", typeof<ApplicationResponse>, Description = "Application found")>]
     [<OpenApiResponseWithBody(HttpStatusCode.NotFound, "application/json", typeof<ErrorResponse>, Description = "Application not found")>]
     member _.GetApplication (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "get", "applications/{applicationId}")>] req: HttpRequestData,
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "applications/{applicationId}")>] req: HttpRequestData,
         applicationId: string
     ) = task {
         let! res = GetApplicationQuery.run env {
@@ -111,7 +74,7 @@ type ApplicationController (env: IEnv) =
     [<OpenApiResponseWithBody(HttpStatusCode.BadRequest, "application/json", typeof<ErrorResponse>, Description = "Invalid values provided in payload")>]
     [<OpenApiResponseWithBody(HttpStatusCode.NotFound, "application/json", typeof<ErrorResponse>, Description = "Application not found")>]
     member _.UpdateApplication (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "patch", "applications/{applicationId}")>] req: HttpRequestData,
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "applications/{applicationId}")>] req: HttpRequestData,
         [<FromBody>] payload: UpdateApplicationPayload,
         applicationId: string
     ) = task {
@@ -156,7 +119,7 @@ type ApplicationController (env: IEnv) =
     [<OpenApiResponseWithoutBody(HttpStatusCode.NoContent, Description = "Application deleted")>]
     [<OpenApiResponseWithBody(HttpStatusCode.NotFound, "application/json", typeof<ErrorResponse>, Description = "Application not found")>]
     member _.DeleteApplication (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", "applications/{applicationId}")>] req: HttpRequestData,
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "applications/{applicationId}")>] req: HttpRequestData,
         applicationId: string
     ) = task {
         let! res = DeleteApplicationCommand.run env {
@@ -180,7 +143,7 @@ type ApplicationController (env: IEnv) =
     [<OpenApiResponseWithBody(HttpStatusCode.BadRequest, "application/json", typeof<ErrorResponse>, Description = "Invalid values provided in payload")>]
     [<OpenApiResponseWithBody(HttpStatusCode.NotFound, "application/json", typeof<ErrorResponse>, Description = "Application not found")>]
     member _.SyncApplicationPrivilegedIntents (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "post", "applications/{applicationId}/sync-privileged-intents")>] req: HttpRequestData,
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "applications/{applicationId}/sync-privileged-intents")>] req: HttpRequestData,
         applicationId: string
     ) = task {
         let! res = SyncApplicationPrivilegedIntentsCommand.run env {
@@ -222,7 +185,7 @@ type ApplicationController (env: IEnv) =
     [<OpenApiResponseWithBody(HttpStatusCode.BadRequest, "application/json", typeof<ErrorResponse>, Description = "Invalid values provided in payload")>]
     [<OpenApiResponseWithBody(HttpStatusCode.NotFound, "application/json", typeof<ErrorResponse>, Description = "Application not found")>]
     member _.SetApplicationHandler (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "put", "applications/{applicationId}/handler")>] req: HttpRequestData,
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "applications/{applicationId}/handler")>] req: HttpRequestData,
         [<FromBody>] payload: SetApplicationHandlerPayload,
         applicationId: string
     ) = task {
@@ -279,7 +242,7 @@ type ApplicationController (env: IEnv) =
     [<OpenApiResponseWithoutBody(HttpStatusCode.NoContent, Description = "Application handler removed")>]
     [<OpenApiResponseWithBody(HttpStatusCode.NotFound, "application/json", typeof<ErrorResponse>, Description = "Application not found")>]
     member _.RemoveApplicationHandler (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", "applications/{applicationId}/handler")>] req: HttpRequestData,
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "applications/{applicationId}/handler")>] req: HttpRequestData,
         applicationId: string
     ) = task {
         let! res = RemoveApplicationHandlerCommand.run env {

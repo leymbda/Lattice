@@ -1,5 +1,6 @@
 ﻿open Lattice.Orchestrator.Presentation
 open Microsoft.Azure.Functions.Worker
+open Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions
 open Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions
 open Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations
 open Microsoft.Extensions.Configuration
@@ -32,8 +33,8 @@ HostBuilder()
         // Setup OpenAPI
         !services.AddSingleton<IOpenApiConfigurationOptions>(fun _ ->
             let license = OpenApiLicense()
-            license.Name <- "GPL-3.0"
-            license.Url <- Uri("https://www.gnu.org/licenses/gpl-3.0.en.html")
+            license.Name <- "MIT"
+            license.Url <- Uri("https://github.com/leydel/Lattice/blob/main/LICENSE")
 
             let info = OpenApiInfo()
             info.Version <- DefaultOpenApiConfigurationOptions.GetOpenApiDocVersion()
@@ -54,7 +55,6 @@ HostBuilder()
         // TODO: Setup auth then implement swagger auth like: https://github.com/Azure/azure-functions-openapi-extension/blob/main/samples/Microsoft.Azure.Functions.Worker.Extensions.OpenApi.FunctionApp.OutOfProc/Program.cs
         // TODO: Add OpenApiSecurity attributes to endpoints once above is done (and potential response types)
     )
+    .ConfigureOpenApi()
     .Build()
-    .RunAsync()
-|> Async.AwaitTask
-|> Async.RunSynchronously
+    .Run()

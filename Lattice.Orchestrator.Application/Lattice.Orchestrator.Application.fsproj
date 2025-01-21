@@ -9,7 +9,6 @@
     <Compile Include="Abstractions\IDiscord.fs" />
     <Compile Include="Abstractions\IPersistence.fs" />
     <Compile Include="Operations\Applications\RegisterApplicationCommand.fs" />
-    <Compile Include="Operations\Applications\GetApplicationsQuery.fs" />
     <Compile Include="Operations\Applications\GetApplicationQuery.fs" />
     <Compile Include="Operations\Applications\UpdateApplicationCommand.fs" />
     <Compile Include="Operations\Applications\DeleteApplicationCommand.fs" />
