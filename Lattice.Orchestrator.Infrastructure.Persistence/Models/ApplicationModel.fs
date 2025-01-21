@@ -1,53 +1,37 @@
 ﻿namespace Lattice.Orchestrator.Infrastructure.Persistence
 
-open System.Text.Json
+open Lattice.Orchestrator.Domain
 open System.Text.Json.Serialization
 
-type ApplicationModelType =
-    | REGISTERED = 0
-    | ACTIVATED  = 1
-
-type RegisteredApplicationModel = {
+type ApplicationModel = {
     [<JsonPropertyName "id">] Id: string
-    [<JsonPropertyName "type">] Type: ApplicationModelType
     [<JsonPropertyName "discordBotToken">] DiscordBotToken: string
+    [<JsonPropertyName "privilegedIntents">] PrivilegedIntents: PrivilegedIntentsModel
     [<JsonPropertyName "disabledReasons">] DisabledReasons: int
-}
-
-type ActivatedApplicationModel = {
-    [<JsonPropertyName "id">] Id: string
-    [<JsonPropertyName "type">] Type: ApplicationModelType
-    [<JsonPropertyName "discordBotToken">] DiscordBotToken: string
     [<JsonPropertyName "intents">] Intents: int
     [<JsonPropertyName "provisionedShardCount">] ProvisionedShardCount: int
-    [<JsonPropertyName "disabledReasons">] DisabledReasons: int
     [<JsonPropertyName "handler">] Handler: HandlerModel option
 }
 
-[<JsonConverter(typeof<ApplicationModelConverter>)>]
-type ApplicationModel =
-    | REGISTERED  of RegisteredApplicationModel
-    | ACTIVATED   of ActivatedApplicationModel
-    
-and ApplicationModelConverter () =
-    inherit JsonConverter<ApplicationModel>()
+module ApplicationModel =
+    let toDomain (model: ApplicationModel): Application =
+        {
+            Id = model.Id
+            DiscordBotToken = model.DiscordBotToken
+            PrivilegedIntents = PrivilegedIntentsModel.toDomain model.PrivilegedIntents
+            DisabledReasons = model.DisabledReasons
+            Intents = model.Intents
+            ProvisionedShardCount = model.ProvisionedShardCount
+            Handler = Option.map HandlerModel.toDomain model.Handler
+        }
 
-    override _.Read (reader, _, _) =
-        let success, document = JsonDocument.TryParseValue(&reader)
-        if not success then raise (JsonException "Invalid ApplicationModel provided")
-
-        let applicationType = document.RootElement.GetProperty "type" |> _.GetInt32() |> enum<ApplicationModelType>
-        let json = document.RootElement.GetRawText()
-
-        match applicationType with
-        | ApplicationModelType.REGISTERED -> ApplicationModel.REGISTERED <| JsonSerializer.Deserialize<RegisteredApplicationModel> json
-        | ApplicationModelType.ACTIVATED -> ApplicationModel.ACTIVATED <| JsonSerializer.Deserialize<ActivatedApplicationModel> json
-        | _ -> raise (JsonException "Invalid ApplicationModel provided")
-
-    override _.Write (writer, value, _) =
-        let json =
-            match value with
-            | ApplicationModel.REGISTERED model -> JsonSerializer.Serialize model
-            | ApplicationModel.ACTIVATED model -> JsonSerializer.Serialize model
-
-        writer.WriteRawValue json
+    let fromDomain (application: Application): ApplicationModel =
+        {
+            Id = application.Id
+            DiscordBotToken = application.DiscordBotToken
+            PrivilegedIntents = PrivilegedIntentsModel.fromDomain application.PrivilegedIntents
+            DisabledReasons = application.DisabledReasons
+            Intents = application.Intents
+            ProvisionedShardCount = application.ProvisionedShardCount
+            Handler = Option.map HandlerModel.fromDomain application.Handler
+        }

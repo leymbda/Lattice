@@ -8,24 +8,19 @@ type RemoveApplicationHandlerCommandProps = {
 
 type RemoveApplicationHandlerCommandError =
     | ApplicationNotFound
-    | ApplicationNotActivated
     | RemovalFailed
 
 module RemoveApplicationHandlerCommand =
     let run (env: #IPersistence) (props: RemoveApplicationHandlerCommandProps) = task {
-        // Get current application from db and ensure it is activated
+        // Get current application from db
         match! env.GetApplicationById props.ApplicationId with
         | Error _ -> return Error RemoveApplicationHandlerCommandError.ApplicationNotFound
-        | Ok (Application.REGISTERED _) -> return Error RemoveApplicationHandlerCommandError.ApplicationNotActivated
-        | Ok (Application.ACTIVATED app) ->
+        | Ok app ->
 
         // Remove handler from application
-        let updatedApp =
-            app
-            |> ActivatedApplication.removeHandler
-            |> Application.ACTIVATED
+        let updatedApp = app |> Application.removeHandler
 
         match! env.UpsertApplication updatedApp with
-        | Ok (Application.ACTIVATED { Handler = None }) -> return Ok ()
+        | Ok { Handler = None } -> return Ok ()
         | _ -> return Error RemoveApplicationHandlerCommandError.RemovalFailed
     }

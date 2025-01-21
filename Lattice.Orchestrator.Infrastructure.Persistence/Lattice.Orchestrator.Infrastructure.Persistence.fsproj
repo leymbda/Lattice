@@ -8,11 +8,9 @@
 
   <ItemGroup>
     <Compile Include="Models\HandlerModel.fs" />
+    <Compile Include="Models\PrivilegedIntentsModel.fs" />
     <Compile Include="Models\ApplicationModel.fs" />
     <Compile Include="Models\ShardModel.fs" />
-    <Compile Include="Mappers\HandlerMapper.fs" />
-    <Compile Include="Mappers\ApplicationMapper.fs" />
-    <Compile Include="Mappers\ShardMapper.fs" />
     <Compile Include="Cosmos.fs" />
   </ItemGroup>
 

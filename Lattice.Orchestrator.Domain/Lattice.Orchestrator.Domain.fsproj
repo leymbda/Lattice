@@ -7,11 +7,10 @@
 
   <ItemGroup>
     <Compile Include="Common\Constants.fs" />
-    <Compile Include="Enums\ApplicationMemberRole.fs" />
     <Compile Include="Enums\DisabledApplicationReason.fs" />
-    <Compile Include="Types\DiscordApplication.fs" />
+    <Compile Include="Types\PrivilegedIntents.fs" />
     <Compile Include="Types\Bid.fs" />
-    <Compile Include="Types\Handler.fs" />
+    <Compile Include="Entities\Handler.fs" />
     <Compile Include="Entities\Application.fs" />
     <Compile Include="Entities\Shard.fs" />
   </ItemGroup>

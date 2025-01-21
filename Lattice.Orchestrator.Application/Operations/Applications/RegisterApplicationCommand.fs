@@ -18,11 +18,19 @@ module RegisterApplicationCommand =
         | Some discordApplication ->
 
         // Create application and save to db
-        let application = Application.register discordApplication.Id props.DiscordBotToken
+        let privilegedIntents =
+            {
+                MessageContent = discordApplication.HasMessageContentIntent
+                MessageContentLimited = discordApplication.HasMessageContentLimitedIntent
+                GuildMembers = discordApplication.HasGuildMembersIntent
+                GuildMembersLimited = discordApplication.HasGuildMembersLimitedIntent
+                Presence = discordApplication.HasPresenceIntent
+                PresenceLimited = discordApplication.HasPresenceLimitedIntent
+            }
 
-        // TODO: Figure out how to add/track info about who has access to the application's team (and intents?) (caching getApplicationInformation results in discord infra project?)
+        let application = Application.create discordApplication.Id props.DiscordBotToken privilegedIntents
 
-        match! env.UpsertApplication (Application.REGISTERED application) with
+        match! env.UpsertApplication application with
         | Error _ -> return Error RegisterApplicationCommandError.RegistrationFailed
         | Ok application -> return Ok application
     }

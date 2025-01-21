@@ -39,22 +39,13 @@ module UpdateApplicationCommand =
         | Some err -> return Error err
         | None ->
 
-        // TODO: Reject request if intents or shard count provided when updating a registered application (maybe active with `None` handler if both provided?)
-
         // Update provided properties
         let updatedApp =
             app
             |> Option.foldBack (fun discordBotToken app -> Application.setDiscordBotToken discordBotToken app) props.DiscordBotToken
             |> Option.foldBack (fun disabledReasons app -> Application.addDisabledReason disabledReasons app) props.DisabledReasons
-            |> (
-                function
-                | Application.ACTIVATED activatedApp ->
-                    activatedApp
-                    |> Option.foldBack (fun intents app -> ActivatedApplication.setIntents intents app) props.Intents
-                    |> Option.foldBack (fun shardCount app -> ActivatedApplication.setProvisionedShardCount shardCount app) props.ShardCount
-                    |> Application.ACTIVATED
-                | app -> app
-            )
+            |> Option.foldBack (fun intents app -> Application.setIntents intents app) props.Intents
+            |> Option.foldBack (fun shardCount app -> Application.setProvisionedShardCount shardCount app) props.ShardCount
 
         match! env.UpsertApplication updatedApp with
         | Error _ -> return Error UpdateApplicationCommandError.UpdateFailed

@@ -9,16 +9,14 @@ type SetWebhookApplicationHandlerCommandProps = {
 
 type SetWebhookApplicationHandlerCommandError =
     | ApplicationNotFound
-    | ApplicationNotActivated
     | UpdateFailed
 
 module SetWebhookApplicationHandlerCommand =
     let run (env: #IPersistence) (props: SetWebhookApplicationHandlerCommandProps) = task {
-        // Get current application from db and ensure it is activated
+        // Get current application from db
         match! env.GetApplicationById props.ApplicationId with
         | Error _ -> return Error SetWebhookApplicationHandlerCommandError.ApplicationNotFound
-        | Ok (Application.REGISTERED _) -> return Error SetWebhookApplicationHandlerCommandError.ApplicationNotActivated
-        | Ok (Application.ACTIVATED app) ->
+        | Ok app ->
 
         // Create ed25519 key pair
         let publicKey = ""
@@ -27,12 +25,10 @@ module SetWebhookApplicationHandlerCommand =
         // TODO: Implement actual ed25519 key pair generation
         
         // Add handler to application
-        let updatedApp =
-            app
-            |> ActivatedApplication.setHandler (Handler.WEBHOOK (WebhookHandler.create props.Endpoint publicKey privateKey))
-            |> Application.ACTIVATED
+        let handler = Handler.WEBHOOK (WebhookHandler.create props.Endpoint publicKey privateKey)
+        let updatedApp = app |> Application.setHandler handler
 
         match! env.UpsertApplication updatedApp with
-        | Ok (Application.ACTIVATED { Handler = Some (Handler.WEBHOOK handler) }) -> return Ok handler
+        | Ok { Handler = Some (Handler.WEBHOOK handler) } -> return Ok handler
         | _ -> return Error SetWebhookApplicationHandlerCommandError.UpdateFailed
     }

@@ -1,72 +1,53 @@
-﻿namespace rec Lattice.Orchestrator.Domain
+﻿namespace Lattice.Orchestrator.Domain
 
-type RegisteredApplication = {
-    Id:              string
-    DiscordBotToken: string
-    DisabledReasons: int
-}
-
-module RegisteredApplication =
-    let activate intents provisionedShardCount handler (app: RegisteredApplication) = {
-        Id = app.Id
-        DiscordBotToken = app.DiscordBotToken
-        Intents = intents
-        ProvisionedShardCount = provisionedShardCount
-        Handler = handler
-        DisabledReasons = app.DisabledReasons
-    }
-
-type ActivatedApplication = {
+type Application = {
     Id:                    string
     DiscordBotToken:       string
+    PrivilegedIntents:     PrivilegedIntents
+    DisabledReasons:       int
     Intents:               int
     ProvisionedShardCount: int
-    DisabledReasons:       int
     Handler:               Handler option
 }
 
-module ActivatedApplication =
-    let addIntent intent (app: ActivatedApplication) =
-        { app with Intents = app.Intents ||| intent }
-
-    let removeIntent intent (app: ActivatedApplication) =
-        { app with Intents = app.Intents &&& (~~~intent) }
-
-    let setIntents intents (app: ActivatedApplication) =
-        { app with Intents = intents }
-
-    let setProvisionedShardCount provisionedShardCount (app: ActivatedApplication) =
-        { app with ProvisionedShardCount = provisionedShardCount }
-
-    let setHandler handler (app: ActivatedApplication) =
-        { app with Handler = Some handler }
-
-    let removeHandler (app: ActivatedApplication) =
-        { app with Handler = None }
-    
-type Application =
-    | REGISTERED of RegisteredApplication
-    | ACTIVATED  of ActivatedApplication
-    
 module Application =
-    let register id discordBotToken = {
-        Id = id
-        DiscordBotToken = discordBotToken
-        DisabledReasons = 0
-    }
-
+    let create id discordBotToken privilegedIntents =
+        {
+            Id = id
+            DiscordBotToken = discordBotToken
+            PrivilegedIntents = privilegedIntents
+            DisabledReasons = 0
+            Intents = 0
+            ProvisionedShardCount = 0
+            Handler = None
+        }
+        
     let setDiscordBotToken discordBotToken (app: Application) =
-        match app with
-        | REGISTERED app -> REGISTERED { app with DiscordBotToken = discordBotToken }
-        | ACTIVATED app -> ACTIVATED { app with DiscordBotToken = discordBotToken }
+        { app with DiscordBotToken = discordBotToken }
 
+    let setPrivilegedIntents privilegedIntents (app: Application) =
+        { app with PrivilegedIntents = privilegedIntents }
+        
     let addDisabledReason reason (app: Application) =
-        match app with
-        | REGISTERED app -> REGISTERED { app with DisabledReasons = app.DisabledReasons ||| reason }
-        | ACTIVATED app -> ACTIVATED { app with DisabledReasons = app.DisabledReasons ||| reason }
+        { app with DisabledReasons = app.DisabledReasons ||| reason }
 
     let removeDisabledReason reason (app: Application) =
-        match app with
-        | REGISTERED app -> REGISTERED { app with DisabledReasons = app.DisabledReasons &&& (~~~reason) }
-        | ACTIVATED app -> ACTIVATED { app with DisabledReasons = app.DisabledReasons &&& (~~~reason) }
-        
+        { app with DisabledReasons = app.DisabledReasons &&& (~~~reason) }
+
+    let addIntent intent (app: Application) =
+        { app with Intents = app.Intents ||| intent }
+
+    let removeIntent intent (app: Application) =
+        { app with Intents = app.Intents &&& (~~~intent) }
+
+    let setIntents intents (app: Application) =
+        { app with Intents = intents }
+
+    let setProvisionedShardCount provisionedShardCount (app: Application) =
+        { app with ProvisionedShardCount = provisionedShardCount }
+
+    let setHandler handler (app: Application) =
+        { app with Handler = Some handler }
+
+    let removeHandler (app: Application) =
+        { app with Handler = None }

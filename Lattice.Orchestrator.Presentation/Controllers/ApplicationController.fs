@@ -111,7 +111,7 @@ type ApplicationController (env: IEnv) =
     [<OpenApiResponseWithBody(HttpStatusCode.BadRequest, "application/json", typeof<ErrorResponse>, Description = "Invalid values provided in payload")>]
     [<OpenApiResponseWithBody(HttpStatusCode.NotFound, "application/json", typeof<ErrorResponse>, Description = "Application not found")>]
     member _.UpdateApplication (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "put", "applications/{applicationId}")>] req: HttpRequestData,
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "patch", "applications/{applicationId}")>] req: HttpRequestData,
         [<FromBody>] payload: UpdateApplicationPayload,
         applicationId: string
     ) = task {
@@ -172,6 +172,47 @@ type ApplicationController (env: IEnv) =
         | _ ->
             return req.CreateResponse HttpStatusCode.NoContent
     }
+    
+    [<Function "SyncApplicationPrivilegedIntents">]
+    [<OpenApiOperation(operationId = "SyncApplicationPrivilegedIntents", tags = [| "application" |], Summary = "Syncs the application's privileged intents with Discord", Description = "Fetches the application's privileged intents from Discord and updates internally", Visibility = OpenApiVisibilityType.Advanced)>]
+    [<OpenApiParameter("applicationId", In = ParameterLocation.Path, Required = true, Type = typeof<string>, Summary = "The ID of the application", Description = "The ID of the application")>]
+    [<OpenApiResponseWithBody(HttpStatusCode.OK, "application/json", typeof<PrivilegedIntentsResponse>, Description = "Application updated")>]
+    [<OpenApiResponseWithBody(HttpStatusCode.BadRequest, "application/json", typeof<ErrorResponse>, Description = "Invalid values provided in payload")>]
+    [<OpenApiResponseWithBody(HttpStatusCode.NotFound, "application/json", typeof<ErrorResponse>, Description = "Application not found")>]
+    member _.SyncApplicationPrivilegedIntents (
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "post", "applications/{applicationId}/sync-privileged-intents")>] req: HttpRequestData,
+        applicationId: string
+    ) = task {
+        let! res = SyncApplicationPrivilegedIntentsCommand.run env {
+            ApplicationId = applicationId
+        }
+
+        match res with
+        | Error SyncApplicationPrivilegedIntentsCommandError.ApplicationNotFound ->
+            let res = req.CreateResponse HttpStatusCode.NotFound
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
+            return res
+
+        | Error SyncApplicationPrivilegedIntentsCommandError.InvalidToken -> 
+            let res = req.CreateResponse HttpStatusCode.BadRequest
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
+            return res
+
+        | Error SyncApplicationPrivilegedIntentsCommandError.DifferentBotToken -> 
+            let res = req.CreateResponse HttpStatusCode.BadRequest
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.DIFFERENT_BOT_TOKEN)
+            return res
+
+        | Error SyncApplicationPrivilegedIntentsCommandError.UpdateFailed ->
+            let res = req.CreateResponse HttpStatusCode.InternalServerError
+            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
+            return res
+
+        | Ok privilegedIntents ->
+            let res = req.CreateResponse HttpStatusCode.OK
+            do! res.WriteAsJsonAsync (PrivilegedIntentsResponse.fromDomain privilegedIntents)
+            return res 
+    }
 
     [<Function "SetApplicationHandler">]
     [<OpenApiOperation(operationId = "SetApplicationHandler", tags = [| "application"; "handler" |], Summary = "Sets the handler for an application", Description = "Replaces any existing handler with the given handler", Visibility = OpenApiVisibilityType.Advanced)>]
@@ -198,11 +239,6 @@ type ApplicationController (env: IEnv) =
                 do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
                 return res
 
-            | Error SetWebhookApplicationHandlerCommandError.ApplicationNotActivated ->
-                let res = req.CreateResponse HttpStatusCode.Conflict
-                do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_ACTIVATED)
-                return res
-
             | Error SetWebhookApplicationHandlerCommandError.UpdateFailed ->
                 let res = req.CreateResponse HttpStatusCode.InternalServerError
                 do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
@@ -224,11 +260,6 @@ type ApplicationController (env: IEnv) =
             | Error SetServiceBusApplicationHandlerCommandError.ApplicationNotFound ->
                 let res = req.CreateResponse HttpStatusCode.NotFound
                 do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
-                return res
-
-            | Error SetServiceBusApplicationHandlerCommandError.ApplicationNotActivated ->
-                let res = req.CreateResponse HttpStatusCode.Conflict
-                do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_ACTIVATED)
                 return res
 
             | Error SetServiceBusApplicationHandlerCommandError.UpdateFailed ->
@@ -259,11 +290,6 @@ type ApplicationController (env: IEnv) =
         | Error RemoveApplicationHandlerCommandError.ApplicationNotFound ->
             let res = req.CreateResponse HttpStatusCode.NotFound
             do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
-            return res
-
-        | Error RemoveApplicationHandlerCommandError.ApplicationNotActivated ->
-            let res = req.CreateResponse HttpStatusCode.Conflict
-            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_ACTIVATED)
             return res
 
         | Error RemoveApplicationHandlerCommandError.RemovalFailed ->

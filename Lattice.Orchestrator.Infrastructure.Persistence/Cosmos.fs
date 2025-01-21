@@ -19,7 +19,7 @@ let getApplicationById (cosmosClient: CosmosClient) id = task {
 
     try
         let! res = container.ReadItemAsync<ApplicationModel>(id, PartitionKey id)
-        return res.Resource |> ApplicationMapper.toDomain |> Ok
+        return res.Resource |> ApplicationModel.toDomain |> Ok
     with | _ ->
         return Error ()
 }
@@ -27,13 +27,9 @@ let getApplicationById (cosmosClient: CosmosClient) id = task {
 let upsertApplication (cosmosClient: CosmosClient) application = task {
     let container = getApplicationContainer cosmosClient
 
-    let id = application |> function
-        | Application.REGISTERED app -> app.Id
-        | Application.ACTIVATED app -> app.Id
-
     try
-        let! res = container.UpsertItemAsync<ApplicationModel>(ApplicationMapper.fromDomain application, PartitionKey id)
-        return res.Resource |> ApplicationMapper.toDomain |> Ok
+        let! res = container.UpsertItemAsync<ApplicationModel>(ApplicationModel.fromDomain application, PartitionKey application.Id)
+        return res.Resource |> ApplicationModel.toDomain |> Ok
     with | _ ->
         return Error ()
 }
@@ -53,7 +49,7 @@ let getShardById (cosmosClient: CosmosClient) id = task {
 
     try
         let! res = container.ReadItemAsync<ShardModel>(id, PartitionKey id)
-        return res.Resource |> ShardMapper.toDomain |> Ok
+        return res.Resource |> ShardModel.toDomain |> Ok
     with | _ ->
         return Error ()
 }
@@ -70,7 +66,7 @@ let getShardsByApplicationId (cosmosClient: CosmosClient) id = task {
             | false -> return results
             | true ->
                 let! res = iterator.ReadNextAsync()
-                let items = res.Resource |> Seq.toList |> List.map ShardMapper.toDomain
+                let items = res.Resource |> Seq.toList |> List.map ShardModel.toDomain
                 return! loop iterator (results @ items)
         }
 
@@ -88,8 +84,8 @@ let upsertShard (cosmosClient: CosmosClient) shard = task {
         | Shard.ACTIVE shard -> shard.Id
 
     try
-        let! res = container.UpsertItemAsync<ShardModel>(ShardMapper.fromDomain shard, PartitionKey id)
-        return res.Resource |> ShardMapper.toDomain |> Ok
+        let! res = container.UpsertItemAsync<ShardModel>(ShardModel.fromDomain shard, PartitionKey id)
+        return res.Resource |> ShardModel.toDomain |> Ok
     with | _ ->
         return Error ()
 }
