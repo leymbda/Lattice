@@ -3,12 +3,10 @@
 open Lattice.Orchestrator.Domain
 open System.Text.Json.Serialization
 
-type DisabledApplicationReasonResponse = {
-    [<JsonPropertyName "disabledReasons">] DisabledReasons: int
-}
+type DisabledApplicationReasonResponse (disabledReasons) =
+    [<JsonPropertyName "disabledReasons">]
+    member _.DisabledReasons: int = disabledReasons
 
 module DisabledApplicationReasonResponse =
     let fromDomain (reasons: DisabledApplicationReason list) =
-        {
-            DisabledReasons = DisabledApplicationReason.toBitfield reasons
-        }
+        DisabledApplicationReasonResponse(DisabledApplicationReason.toBitfield reasons)

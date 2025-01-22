@@ -2,6 +2,6 @@
 
 open System.Text.Json.Serialization
 
-type RegisterApplicationPayload = {
-    [<JsonPropertyName "discordBotToken">] DiscordBotToken: string
-}
+type RegisterApplicationPayload (discordBotToken) =
+    [<JsonPropertyName "discordBotToken">]
+    member _.DiscordBotToken: string = discordBotToken

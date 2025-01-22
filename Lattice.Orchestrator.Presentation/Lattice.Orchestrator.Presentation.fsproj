@@ -11,9 +11,12 @@
     <Content Include="host.json" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="Env.fs" />
     <Compile Include="Common\ErrorCode.fs" />
+    <Compile Include="Common\Option.fs" />
+    <Compile Include="Common\String.fs" />
     <Compile Include="Payloads\RegisterApplicationPayload.fs" />
     <Compile Include="Payloads\UpdateApplicationPayload.fs" />
-    <Compile Include="Payloads\SetApplicationHandlerPayload.fs" />
+    <Compile Include="Payloads\SetWebhookApplicationHandlerPayload.fs" />
+    <Compile Include="Payloads\SetServiceBusApplicationHandlerPayload.fs" />
     <Compile Include="Responses\ErrorResponse.fs" />
     <Compile Include="Responses\HandlerResponse.fs" />
     <Compile Include="Responses\DisabledApplicationReasonResponse.fs" />

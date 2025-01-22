@@ -1,64 +1,48 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
 open Lattice.Orchestrator.Domain
-open System.Text.Json
+open Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes
 open System.Text.Json.Serialization
 
-type HandlerResponseType =
-    | WEBHOOK     = 0
-    | SERVICE_BUS = 1
+type WebhookHandlerResponse (endpoint, ed25519PublicKey) =
+    [<JsonPropertyName "endpoint">]
+    member _.Endpoint: string = endpoint
 
-type WebhookHandlerResponse = {
-    [<JsonPropertyName "type">] Type: HandlerResponseType
-    [<JsonPropertyName "endpoint">] Endpoint: string
-    [<JsonPropertyName "ed25519PublicKey">] Ed25519PublicKey: string
-}
+    [<JsonPropertyName "ed25519PublicKey">]
+    member _.Ed25519PublicKey: string = ed25519PublicKey
 
-type ServiceBusHandlerResponse = {
-    [<JsonPropertyName "type">] Type: HandlerResponseType
-    [<JsonPropertyName "queueName">] QueueName: string
-}
+module WebhookHandlerResponse =
+    let fromDomain (handler: WebhookHandler) =
+        WebhookHandlerResponse(handler.Endpoint, handler.Ed25519PublicKey)
+        
+type ServiceBusHandlerResponse (queueName) =
+    [<JsonPropertyName "queueName">]
+    member _.QueueName: string = queueName
 
-[<JsonConverter(typeof<HandlerResponseConverter>)>]
-type HandlerResponse =
-    | WEBHOOK     of WebhookHandlerResponse
-    | SERVICE_BUS of ServiceBusHandlerResponse
+module ServiceBusHandlerResponse =
+    let fromDomain (handler: ServiceBusHandler) =
+        ServiceBusHandlerResponse(handler.QueueName)
 
-and HandlerResponseConverter () =
-    inherit JsonConverter<HandlerResponse>()
+// The `HandlerResponse` must contain all possible properties from webhook and service bus handlers. It is notably used
+// in the `ApplicationResponse` where a handler could be of any type.
 
-    override _.Read (reader, _, _) =
-        let success, document = JsonDocument.TryParseValue(&reader)
-        if not success then raise (JsonException "Invalid HandlerResponse provided")
+[<AllowNullLiteral>]
+type HandlerResponse (endpoint, ed25519PublicKey, queueName) =
+    [<JsonPropertyName "endpoint">]
+    [<OpenApiProperty(Nullable = true)>]
+    member _.Endpoint: string = endpoint
 
-        let handlerType = document.RootElement.GetProperty "type" |> _.GetInt32() |> enum<HandlerResponseType>
-        let json = document.RootElement.GetRawText()
-
-        match handlerType with
-        | HandlerResponseType.WEBHOOK -> HandlerResponse.WEBHOOK <| JsonSerializer.Deserialize<WebhookHandlerResponse> json
-        | HandlerResponseType.SERVICE_BUS -> HandlerResponse.SERVICE_BUS <| JsonSerializer.Deserialize<ServiceBusHandlerResponse> json
-        | _ -> raise (JsonException "Invalid HandlerResponse provided")
-
-    override _.Write (writer, value, _) =
-        let json =
-            match value with
-            | HandlerResponse.WEBHOOK response -> JsonSerializer.Serialize response
-            | HandlerResponse.SERVICE_BUS response -> JsonSerializer.Serialize response
-
-        writer.WriteRawValue json
-
+    [<JsonPropertyName "ed25519PublicKey">]
+    [<OpenApiProperty(Nullable = true)>]
+    member _.Ed25519PublicKey: string = ed25519PublicKey
+    
+    [<JsonPropertyName "queueName">]
+    [<OpenApiProperty(Nullable = true)>]
+    member _.QueueName: string = queueName
+    
 module HandlerResponse =
-    let fromDomain (handler: Handler) =
+    let fromDomain (handler: Handler option) =
         match handler with
-        | Handler.WEBHOOK webhookHandler ->
-            HandlerResponse.WEBHOOK {
-                Type = HandlerResponseType.WEBHOOK
-                Endpoint = webhookHandler.Endpoint
-                Ed25519PublicKey = webhookHandler.Ed25519PublicKey
-            }
-
-        | Handler.SERVICE_BUS serviceBusHandler ->
-            HandlerResponse.SERVICE_BUS {
-                Type = HandlerResponseType.SERVICE_BUS
-                QueueName = serviceBusHandler.QueueName
-            }
+        | Some (Handler.WEBHOOK handler) -> HandlerResponse(handler.Endpoint, handler.Ed25519PublicKey, null)
+        | Some (Handler.SERVICE_BUS handler) -> HandlerResponse(null, null, handler.QueueName)
+        | None -> null

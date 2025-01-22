@@ -1,4 +1,5 @@
 ﻿open Lattice.Orchestrator.Presentation
+open Microsoft.Azure.Cosmos
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions
 open Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions
@@ -27,7 +28,7 @@ HostBuilder()
         !services.AddLogging()
         !services.AddApplicationInsightsTelemetryWorkerService()
         !services.ConfigureFunctionsApplicationInsights()
-        // TODO: Inject cosmos client
+        !services.AddSingleton<CosmosClient>(fun _ -> new CosmosClient(ctx.Configuration.GetValue<string>("CosmosDbConnectionString")))
         !services.AddSingleton<IEnv, Env>()
 
         // Setup OpenAPI

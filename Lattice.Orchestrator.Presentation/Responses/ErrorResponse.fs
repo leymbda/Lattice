@@ -2,11 +2,13 @@
 
 open System.Text.Json.Serialization
 
-type ErrorResponse = {
-    [<JsonPropertyName "code">] Code: ErrorCode
-    [<JsonPropertyName "message">] Message: string
-}
+type ErrorResponse (code, message) =
+    [<JsonPropertyName "code">]
+    member _.Code: ErrorCode = code
+    
+    [<JsonPropertyName "message">]
+    member _.Message: string = message
 
 module ErrorResponse =
     let fromCode (code: ErrorCode) =
-        { Code = code; Message = ErrorCode.getMessage code }
+        ErrorResponse(code, ErrorCode.getMessage code)
