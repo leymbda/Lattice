@@ -22,7 +22,7 @@ type HandlerController (env: IEnv) =
     ) = task {
         let! res = SetWebhookApplicationHandlerCommand.run env {
             ApplicationId = string applicationId
-            Endpoint = payload.Endpoint
+            Endpoint = payload.Endpoint |> String.defaultValue ""
         }
 
         match res with
@@ -55,8 +55,8 @@ type HandlerController (env: IEnv) =
     ) = task {
         let! res = SetServiceBusApplicationHandlerCommand.run env {
             ApplicationId = string applicationId
-            ConnectionString = payload.ConnectionString
-            QueueName = payload.QueueName
+            ConnectionString = payload.ConnectionString |> String.defaultValue ""
+            QueueName = payload.QueueName |> String.defaultValue ""
         }
 
         match res with
