@@ -64,6 +64,8 @@ type ActiveShard = {
 }
 
 module ActiveShard =
+    let [<Literal>] SHARD_HEARTBEAT_INTERVAL = 30
+
     let heartbeat lastHeartbeat (shard: ActiveShard) =
         { shard with LastHeartbeat = lastHeartbeat }
 
