@@ -16,6 +16,7 @@
     <Compile Include="Payloads\SetApplicationHandlerPayload.fs" />
     <Compile Include="Responses\ErrorResponse.fs" />
     <Compile Include="Responses\HandlerResponse.fs" />
+    <Compile Include="Responses\DisabledApplicationReasonResponse.fs" />
     <Compile Include="Responses\PrivilegedIntentsResponse.fs" />
     <Compile Include="Responses\ApplicationResponse.fs" />
     <Compile Include="Controllers\ApplicationController.fs" />
