@@ -61,17 +61,13 @@ let getShardsByApplicationId (cosmosClient: CosmosClient) id = task {
         let query = $"SELECT * FROM c WHERE c.applicationId = '{id}'"
         let iterator = container.GetItemQueryIterator<ShardModel>(query)
 
-        let rec loop (iterator: FeedIterator<ShardModel>) results = task {
-            match iterator.HasMoreResults with
-            | false -> return results
-            | true ->
-                let! res = iterator.ReadNextAsync()
-                let items = res.Resource |> Seq.toList |> List.map ShardModel.toDomain
-                return! loop iterator (results @ items)
-        }
+        let mutable items = List.empty<ShardModel>
 
-        let! shards = loop iterator []
-        return Ok shards
+        while iterator.HasMoreResults do
+            let! res = iterator.ReadNextAsync()
+            items <- items @ (res.Resource |> Seq.toList)
+
+        return Ok (items |> List.map ShardModel.toDomain)
     with | _ ->
         return Error ()
 }
