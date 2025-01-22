@@ -83,7 +83,7 @@ type ApplicationController (env: IEnv) =
             DiscordBotToken = payload.DiscordBotToken
             Intents = payload.Intents
             ShardCount = payload.ShardCount
-            DisabledReasons = payload.DisabledReasons
+            DisabledReasons = payload.DisabledReasons |> Option.map DisabledApplicationReason.fromBitfield
         }
         
         match res with

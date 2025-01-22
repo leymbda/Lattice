@@ -8,7 +8,7 @@ type UpdateApplicationCommandProps = {
     DiscordBotToken: string option
     Intents: int option
     ShardCount: int option
-    DisabledReasons: int option
+    DisabledReasons: DisabledApplicationReason list option
 }
 
 type UpdateApplicationCommandError =
@@ -43,7 +43,7 @@ module UpdateApplicationCommand =
         let updatedApp =
             app
             |> Option.foldBack (fun discordBotToken app -> Application.setDiscordBotToken discordBotToken app) props.DiscordBotToken
-            |> Option.foldBack (fun disabledReasons app -> Application.addDisabledReason disabledReasons app) props.DisabledReasons
+            |> Option.foldBack (fun disabledReasons app -> Application.setDisabledReasons disabledReasons app) props.DisabledReasons
             |> Option.foldBack (fun intents app -> Application.setIntents intents app) props.Intents
             |> Option.foldBack (fun shardCount app -> Application.setProvisionedShardCount shardCount app) props.ShardCount
 

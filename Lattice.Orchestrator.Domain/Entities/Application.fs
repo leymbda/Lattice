@@ -4,7 +4,7 @@ type Application = {
     Id:                    string
     DiscordBotToken:       string
     PrivilegedIntents:     PrivilegedIntents
-    DisabledReasons:       int
+    DisabledReasons:       DisabledApplicationReason list
     Intents:               int
     ProvisionedShardCount: int
     Handler:               Handler option
@@ -16,7 +16,7 @@ module Application =
             Id = id
             DiscordBotToken = discordBotToken
             PrivilegedIntents = privilegedIntents
-            DisabledReasons = 0
+            DisabledReasons = []
             Intents = 0
             ProvisionedShardCount = 0
             Handler = None
@@ -29,10 +29,13 @@ module Application =
         { app with PrivilegedIntents = privilegedIntents }
         
     let addDisabledReason reason (app: Application) =
-        { app with DisabledReasons = app.DisabledReasons ||| reason }
+        { app with DisabledReasons = app.DisabledReasons |> List.append [reason] |> List.distinct }
 
     let removeDisabledReason reason (app: Application) =
-        { app with DisabledReasons = app.DisabledReasons &&& (~~~reason) }
+        { app with DisabledReasons = app.DisabledReasons |> List.filter (fun r -> r <> reason) }
+        
+    let setDisabledReasons reasons (app: Application) =
+        { app with DisabledReasons = reasons }
 
     let addIntent intent (app: Application) =
         { app with Intents = app.Intents ||| intent }
