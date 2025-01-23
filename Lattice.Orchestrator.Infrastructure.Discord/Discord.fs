@@ -2,8 +2,8 @@
 
 open FSharp.Discord.Rest
 
-let getApplicationInformation (env: #IDiscordClientFactory) token = task {
-    match! env.CreateBotClient token |> Rest.getCurrentApplication with
+let getApplicationInformation (discordClientFactory: IDiscordClientFactory) token = task {
+    match! discordClientFactory.CreateBotClient token |> Rest.getCurrentApplication with
     | Ok { Data = app } -> return app |> ApplicationModel.toDomain |> Some
     | Error _ -> return None
 }

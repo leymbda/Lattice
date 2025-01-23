@@ -8,6 +8,8 @@
   <ItemGroup>
     <Compile Include="Abstractions\IDiscord.fs" />
     <Compile Include="Abstractions\IPersistence.fs" />
+    <Compile Include="Abstractions\ITask.fs" />
+    <Compile Include="Abstractions\IEnv.fs" />
     <Compile Include="Operations\Applications\RegisterApplicationCommand.fs" />
     <Compile Include="Operations\Applications\GetApplicationQuery.fs" />
     <Compile Include="Operations\Applications\UpdateApplicationCommand.fs" />
@@ -18,6 +20,8 @@
     <Compile Include="Operations\Applications\RemoveApplicationHandlerCommand.fs" />
     <Compile Include="Operations\Applications\AddDisabledApplicationReasonCommand.fs" />
     <Compile Include="Operations\Applications\RemoveDisabledApplicationReasonCommand.fs" />
+    <Compile Include="Operations\Nodes\RegisterNodeCommand.fs" />
+    <Compile Include="Operations\Nodes\DeleteExpiredNodesCommand.fs" />
   </ItemGroup>
 
   <ItemGroup>

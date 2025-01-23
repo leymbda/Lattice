@@ -7,16 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Models\HandlerModel.fs" />
-    <Compile Include="Models\PrivilegedIntentsModel.fs" />
-    <Compile Include="Models\ApplicationModel.fs" />
-    <Compile Include="Models\NodeModel.fs" />
-    <Compile Include="Models\ShardModel.fs" />
-    <Compile Include="Cosmos.fs" />
+    <Compile Include="Crons\CheckNodeHealthCron.fs" />
+    <Compile Include="Orchestrations\NodeShutdownOrchestration.fs" />
+    <Compile Include="Orchestrator.fs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.46.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.2.2" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>

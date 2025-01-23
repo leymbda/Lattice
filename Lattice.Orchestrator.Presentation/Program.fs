@@ -1,4 +1,6 @@
-﻿open Lattice.Orchestrator.Presentation
+﻿open FSharp.Discord.Rest
+open Lattice.Orchestrator.Application
+open Lattice.Orchestrator.Presentation
 open Microsoft.Azure.Cosmos
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions
@@ -28,7 +30,9 @@ HostBuilder()
         !services.AddLogging()
         !services.AddApplicationInsightsTelemetryWorkerService()
         !services.ConfigureFunctionsApplicationInsights()
+        !services.AddSingleton<IDiscordClientFactory, DiscordClientFactory>()
         !services.AddSingleton<CosmosClient>(fun _ -> new CosmosClient(ctx.Configuration.GetValue<string>("CosmosDbConnectionString")))
+        // TODO: Register durable task client
         !services.AddSingleton<IEnv, Env>()
 
         // Setup OpenAPI

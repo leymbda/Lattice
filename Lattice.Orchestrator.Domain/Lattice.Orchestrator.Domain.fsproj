@@ -11,6 +11,7 @@
     <Compile Include="Types\Bid.fs" />
     <Compile Include="Entities\Handler.fs" />
     <Compile Include="Entities\Application.fs" />
+    <Compile Include="Entities\Node.fs" />
     <Compile Include="Entities\Shard.fs" />
   </ItemGroup>
 

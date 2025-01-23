@@ -29,6 +29,10 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infras
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure.Discord.Tests.Unit", "Tests\Lattice.Orchestrator.Infrastructure.Discord.Tests.Unit\Lattice.Orchestrator.Infrastructure.Discord.Tests.Unit.fsproj", "{47460510-84B3-40FF-BFD3-5EB78DC8407B}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure.Tasks", "Lattice.Orchestrator.Infrastructure.Tasks\Lattice.Orchestrator.Infrastructure.Tasks.fsproj", "{29DD054D-81A1-4F9F-9FE2-41239D56FBE6}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure.Tasks.Tests.Unit", "Tests\Lattice.Orchestrator.Infrastructure.Tasks.Tests.Unit\Lattice.Orchestrator.Infrastructure.Tasks.Tests.Unit.fsproj", "{0DBE2B61-2D99-41BF-BD39-CD500588C755}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +87,14 @@ Global
 		{47460510-84B3-40FF-BFD3-5EB78DC8407B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47460510-84B3-40FF-BFD3-5EB78DC8407B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47460510-84B3-40FF-BFD3-5EB78DC8407B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29DD054D-81A1-4F9F-9FE2-41239D56FBE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29DD054D-81A1-4F9F-9FE2-41239D56FBE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29DD054D-81A1-4F9F-9FE2-41239D56FBE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29DD054D-81A1-4F9F-9FE2-41239D56FBE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DBE2B61-2D99-41BF-BD39-CD500588C755}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DBE2B61-2D99-41BF-BD39-CD500588C755}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DBE2B61-2D99-41BF-BD39-CD500588C755}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DBE2B61-2D99-41BF-BD39-CD500588C755}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -94,5 +106,6 @@ Global
 		{60DAE6B9-C925-4EC0-86D8-94674762A2D9} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
 		{9376CFE5-9D5A-48BC-A5B3-A3697B7AC172} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
 		{47460510-84B3-40FF-BFD3-5EB78DC8407B} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
+		{0DBE2B61-2D99-41BF-BD39-CD500588C755} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
 	EndGlobalSection
 EndGlobal

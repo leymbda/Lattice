@@ -2,14 +2,19 @@
 
 open Lattice.Orchestrator.Domain
 open Microsoft.Azure.Cosmos
+open System
 open System.Threading.Tasks
 
 let [<Literal>] COSMOS_DATABASE_NAME = "lattice-db"
 let [<Literal>] APPLICATION_CONTAINER_NAME = "applications"
+let [<Literal>] NODE_CONTAINER_NAME = "nodes"
 let [<Literal>] SHARD_CONTAINER_NAME = "shards"
 
 let getApplicationContainer (cosmosClient: CosmosClient) =
     cosmosClient.GetContainer(COSMOS_DATABASE_NAME, APPLICATION_CONTAINER_NAME)
+
+let getNodeContainer (cosmosClient: CosmosClient) =
+    cosmosClient.GetContainer(COSMOS_DATABASE_NAME, NODE_CONTAINER_NAME)
 
 let getShardContainer (cosmosClient: CosmosClient) =
     cosmosClient.GetContainer(COSMOS_DATABASE_NAME, SHARD_CONTAINER_NAME)
@@ -39,6 +44,47 @@ let deleteApplicationById (cosmosClient: CosmosClient) id = task {
 
     try
         do! container.DeleteItemAsync<ApplicationModel>(id, PartitionKey id) :> Task
+        return Ok ()
+    with | _ ->
+        return Error ()
+}
+
+let getExpiredNodes (cosmosClient: CosmosClient) lifetimeSeconds currentTime = task {
+    let container = getNodeContainer cosmosClient
+
+    let currentTimestamp = int (currentTime - DateTime.UnixEpoch).TotalSeconds
+    let threshold = currentTimestamp - lifetimeSeconds
+
+    try
+        let query = $"SELECT * FROM c WHERE c.lastHeartbeatAck < {threshold}"
+        let iterator = container.GetItemQueryIterator<NodeModel>(query)
+
+        let mutable items = List.empty<NodeModel>
+
+        while iterator.HasMoreResults do
+            let! res = iterator.ReadNextAsync()
+            items <- items @ (res.Resource |> Seq.toList)
+
+        return Ok (items |> List.map NodeModel.toDomain)
+    with | _ ->
+        return Error ()
+}
+
+let upsertNode (cosmosClient: CosmosClient) node = task {
+    let container = getNodeContainer cosmosClient
+
+    try
+        let! res = container.UpsertItemAsync<NodeModel>(NodeModel.fromDomain node, PartitionKey node.Id)
+        return res.Resource |> NodeModel.toDomain |> Ok
+    with | _ ->
+        return Error ()
+}
+
+let deleteNodeById (cosmosClient: CosmosClient) id = task {
+    let container = getNodeContainer cosmosClient
+
+    try
+        do! container.DeleteItemAsync<NodeModel>(id, PartitionKey id) :> Task
         return Ok ()
     with | _ ->
         return Error ()
@@ -74,6 +120,7 @@ let getShardsByApplicationId (cosmosClient: CosmosClient) id = task {
 
 let upsertShard (cosmosClient: CosmosClient) shard = task {
     let container = getShardContainer cosmosClient
+
     let id = shard |> function
         | Shard.BIDDING shard -> shard.Id
         | Shard.PURCHASED shard -> shard.Id
