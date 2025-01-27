@@ -21,6 +21,7 @@
     <Compile Include="Operations\Applications\AddDisabledApplicationReasonCommand.fs" />
     <Compile Include="Operations\Applications\RemoveDisabledApplicationReasonCommand.fs" />
     <Compile Include="Operations\Nodes\RegisterNodeCommand.fs" />
+    <Compile Include="Operations\Nodes\HeartbeatNodeCommand.fs" />
     <Compile Include="Operations\Nodes\DeleteExpiredNodesCommand.fs" />
   </ItemGroup>
 

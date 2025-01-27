@@ -29,6 +29,7 @@ type Env (discordClientFactory: IDiscordClientFactory, cosmosClient: CosmosClien
         member _.UpsertApplication application = Cosmos.upsertApplication cosmosClient application
         member _.DeleteApplicationById id = Cosmos.deleteApplicationById cosmosClient id
 
+        member _.GetNodeById id = Cosmos.getNodeById cosmosClient id
         member _.GetExpiredNodes lifetimeSeconds currentTime = Cosmos.getExpiredNodes cosmosClient lifetimeSeconds currentTime
         member _.UpsertNode node = Cosmos.upsertNode cosmosClient node
         member _.DeleteNodeById id = Cosmos.deleteNodeById cosmosClient id

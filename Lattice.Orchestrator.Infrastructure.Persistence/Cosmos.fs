@@ -49,6 +49,18 @@ let deleteApplicationById (cosmosClient: CosmosClient) id = task {
         return Error ()
 }
 
+let getNodeById (cosmosClient: CosmosClient) (id: Guid) = task {
+    let container = getNodeContainer cosmosClient
+
+    let idStr = id.ToString()
+
+    try
+        let! res = container.ReadItemAsync<NodeModel>(idStr, PartitionKey idStr)
+        return res.Resource |> NodeModel.toDomain |> Ok
+    with | _ ->
+        return Error ()
+}
+
 let getExpiredNodes (cosmosClient: CosmosClient) lifetimeSeconds currentTime = task {
     let container = getNodeContainer cosmosClient
 

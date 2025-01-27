@@ -18,3 +18,6 @@ module Node =
 
     let isAlive currentTime node =
         (currentTime - node.LastHeartbeatAck).TotalSeconds < float NODE_LIFETIME_SECONDS
+
+    let heartbeat currentTime node =
+        { node with LastHeartbeatAck = currentTime }
