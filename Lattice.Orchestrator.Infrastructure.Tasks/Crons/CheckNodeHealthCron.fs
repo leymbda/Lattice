@@ -5,9 +5,9 @@ open Microsoft.Azure.Functions.Worker
 open System.Threading.Tasks
 
 type CheckNodeHealthCron (env: IEnv) =
-    [<Function "CheckNodeHealthCron">]
-    let run (
-        [<TimerTrigger "0 */1 * * *">] timer: TimerInfo
+    [<Function(nameof CheckNodeHealthCron)>]
+    member _.Run (
+        [<TimerTrigger "0 */1 * * *">] ctx: FunctionContext
     ) = task {
         do! DeleteExpiredNodesCommand.run env :> Task
     }

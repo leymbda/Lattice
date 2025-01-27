@@ -12,6 +12,7 @@ open Microsoft.Extensions.Hosting
 open Microsoft.OpenApi.Models
 open System
 open System.IO
+open Microsoft.DurableTask.Client
 
 let (!) f = f |> ignore
 
@@ -32,7 +33,7 @@ HostBuilder()
         !services.ConfigureFunctionsApplicationInsights()
         !services.AddSingleton<IDiscordClientFactory, DiscordClientFactory>()
         !services.AddSingleton<CosmosClient>(fun _ -> new CosmosClient(ctx.Configuration.GetValue<string>("CosmosDbConnectionString")))
-        // TODO: Register durable task client
+        !services.AddDurableTaskClient(fun builder -> !builder.UseGrpc())
         !services.AddSingleton<IEnv, Env>()
 
         // Setup OpenAPI

@@ -8,8 +8,8 @@ type NodeShutdownOrchestrationProps = {
 }
 
 type NodeShutdownOrchestration () =
-    [<Function "NodeShutdownOrchestration">]
-    let run (
+    [<Function(nameof NodeShutdownOrchestration)>]
+    member _.Run (
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
         props: NodeShutdownOrchestrationProps
     ) = task {
