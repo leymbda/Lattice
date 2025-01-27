@@ -61,32 +61,11 @@ let getNodeById (cosmosClient: CosmosClient) (id: Guid) = task {
         return Error ()
 }
 
-let getExpiredNodes (cosmosClient: CosmosClient) lifetimeSeconds currentTime = task {
-    let container = getNodeContainer cosmosClient
-
-    let currentTimestamp = int (currentTime - DateTime.UnixEpoch).TotalSeconds
-    let threshold = currentTimestamp - lifetimeSeconds
-
-    try
-        let query = $"SELECT * FROM c WHERE c.lastHeartbeatAck < {threshold}"
-        let iterator = container.GetItemQueryIterator<NodeModel>(query)
-
-        let mutable items = List.empty<NodeModel>
-
-        while iterator.HasMoreResults do
-            let! res = iterator.ReadNextAsync()
-            items <- items @ (res.Resource |> Seq.toList)
-
-        return Ok (items |> List.map NodeModel.toDomain)
-    with | _ ->
-        return Error ()
-}
-
 let upsertNode (cosmosClient: CosmosClient) node = task {
     let container = getNodeContainer cosmosClient
 
     try
-        let! res = container.UpsertItemAsync<NodeModel>(NodeModel.fromDomain node, PartitionKey node.Id)
+        let! res = container.UpsertItemAsync<NodeModel>(NodeModel.fromDomain node, PartitionKey (node.Id.ToString()))
         return res.Resource |> NodeModel.toDomain |> Ok
     with | _ ->
         return Error ()

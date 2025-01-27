@@ -47,7 +47,6 @@
     <ProjectReference Include="..\Lattice.Orchestrator.Application\Lattice.Orchestrator.Application.fsproj" />
     <ProjectReference Include="..\Lattice.Orchestrator.Infrastructure.Discord\Lattice.Orchestrator.Infrastructure.Discord.fsproj" />
     <ProjectReference Include="..\Lattice.Orchestrator.Infrastructure.Persistence\Lattice.Orchestrator.Infrastructure.Persistence.fsproj" />
-    <ProjectReference Include="..\Lattice.Orchestrator.Infrastructure.Tasks\Lattice.Orchestrator.Infrastructure.Tasks.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,19 +5,17 @@ open System
 open System.Text.Json.Serialization
 
 type NodeModel = {
-    [<JsonPropertyName "id">] Id: string
-    [<JsonPropertyName "lastHeartbeatAck">] LastHeartbeatAck: int
+    [<JsonPropertyName "id">] Id: Guid
+    [<JsonPropertyName "shards">] Shards: Guid list
 }
 
 module NodeModel =
-    let toDomain (model: NodeModel): Node =
-        {
-            Id = model.Id
-            LastHeartbeatAck = DateTime.UnixEpoch.AddSeconds(model.LastHeartbeatAck)
-        }
+    let toDomain (model: NodeModel): Node = {
+        Id = model.Id
+        Shards = model.Shards
+    }
 
-    let fromDomain (node: Node): NodeModel =
-        {
-            Id = node.Id
-            LastHeartbeatAck = int (node.LastHeartbeatAck - DateTime.UnixEpoch).TotalSeconds
-        }
+    let fromDomain (node: Node): NodeModel = {
+        Id = node.Id
+        Shards = node.Shards
+    }

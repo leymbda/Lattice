@@ -9,11 +9,11 @@ type RegisterNodeCommandError =
 module RegisterNodeCommand =
     let run (env: #IPersistence) = task {
         // Create node and save to db
-        let id = Guid.NewGuid().ToString()
-
-        let node = Node.create id DateTime.UtcNow
+        let node = Node.create (Guid.NewGuid())
 
         match! env.UpsertNode node with
         | Error _ -> return Error RegisterNodeCommandError.RegistrationFailed
         | Ok node -> return Ok node
+
+        // TODO: Start durable entity for node
     }

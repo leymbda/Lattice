@@ -3,11 +3,11 @@
 open Lattice.Orchestrator.Application
 open Lattice.Orchestrator.Infrastructure.Discord
 open Lattice.Orchestrator.Infrastructure.Persistence
-open Lattice.Orchestrator.Infrastructure.Tasks
 open FSharp.Discord.Rest
 open Microsoft.Azure.Cosmos
 open Microsoft.DurableTask.Client
 open System.Net.Http
+open Microsoft.DurableTask.Entities
 
 type DiscordClientFactory (httpClientFactory: IHttpClientFactory) =
     interface IDiscordClientFactory with
@@ -29,8 +29,9 @@ type Env (discordClientFactory: IDiscordClientFactory, cosmosClient: CosmosClien
         member _.UpsertApplication application = Cosmos.upsertApplication cosmosClient application
         member _.DeleteApplicationById id = Cosmos.deleteApplicationById cosmosClient id
 
+        member _.GetNodeShardCounts () = raise (System.NotImplementedException())
+
         member _.GetNodeById id = Cosmos.getNodeById cosmosClient id
-        member _.GetExpiredNodes lifetimeSeconds currentTime = Cosmos.getExpiredNodes cosmosClient lifetimeSeconds currentTime
         member _.UpsertNode node = Cosmos.upsertNode cosmosClient node
         member _.DeleteNodeById id = Cosmos.deleteNodeById cosmosClient id
 
@@ -39,5 +40,8 @@ type Env (discordClientFactory: IDiscordClientFactory, cosmosClient: CosmosClien
         member _.UpsertShard shard = Cosmos.upsertShard cosmosClient shard
         member _.DeleteShardById id = Cosmos.deleteShardById cosmosClient id
 
-    interface ITask with
-        member _.BeginNodeShutdownTask id = Orchestrator.beginNodeShutdownTask durableTaskClient id
+    interface INodeEntityClient with
+        member _.Heartbeat nodeId =
+            durableTaskClient.Entities.SignalEntityAsync(
+                EntityInstanceId(nameof NodeEntity, nodeId.ToString()),
+                nameof Unchecked.defaultof<NodeEntity>.Heartbeat)

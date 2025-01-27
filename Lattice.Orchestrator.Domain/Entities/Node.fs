@@ -3,21 +3,18 @@
 open System
 
 type Node = {
-    Id: string
-    LastHeartbeatAck: DateTime
+    Id: Guid
+    Shards: Guid list
 }
 
 module Node =
-    let [<Literal>] NODE_LIFETIME_SECONDS = 60
+    let create id = {
+        Id = id
+        Shards = []
+    }
 
-    let create id currentTime =
-        {
-            Id = id
-            LastHeartbeatAck = currentTime
-        }
+    let addShard shardId node =
+        { node with Shards = shardId :: node.Shards }
 
-    let isAlive currentTime node =
-        (currentTime - node.LastHeartbeatAck).TotalSeconds < float NODE_LIFETIME_SECONDS
-
-    let heartbeat currentTime node =
-        { node with LastHeartbeatAck = currentTime }
+    let removeShard shardId node =
+        { node with Shards = List.filter (fun id -> id <> shardId) node.Shards }

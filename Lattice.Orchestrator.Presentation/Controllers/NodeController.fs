@@ -34,23 +34,11 @@ type NodeController (env: IEnv) =
         [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "nodes/{nodeId:guid}/heartbeat")>] req: HttpRequestData,
         nodeId: Guid
     ) = task {
-        let! res = HeartbeatNodeCommand.run env {
+        do! HeartbeatNodeCommand.run env {
             NodeId = nodeId
         }
 
-        match res with
-        | Error HeartbeatNodeCommandError.NodeNotFound ->
-            let res = req.CreateResponse HttpStatusCode.NotFound
-            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.NODE_NOT_FOUND)
-            return res
+        return req.CreateResponse HttpStatusCode.Accepted
 
-        | Error HeartbeatNodeCommandError.HeartbeatFailed ->
-            let res = req.CreateResponse HttpStatusCode.InternalServerError
-            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
-            return res
-
-        | Ok next ->
-            let res = req.CreateResponse HttpStatusCode.OK
-            do! res.WriteAsJsonAsync (NextHeartbeatDueResponse.fromDomain next)
-            return res
+        // TODO: This can probably be refactored into using event grid
     }
