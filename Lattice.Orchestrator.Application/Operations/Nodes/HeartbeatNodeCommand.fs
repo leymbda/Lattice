@@ -4,9 +4,12 @@ open System
 
 type HeartbeatNodeCommandProps = {
     NodeId: Guid
+    HeartbeatTime: DateTime
 }
 
 module HeartbeatNodeCommand =
     let run (env: #INodeEntityClient) (props: HeartbeatNodeCommandProps) = task {
-        do! env.Heartbeat props.NodeId
+        // TODO: Handle db logic (upsert as this also handles registration)
+
+        do! env.Heartbeat props.NodeId props.HeartbeatTime
     }

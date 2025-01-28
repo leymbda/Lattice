@@ -41,7 +41,20 @@ type Env (discordClientFactory: IDiscordClientFactory, cosmosClient: CosmosClien
         member _.DeleteShardById id = Cosmos.deleteShardById cosmosClient id
 
     interface INodeEntityClient with
-        member _.Heartbeat nodeId =
+        member _.Heartbeat nodeId heartbeatTime =
             durableTaskClient.Entities.SignalEntityAsync(
                 EntityInstanceId(nameof NodeEntity, nodeId.ToString()),
-                nameof Unchecked.defaultof<NodeEntity>.Heartbeat)
+                nameof Unchecked.defaultof<NodeEntity>.Heartbeat,
+                heartbeatTime)
+
+        member _.Release nodeId =
+            durableTaskClient.Entities.SignalEntityAsync(
+                EntityInstanceId(nameof NodeEntity, nodeId.ToString()),
+                nameof Unchecked.defaultof<NodeEntity>.Release)
+            
+        member _.Redistribute nodeId =
+            durableTaskClient.Entities.SignalEntityAsync(
+                EntityInstanceId(nameof NodeEntity, nodeId.ToString()),
+                nameof Unchecked.defaultof<NodeEntity>.Redistribute)
+            
+        // TODO: Thesse should probably be triggering event grid events to run operations instead of calling the entity directly

@@ -3,6 +3,7 @@
 open Microsoft.Azure.Functions.Worker
 open Microsoft.DurableTask.Entities
 open System
+open System.Threading.Tasks
 
 type NodeRedistributionState = {
     ScheduledCutoff: DateTime
@@ -10,13 +11,13 @@ type NodeRedistributionState = {
 }
 
 type NodeEntityState = {
-    Id: string
+    Id: Guid
     LastHeartbeatAck: DateTime
     RedistributionState: NodeRedistributionState option
 }
 
 module NodeEntityState =
-    let [<Literal>] LIFETIME_SECONDS = 60
+    let [<Literal>] LIFETIME_SECONDS = Events.NODE_HEARTBEAT_FREQUENCY_SECS * 2
     let [<Literal>] REDISTRIBUTION_CUTOFF_SECONDS = 60
 
     let create id currentTime = {
@@ -48,30 +49,33 @@ type NodeEntity (env: IEnv) =
         dispatcher.DispatchAsync<NodeEntity>()
 
     override _.InitializeState operation =
-        NodeEntityState.create operation.Context.Id.Key DateTime.UtcNow
+        NodeEntityState.create (Guid operation.Context.Id.Key) DateTime.UtcNow
 
-    /// Check if the node has unexpectedly died, and if so, delete it.
+    /// Check if the node has unexpectedly died, and if so, notify orchestrator to release.
     member this.DeleteIfExpired () =
-        if not <| NodeEntityState.isAlive DateTime.UtcNow this.State then
-            this.Context.SignalEntity(this.Context.Id, "delete")
+        let id = this.State.Id
+        
+        match NodeEntityState.isAlive DateTime.UtcNow this.State with
+        | false -> task { do! env.Release id }
+        | true -> Task.FromResult ()
 
     /// Handle a heartbeat that signifies the node is still alive.
-    member this.Heartbeat () =
-        this.State <- NodeEntityState.heartbeat DateTime.UtcNow this.State
+    member this.Heartbeat heartbeatTime =
+        this.State <- NodeEntityState.heartbeat heartbeatTime this.State
 
         this.Context.SignalEntity(
             this.Context.Id,
             nameof this.DeleteIfExpired,
-            options = SignalEntityOptions(SignalTime = DateTime.UtcNow.AddSeconds(NodeEntityState.LIFETIME_SECONDS)))
+            options = SignalEntityOptions(SignalTime = heartbeatTime.AddSeconds(NodeEntityState.LIFETIME_SECONDS)))
 
     /// Release shards from the node immediately to restore dead shards.
     member this.Release () =
-        // TODO: Notify orchestrator that the shards are being released immediately
+        // TODO: Consider any additional behaviour needed here
         // TODO: Figure out how to disable any event processing from old (current) node in case it tries to restore itself
         this.Context.SignalEntity(this.Context.Id, "delete")
 
     /// Initiate redistribution of the node's shards to other nodes to ensure no downtime.
     member this.Redistribute () = 
-        // TODO: Trigger redistribution of this node's shards to other nodes
+        // TODO: Consider any additional behaviour needed here
         this.State <- NodeEntityState.initiateRedistribution DateTime.UtcNow this.State
         

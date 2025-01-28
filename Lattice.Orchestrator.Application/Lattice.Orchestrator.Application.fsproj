@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Common\Events.fs" />
     <Compile Include="Abstractions\IDiscord.fs" />
     <Compile Include="Abstractions\IPersistence.fs" />
     <Compile Include="Abstractions\INodeEntityClient.fs" />
@@ -20,8 +21,9 @@
     <Compile Include="Operations\Applications\RemoveApplicationHandlerCommand.fs" />
     <Compile Include="Operations\Applications\AddDisabledApplicationReasonCommand.fs" />
     <Compile Include="Operations\Applications\RemoveDisabledApplicationReasonCommand.fs" />
-    <Compile Include="Operations\Nodes\RegisterNodeCommand.fs" />
     <Compile Include="Operations\Nodes\HeartbeatNodeCommand.fs" />
+    <Compile Include="Operations\Nodes\ReleaseNodeCommand.fs" />
+    <Compile Include="Operations\Nodes\RedistributeNodeCommand.fs" />
     <Compile Include="Durables\NodeEntity.fs" />
   </ItemGroup>
 	
