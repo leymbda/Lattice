@@ -7,8 +7,8 @@ type RedistributeNodeCommandProps = {
 }
 
 module RedistributeNodeCommand =
-    let run (env: #INodeEntityClient) (props: RedistributeNodeCommandProps) = task {
+    let run (env: #IEvents) (props: RedistributeNodeCommandProps) = task {
         // TODO: Handle db logic
 
-        do! env.Redistribute props.NodeId
+        do! env.NodeRedistribute props.NodeId
     }

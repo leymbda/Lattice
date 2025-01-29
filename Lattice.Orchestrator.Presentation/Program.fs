@@ -1,4 +1,6 @@
-﻿open FSharp.Discord.Rest
+﻿open Azure.Identity
+open Azure.Messaging.EventGrid
+open FSharp.Discord.Rest
 open Lattice.Orchestrator.Application
 open Lattice.Orchestrator.Presentation
 open Microsoft.Azure.Cosmos
@@ -33,6 +35,7 @@ HostBuilder()
         !services.ConfigureFunctionsApplicationInsights()
         !services.AddSingleton<IDiscordClientFactory, DiscordClientFactory>()
         !services.AddSingleton<CosmosClient>(fun _ -> new CosmosClient(ctx.Configuration.GetValue<string>("CosmosDbConnectionString")))
+        !services.AddSingleton<EventGridPublisherClient>(fun _ -> new EventGridPublisherClient(Uri (ctx.Configuration.GetValue<string>("EventGridEndpoint")), DefaultAzureCredential()))
         !services.AddDurableTaskClient(fun builder -> !builder.UseGrpc())
         !services.AddSingleton<IEnv, Env>()
 

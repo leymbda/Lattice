@@ -22,7 +22,7 @@ type NodeHealthDurableEntity (env: IEnv) =
         let id = this.State.Id
         
         match NodeHealth.isAlive DateTime.UtcNow this.State with
-        | false -> task { do! env.Release id }
+        | false -> task { do! env.NodeRelease id }
         | true -> Task.FromResult ()
 
     /// Handle a heartbeat that signifies the node is still alive.

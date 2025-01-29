@@ -8,8 +8,8 @@ type HeartbeatNodeCommandProps = {
 }
 
 module HeartbeatNodeCommand =
-    let run (env: #INodeEntityClient) (props: HeartbeatNodeCommandProps) = task {
+    let run (env: #IEvents) (props: HeartbeatNodeCommandProps) = task {
         // TODO: Handle db logic (upsert as this also handles registration)
 
-        do! env.Heartbeat props.NodeId props.HeartbeatTime
+        do! env.NodeHeartbeat props.NodeId props.HeartbeatTime
     }

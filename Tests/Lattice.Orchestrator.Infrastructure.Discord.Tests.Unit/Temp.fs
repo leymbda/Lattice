@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Infrastructure
+﻿namespace Lattice.Orchestrator.Infrastructure.Discord
 
 open Microsoft.VisualStudio.TestTools.UnitTesting
 

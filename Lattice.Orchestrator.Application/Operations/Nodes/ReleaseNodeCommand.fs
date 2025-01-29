@@ -7,8 +7,8 @@ type ReleaseNodeCommandProps = {
 }
 
 module ReleaseNodeCommand =
-    let run (env: #INodeEntityClient) (props: ReleaseNodeCommandProps) = task {
+    let run (env: #IEvents) (props: ReleaseNodeCommandProps) = task {
         // TODO: Handle db logic
 
-        do! env.Release props.NodeId
+        do! env.NodeRelease props.NodeId
     }

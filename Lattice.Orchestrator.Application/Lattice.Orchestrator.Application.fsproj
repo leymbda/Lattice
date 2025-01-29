@@ -9,7 +9,7 @@
     <Compile Include="Common\Events.fs" />
     <Compile Include="Abstractions\IDiscord.fs" />
     <Compile Include="Abstractions\IPersistence.fs" />
-    <Compile Include="Abstractions\INodeEntityClient.fs" />
+    <Compile Include="Abstractions\IEvents.fs" />
     <Compile Include="Abstractions\IEnv.fs" />
     <Compile Include="Operations\Applications\RegisterApplicationCommand.fs" />
     <Compile Include="Operations\Applications\GetApplicationQuery.fs" />
