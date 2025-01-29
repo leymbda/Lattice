@@ -22,8 +22,6 @@
     <Compile Include="Responses\DisabledApplicationReasonResponse.fs" />
     <Compile Include="Responses\PrivilegedIntentsResponse.fs" />
     <Compile Include="Responses\ApplicationResponse.fs" />
-    <Compile Include="Responses\NodeResponse.fs" />
-    <Compile Include="Responses\NextNodeHeartbeatDueResponse.fs" />
     <Compile Include="Controllers\ApplicationController.fs" />
     <Compile Include="Controllers\HandlerController.fs" />
     <Compile Include="Controllers\DisabledReasonsController.fs" />

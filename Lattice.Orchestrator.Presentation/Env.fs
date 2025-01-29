@@ -43,18 +43,18 @@ type Env (discordClientFactory: IDiscordClientFactory, cosmosClient: CosmosClien
     interface INodeEntityClient with
         member _.Heartbeat nodeId heartbeatTime =
             durableTaskClient.Entities.SignalEntityAsync(
-                EntityInstanceId(nameof NodeEntity, nodeId.ToString()),
-                nameof Unchecked.defaultof<NodeEntity>.Heartbeat,
+                EntityInstanceId(nameof NodeHealthDurableEntity, nodeId.ToString()),
+                nameof Unchecked.defaultof<NodeHealthDurableEntity>.Heartbeat,
                 heartbeatTime)
 
         member _.Release nodeId =
             durableTaskClient.Entities.SignalEntityAsync(
-                EntityInstanceId(nameof NodeEntity, nodeId.ToString()),
-                nameof Unchecked.defaultof<NodeEntity>.Release)
+                EntityInstanceId(nameof NodeHealthDurableEntity, nodeId.ToString()),
+                nameof Unchecked.defaultof<NodeHealthDurableEntity>.Release)
             
         member _.Redistribute nodeId =
             durableTaskClient.Entities.SignalEntityAsync(
-                EntityInstanceId(nameof NodeEntity, nodeId.ToString()),
-                nameof Unchecked.defaultof<NodeEntity>.Redistribute)
+                EntityInstanceId(nameof NodeHealthDurableEntity, nodeId.ToString()),
+                nameof Unchecked.defaultof<NodeHealthDurableEntity>.Redistribute)
             
         // TODO: Thesse should probably be triggering event grid events to run operations instead of calling the entity directly
