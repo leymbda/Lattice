@@ -25,7 +25,7 @@
     <Compile Include="Controllers\ApplicationController.fs" />
     <Compile Include="Controllers\HandlerController.fs" />
     <Compile Include="Controllers\DisabledReasonsController.fs" />
-    <Compile Include="Messaging\EventGridHandler.fs" />
+    <Compile Include="Controllers\MessagingHandler.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 	

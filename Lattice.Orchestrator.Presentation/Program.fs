@@ -1,7 +1,9 @@
 ﻿open Azure.Identity
 open Azure.Messaging.EventGrid
+open Azure.Messaging.ServiceBus
 open FSharp.Discord.Rest
 open Lattice.Orchestrator.Application
+open Lattice.Orchestrator.Infrastructure.Discord
 open Lattice.Orchestrator.Presentation
 open Microsoft.Azure.Cosmos
 open Microsoft.Azure.Functions.Worker
@@ -36,8 +38,13 @@ HostBuilder()
         !services.AddSingleton<IDiscordClientFactory, DiscordClientFactory>()
         !services.AddSingleton<CosmosClient>(fun _ -> new CosmosClient(ctx.Configuration.GetValue<string>("CosmosDbConnectionString")))
         !services.AddSingleton<EventGridPublisherClient>(fun _ -> new EventGridPublisherClient(Uri (ctx.Configuration.GetValue<string>("EventGridEndpoint")), DefaultAzureCredential()))
+        !services.AddSingleton<ServiceBusClient>(fun _ -> new ServiceBusClient(ctx.Configuration.GetValue<string>("ServiceBusConnectionString")))
         !services.AddDurableTaskClient(fun builder -> !builder.UseGrpc())
+
         !services.AddSingleton<IEnv, Env>()
+        !services.AddSingleton<IDiscord>(fun sp -> sp.GetRequiredService<IEnv>() :> IDiscord)
+        !services.AddSingleton<IEvents>(fun sp -> sp.GetRequiredService<IEnv>() :> IEvents)
+        !services.AddSingleton<IPersistence>(fun sp -> sp.GetRequiredService<IEnv>() :> IPersistence)
 
         // Setup OpenAPI
         !services.AddSingleton<IOpenApiConfigurationOptions>(fun _ ->

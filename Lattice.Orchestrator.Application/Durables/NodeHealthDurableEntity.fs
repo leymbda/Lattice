@@ -7,7 +7,7 @@ open System
 open System.Threading.Tasks
 
 /// A durable entity to represent a node in the node pool.
-type NodeHealthDurableEntity (env: IEnv) =
+type NodeHealthDurableEntity (events: IEvents) =
     inherit TaskEntity<NodeHealth> ()
 
     [<Function(nameof NodeHealthDurableEntity)>]
@@ -22,7 +22,7 @@ type NodeHealthDurableEntity (env: IEnv) =
         let id = this.State.Id
         
         match NodeHealth.isAlive DateTime.UtcNow this.State with
-        | false -> task { do! env.NodeRelease id }
+        | false -> task { do! events.NodeRelease id }
         | true -> Task.FromResult ()
 
     /// Handle a heartbeat that signifies the node is still alive.

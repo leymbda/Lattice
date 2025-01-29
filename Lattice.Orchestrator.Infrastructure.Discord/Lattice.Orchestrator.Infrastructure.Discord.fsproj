@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Factories\DiscordClientFactory.fs" />
     <Compile Include="Models\ApplicationModel.fs" />
     <Compile Include="Discord.fs" />
   </ItemGroup>
