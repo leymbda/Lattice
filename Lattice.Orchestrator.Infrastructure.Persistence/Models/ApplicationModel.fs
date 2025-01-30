@@ -17,7 +17,7 @@ module ApplicationModel =
     let toDomain (model: ApplicationModel): Application =
         {
             Id = model.Id
-            DiscordBotToken = model.DiscordBotToken
+            EncryptedBotToken = model.DiscordBotToken
             PrivilegedIntents = PrivilegedIntentsModel.toDomain model.PrivilegedIntents
             DisabledReasons = DisabledApplicationReason.fromBitfield model.DisabledReasons
             Intents = model.Intents
@@ -28,7 +28,7 @@ module ApplicationModel =
     let fromDomain (application: Application): ApplicationModel =
         {
             Id = application.Id
-            DiscordBotToken = application.DiscordBotToken
+            DiscordBotToken = application.EncryptedBotToken
             PrivilegedIntents = PrivilegedIntentsModel.fromDomain application.PrivilegedIntents
             DisabledReasons = DisabledApplicationReason.toBitfield application.DisabledReasons
             Intents = application.Intents

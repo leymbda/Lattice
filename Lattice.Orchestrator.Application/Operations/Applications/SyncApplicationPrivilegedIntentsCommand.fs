@@ -20,8 +20,10 @@ module SyncApplicationPrivilegedIntentsCommand =
         | Error _ -> return Error SyncApplicationPrivilegedIntentsCommandError.ApplicationNotFound
         | Ok app ->
 
+        let discordBotToken = app.EncryptedBotToken // TODO: Decrypt with env.BotTokenEncryptionKey
+
         // Get the current privileged intents
-        match! env.GetApplicationInformation app.DiscordBotToken with
+        match! env.GetApplicationInformation discordBotToken with
         | None -> return Error SyncApplicationPrivilegedIntentsCommandError.InvalidToken
         | Some app when app.Id <> props.ApplicationId -> return Error SyncApplicationPrivilegedIntentsCommandError.DifferentBotToken
         | Some discordApp ->

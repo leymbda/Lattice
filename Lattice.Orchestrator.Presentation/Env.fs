@@ -63,4 +63,8 @@ type Env (
         member _.ClientId = configuration.GetValue<string>("DiscordClientId")
         member _.ClientSecret = configuration.GetValue<string>("DiscordClientSecret")
 
+        member _.UserAccessTokenEncryptionKey = configuration.GetValue<string>("UserAccessTokenEncryptionKey")
+        member _.UserRefreshTokenEncryptionKey = configuration.GetValue<string>("UserRefreshTokenEncryptionKey")
+        member _.BotTokenEncryptionKey = configuration.GetValue<string>("BotTokenEncryptionKey")
+
     // TODO: Create options instead of accessing configuration directly (which will also clean up IDiscord.ExchangeCodeForAccessToken) 

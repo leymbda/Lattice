@@ -11,13 +11,15 @@ type RegisterApplicationCommandError =
     | RegistrationFailed
 
 module RegisterApplicationCommand =
-    let run (env: #IDiscord & #IPersistence) (props: RegisterApplicationCommandProps) = task {
+    let run (env: #IDiscord & #IPersistence & #ISecrets) (props: RegisterApplicationCommandProps) = task {
         // Validate application with Discord
         match! env.GetApplicationInformation props.DiscordBotToken with
         | None -> return Error RegisterApplicationCommandError.InvalidToken
         | Some discordApplication ->
 
         // Create application and save to db
+        let encryptedBotToken = props.DiscordBotToken // TODO: Encrypt with env.BotTokenEncryptionKey
+
         let privilegedIntents =
             {
                 MessageContent = discordApplication.HasMessageContentIntent
@@ -28,7 +30,7 @@ module RegisterApplicationCommand =
                 PresenceLimited = discordApplication.HasPresenceLimitedIntent
             }
 
-        let application = Application.create discordApplication.Id props.DiscordBotToken privilegedIntents
+        let application = Application.create discordApplication.Id encryptedBotToken privilegedIntents
 
         match! env.UpsertApplication application with
         | Error _ -> return Error RegisterApplicationCommandError.RegistrationFailed

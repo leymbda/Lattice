@@ -18,7 +18,7 @@ type UpdateApplicationCommandError =
     | UpdateFailed
 
 module UpdateApplicationCommand =
-    let run (env: #IDiscord & #IPersistence) (props: UpdateApplicationCommandProps) = task {
+    let run (env: #IDiscord & #IPersistence & #ISecrets) (props: UpdateApplicationCommandProps) = task {
         // Get current application from db
         match! env.GetApplicationById props.ApplicationId with
         | Error _ -> return Error UpdateApplicationCommandError.ApplicationNotFound
@@ -40,9 +40,11 @@ module UpdateApplicationCommand =
         | None ->
 
         // Update provided properties
+        let encryptedBotToken = props.DiscordBotToken // TODO: Encrypt with env.BotTokenEncryptionKey
+
         let updatedApp =
             app
-            |> Option.foldBack (fun discordBotToken app -> Application.setDiscordBotToken discordBotToken app) props.DiscordBotToken
+            |> Option.foldBack (fun encryptedBotToken app -> Application.setEncryptedBotToken encryptedBotToken app) encryptedBotToken
             |> Option.foldBack (fun disabledReasons app -> Application.setDisabledReasons disabledReasons app) props.DisabledReasons
             |> Option.foldBack (fun intents app -> Application.setIntents intents app) props.Intents
             |> Option.foldBack (fun shardCount app -> Application.setProvisionedShardCount shardCount app) props.ShardCount

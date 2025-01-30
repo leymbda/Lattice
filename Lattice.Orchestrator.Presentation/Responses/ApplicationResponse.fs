@@ -30,7 +30,7 @@ type ApplicationResponse (id, discordBotToken, privilegedIntents, disabledReason
 module ApplicationResponse =
     let fromDomain (application: Application) =
         ApplicationResponse(application.Id,
-            application.DiscordBotToken,
+            application.EncryptedBotToken,
             PrivilegedIntentsResponse.fromDomain application.PrivilegedIntents,
             DisabledApplicationReason.toBitfield application.DisabledReasons,
             application.Intents,

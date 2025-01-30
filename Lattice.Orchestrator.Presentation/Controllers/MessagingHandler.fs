@@ -8,7 +8,7 @@ open System
 
 type MessagingHandler (env: IEnv) =
     [<Function "EventGridEvents">]
-    member _.Run ([<EventGridTrigger>] event: EventGridEvent) = task {
+    member _.EventGridEvents ([<EventGridTrigger>] event: EventGridEvent) = task {
         match event.Topic with
         | Events.NODE_HEARTBEAT ->
             do! HeartbeatNodeCommand.run env {

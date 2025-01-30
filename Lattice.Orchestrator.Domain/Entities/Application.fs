@@ -2,7 +2,7 @@
 
 type Application = {
     Id:                    string
-    DiscordBotToken:       string
+    EncryptedBotToken:     string
     PrivilegedIntents:     PrivilegedIntents
     DisabledReasons:       DisabledApplicationReason list
     Intents:               int
@@ -11,10 +11,10 @@ type Application = {
 }
 
 module Application =
-    let create id discordBotToken privilegedIntents =
+    let create id encryptedBotToken privilegedIntents =
         {
             Id = id
-            DiscordBotToken = discordBotToken
+            EncryptedBotToken = encryptedBotToken
             PrivilegedIntents = privilegedIntents
             DisabledReasons = []
             Intents = 0
@@ -22,8 +22,8 @@ module Application =
             Handler = None
         }
         
-    let setDiscordBotToken discordBotToken (app: Application) =
-        { app with DiscordBotToken = discordBotToken }
+    let setEncryptedBotToken encryptedBotToken (app: Application) =
+        { app with EncryptedBotToken = encryptedBotToken }
 
     let setPrivilegedIntents privilegedIntents (app: Application) =
         { app with PrivilegedIntents = privilegedIntents }

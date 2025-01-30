@@ -12,7 +12,7 @@ type LoginCommandError =
     | LoginFailed
 
 module LoginCommand =
-    let run (env: #IDiscord & #IPersistence) (props: LoginCommandProps) = task {
+    let run (env: #IDiscord & #IPersistence & #ISecrets) (props: LoginCommandProps) = task {
         // Exchange code for token
         match! env.ExchangeCodeForAccessToken props.RedirectUri props.Code with
         | None -> return Error LoginCommandError.CodeExchangeFailed
@@ -24,7 +24,10 @@ module LoginCommand =
         | Some discordUser ->
 
         // Save user to db
-        let user = User.create discordUser.Id token.AccessToken token.RefreshToken
+        let encryptedAccessToken = token.AccessToken // TODO: Encrypt with env.UserAccessTokenEncryptionKey
+        let encryptedRefreshToken = token.RefreshToken // TODO: Encrypt with env.UserRefreshTokenEncryptionKey
+
+        let user = User.create discordUser.Id encryptedAccessToken encryptedRefreshToken
 
         match! env.UpsertUser user with
         | Error _ -> return Error LoginCommandError.LoginFailed

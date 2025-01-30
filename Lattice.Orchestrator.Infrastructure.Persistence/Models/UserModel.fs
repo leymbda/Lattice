@@ -1,7 +1,6 @@
 ﻿namespace Lattice.Orchestrator.Infrastructure.Persistence
 
 open Lattice.Orchestrator.Domain
-open System
 open System.Text.Json.Serialization
 
 type UserModel = {
@@ -13,13 +12,13 @@ type UserModel = {
 module UserModel =
     let toDomain (model: UserModel): User = {
         Id = model.Id
-        AccessToken = model.AccessToken
-        RefreshToken = model.RefreshToken
+        EncryptedAccessToken = model.AccessToken
+        EncryptedRefreshToken = model.RefreshToken
     }
 
     let fromDomain (user: User): UserModel = {
         Id = user.Id
-        AccessToken = user.AccessToken
-        RefreshToken = user.RefreshToken
+        AccessToken = user.EncryptedAccessToken
+        RefreshToken = user.EncryptedRefreshToken
     }
     

@@ -2,13 +2,19 @@
 
 type User = {
     Id: string
-    AccessToken: string
-    RefreshToken: string
+    EncryptedAccessToken: string
+    EncryptedRefreshToken: string
 }
 
 module User =
-    let create id accessToken refreshToken = {
+    let create id encryptedAccessToken encryptedRefreshToken = {
         Id = id
-        AccessToken = accessToken
-        RefreshToken = refreshToken
+        EncryptedAccessToken = encryptedAccessToken
+        EncryptedRefreshToken = encryptedRefreshToken
     }
+
+    let setEncryptedAccessToken encryptedAccessToken (user: User) =
+        { user with EncryptedAccessToken = encryptedAccessToken }
+
+    let setEncryptedRefreshToken encryptedRefreshToken (user: User) =
+        { user with EncryptedRefreshToken = encryptedRefreshToken }
