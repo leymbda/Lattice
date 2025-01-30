@@ -2,6 +2,16 @@
 
 open System.Threading.Tasks
 
+type IDiscordToken =
+    abstract AccessToken: string
+    abstract TokenType: string
+    abstract ExpiresIn: int
+    abstract RefreshToken: string
+    abstract Scope: string list
+
+type IDiscordUser =
+    abstract Id: string
+
 type IDiscordApplication =
     abstract Id: string
     abstract HasPresenceIntent: bool
@@ -12,4 +22,6 @@ type IDiscordApplication =
     abstract HasMessageContentLimitedIntent: bool
 
 type IDiscord =
-    abstract GetApplicationInformation: token: string -> Task<IDiscordApplication option>
+    abstract ExchangeCodeForAccessToken: redirectUri: string -> code: string -> Task<IDiscordToken option>
+    abstract GetUserInformation: accessToken: string -> Task<IDiscordUser option>
+    abstract GetApplicationInformation: botToken: string -> Task<IDiscordApplication option>

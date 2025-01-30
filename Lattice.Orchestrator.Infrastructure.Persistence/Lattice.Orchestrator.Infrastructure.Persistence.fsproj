@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Models\UserModel.fs" />
     <Compile Include="Models\HandlerModel.fs" />
     <Compile Include="Models\PrivilegedIntentsModel.fs" />
     <Compile Include="Models\ApplicationModel.fs" />

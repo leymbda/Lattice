@@ -7,6 +7,7 @@ type ErrorCode =
     | NODE_NOT_FOUND = 2002
     | INVALID_TOKEN = 3000
     | DIFFERENT_BOT_TOKEN = 3001
+    | INVALID_OAUTH_CODE = 3002
 
 module ErrorCode =
     let getMessage (code: ErrorCode) =
@@ -17,4 +18,5 @@ module ErrorCode =
         | ErrorCode.NODE_NOT_FOUND -> "Node not found"
         | ErrorCode.INVALID_TOKEN -> "Invalid Discord bot token provided"
         | ErrorCode.DIFFERENT_BOT_TOKEN -> "Provided Discord bot token is for a different application"
+        | ErrorCode.INVALID_OAUTH_CODE -> "Invalid OAuth code provided"
         | _ -> "Unknown error"

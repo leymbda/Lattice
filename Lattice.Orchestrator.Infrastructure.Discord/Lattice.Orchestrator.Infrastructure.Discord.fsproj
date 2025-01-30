@@ -7,13 +7,15 @@
 
   <ItemGroup>
     <Compile Include="Factories\DiscordClientFactory.fs" />
+    <Compile Include="Models\UserModel.fs" />
     <Compile Include="Models\ApplicationModel.fs" />
+    <Compile Include="Models\TokenModel.fs" />
     <Compile Include="Discord.fs" />
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FSharp.Discord" Version="0.0.8" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
+		<PackageReference Include="FSharp.Discord" Version="0.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -9,6 +9,7 @@
     <Compile Include="Enums\DisabledApplicationReason.fs" />
     <Compile Include="Types\PrivilegedIntents.fs" />
     <Compile Include="Types\Bid.fs" />
+    <Compile Include="Entities\User.fs" />
     <Compile Include="Entities\Handler.fs" />
     <Compile Include="Entities\Application.fs" />
     <Compile Include="Entities\Node.fs" />

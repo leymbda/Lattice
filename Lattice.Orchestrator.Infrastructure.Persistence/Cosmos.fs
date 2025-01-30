@@ -6,9 +6,13 @@ open System
 open System.Threading.Tasks
 
 let [<Literal>] COSMOS_DATABASE_NAME = "lattice-db"
+let [<Literal>] USER_CONTAINER_NAME = "users"
 let [<Literal>] APPLICATION_CONTAINER_NAME = "applications"
 let [<Literal>] NODE_CONTAINER_NAME = "nodes"
 let [<Literal>] SHARD_CONTAINER_NAME = "shards"
+
+let getUserContainer (cosmosClient: CosmosClient) =
+    cosmosClient.GetContainer(COSMOS_DATABASE_NAME, USER_CONTAINER_NAME)
 
 let getApplicationContainer (cosmosClient: CosmosClient) =
     cosmosClient.GetContainer(COSMOS_DATABASE_NAME, APPLICATION_CONTAINER_NAME)
@@ -18,6 +22,18 @@ let getNodeContainer (cosmosClient: CosmosClient) =
 
 let getShardContainer (cosmosClient: CosmosClient) =
     cosmosClient.GetContainer(COSMOS_DATABASE_NAME, SHARD_CONTAINER_NAME)
+
+let upsertUser (cosmosClient) (user: Lattice.Orchestrator.Domain.User) = task {
+    let container = getUserContainer cosmosClient
+
+    // TODO: Handle excrypting tokens at rest
+
+    try
+        let! res = container.UpsertItemAsync<UserModel>(UserModel.fromDomain user, PartitionKey user.Id)
+        return res.Resource |> UserModel.toDomain |> Ok
+    with | _ ->
+        return Error ()
+}
 
 let getApplicationById (cosmosClient: CosmosClient) id = task {
     let container = getApplicationContainer cosmosClient
@@ -31,6 +47,8 @@ let getApplicationById (cosmosClient: CosmosClient) id = task {
 
 let upsertApplication (cosmosClient: CosmosClient) application = task {
     let container = getApplicationContainer cosmosClient
+
+    // TODO: Handle encrypting bot token at rest
 
     try
         let! res = container.UpsertItemAsync<ApplicationModel>(ApplicationModel.fromDomain application, PartitionKey application.Id)
