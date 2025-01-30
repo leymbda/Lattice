@@ -1,6 +1,7 @@
 ﻿namespace Lattice.Orchestrator.Application
 
 open Lattice.Orchestrator.Domain
+open System
 
 type LoginCommandProps = {
     Code: string
@@ -34,8 +35,10 @@ module LoginCommand =
         | Ok user ->
 
         // Generate JWT
+        let token =
+            TokenClaims.create user.Id DateTime.UtcNow
+            |> Jwt.create
+            |> Jwt.encode env.JwtEncryptionKey
 
-        // TODO: Generate JWT and return it
-
-        return Ok ""
+        return Ok token
     }

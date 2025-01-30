@@ -7,3 +7,5 @@ type ISecrets =
     abstract UserAccessTokenEncryptionKey: string
     abstract UserRefreshTokenEncryptionKey: string
     abstract BotTokenEncryptionKey: string
+
+    abstract JwtEncryptionKey: string

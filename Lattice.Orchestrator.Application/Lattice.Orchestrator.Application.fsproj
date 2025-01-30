@@ -11,6 +11,8 @@
     <Compile Include="Abstractions\IEvents.fs" />
     <Compile Include="Abstractions\IPersistence.fs" />
     <Compile Include="Abstractions\ISecrets.fs" />
+    <Compile Include="Types\TokenClaims.fs" />
+    <Compile Include="Modules\Jwt.fs" />
     <Compile Include="Operations\Auth\LoginCommand.fs" />
     <Compile Include="Operations\Applications\RegisterApplicationCommand.fs" />
     <Compile Include="Operations\Applications\GetApplicationQuery.fs" />
