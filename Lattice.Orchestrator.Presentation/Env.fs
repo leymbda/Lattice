@@ -65,6 +65,6 @@ type Env (
         member _.UserRefreshTokenEncryptionKey = configuration.GetValue<string>("UserRefreshTokenEncryptionKey")
         member _.BotTokenEncryptionKey = configuration.GetValue<string>("BotTokenEncryptionKey")
 
-        member _.JwtEncryptionKey = configuration.GetValue<string>("JwtEncryptionKey")
+        member _.JwtHashingKey = configuration.GetValue<string>("JwtHashingKey")
 
     // TODO: Create options instead of accessing configuration directly (which will also clean up IDiscord.ExchangeCodeForAccessToken) 

@@ -8,4 +8,4 @@ type ISecrets =
     abstract UserRefreshTokenEncryptionKey: string
     abstract BotTokenEncryptionKey: string
 
-    abstract JwtEncryptionKey: string
+    abstract JwtHashingKey: string

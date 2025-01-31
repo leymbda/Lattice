@@ -14,13 +14,13 @@ type SyncApplicationPrivilegedIntentsCommandError =
     | UpdateFailed
 
 module SyncApplicationPrivilegedIntentsCommand =
-    let run (env: #IDiscord & #IPersistence) (props: SyncApplicationPrivilegedIntentsCommandProps) = task {
+    let run (env: #IDiscord & #IPersistence & #ISecrets) (props: SyncApplicationPrivilegedIntentsCommandProps) = task {
         // Get current application from db
         match! env.GetApplicationById props.ApplicationId with
         | Error _ -> return Error SyncApplicationPrivilegedIntentsCommandError.ApplicationNotFound
         | Ok app ->
 
-        let discordBotToken = app.EncryptedBotToken // TODO: Decrypt with env.BotTokenEncryptionKey
+        let discordBotToken = app.EncryptedBotToken |> Aes.decrypt env.BotTokenEncryptionKey
 
         // Get the current privileged intents
         match! env.GetApplicationInformation discordBotToken with

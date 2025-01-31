@@ -18,14 +18,10 @@ module SetWebhookApplicationHandlerCommand =
         | Error _ -> return Error SetWebhookApplicationHandlerCommandError.ApplicationNotFound
         | Ok app ->
 
-        // Create ed25519 key pair
-        let publicKey = ""
-        let privateKey = ""
-
-        // TODO: Implement actual ed25519 key pair generation
-        
         // Add handler to application
-        let handler = Handler.WEBHOOK (WebhookHandler.create props.Endpoint publicKey privateKey)
+        let ed25519 = Ed25519.generate()
+
+        let handler = Handler.WEBHOOK (WebhookHandler.create props.Endpoint ed25519.PublicKey ed25519.PrivateKey)
         let updatedApp = app |> Application.setHandler handler
 
         match! env.UpsertApplication updatedApp with

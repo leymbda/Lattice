@@ -12,6 +12,7 @@
     <Compile Include="Abstractions\IPersistence.fs" />
     <Compile Include="Abstractions\ISecrets.fs" />
     <Compile Include="Types\TokenClaims.fs" />
+    <Compile Include="Modules\Crypto.fs" />
     <Compile Include="Modules\Jwt.fs" />
     <Compile Include="Operations\Auth\LoginCommand.fs" />
     <Compile Include="Operations\Applications\RegisterApplicationCommand.fs" />

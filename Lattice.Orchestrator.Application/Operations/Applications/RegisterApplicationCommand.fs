@@ -18,7 +18,7 @@ module RegisterApplicationCommand =
         | Some discordApplication ->
 
         // Create application and save to db
-        let encryptedBotToken = props.DiscordBotToken // TODO: Encrypt with env.BotTokenEncryptionKey
+        let encryptedBotToken = props.DiscordBotToken |> Aes.encrypt env.BotTokenEncryptionKey
 
         let privilegedIntents =
             {

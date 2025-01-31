@@ -40,7 +40,7 @@ module UpdateApplicationCommand =
         | None ->
 
         // Update provided properties
-        let encryptedBotToken = props.DiscordBotToken // TODO: Encrypt with env.BotTokenEncryptionKey
+        let encryptedBotToken = props.DiscordBotToken |> Option.map (Aes.encrypt env.BotTokenEncryptionKey)
 
         let updatedApp =
             app

@@ -25,8 +25,8 @@ module LoginCommand =
         | Some discordUser ->
 
         // Save user to db
-        let encryptedAccessToken = token.AccessToken // TODO: Encrypt with env.UserAccessTokenEncryptionKey
-        let encryptedRefreshToken = token.RefreshToken // TODO: Encrypt with env.UserRefreshTokenEncryptionKey
+        let encryptedAccessToken = token.AccessToken |> Aes.encrypt env.UserAccessTokenEncryptionKey
+        let encryptedRefreshToken = token.RefreshToken |> Aes.encrypt env.UserRefreshTokenEncryptionKey
 
         let user = User.create discordUser.Id encryptedAccessToken encryptedRefreshToken
 
@@ -38,7 +38,7 @@ module LoginCommand =
         let token =
             TokenClaims.create user.Id DateTime.UtcNow
             |> Jwt.create
-            |> Jwt.encode env.JwtEncryptionKey
+            |> Jwt.encode env.JwtHashingKey
 
         return Ok token
     }
