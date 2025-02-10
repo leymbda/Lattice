@@ -1,8 +1,9 @@
-﻿module Lattice.Web
+﻿module Lattice.Web.App
 
 open Browser.Dom
 open Feliz
 open Feliz.Router
+open Lattice.Web.Pages
 
 [<ReactComponent>]
 let Router () =
@@ -13,8 +14,16 @@ let Router () =
         router.onUrlChanged updateUrl
         router.children [
             match currentUrl with
-            | [] -> Html.text "Hello world"
-            | _ -> Html.text "Not Found"
+            // Home page
+            | [] -> Index.Index()
+
+            // Authentication
+            | ["auth"; "login"; Route.Query ["code", code; "state", state]] -> Auth.Callback code state
+            | ["auth"; "login"]
+            | ["auth"; "login"; _]-> Auth.Login()
+
+            // Fallback
+            | _ -> NotFound.NotFound()
         ]
     ]
 
