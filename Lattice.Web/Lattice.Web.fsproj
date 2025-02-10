@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Contexts\StateContext.fs" />
     <Compile Include="Pages\Index.fs" />
     <Compile Include="Pages\Auth.fs" />
     <Compile Include="Pages\Fallback.fs" />
@@ -19,6 +20,7 @@
     <PackageReference Include="Fable.Core" Version="4.3.0" />
     <PackageReference Include="Feliz" Version="2.9.0" />
     <PackageReference Include="Feliz.Router" Version="4.0.0" />
+    <PackageReference Include="Feliz.UseElmish" Version="2.5.0" />
   </ItemGroup>
 
 </Project>

@@ -2,19 +2,19 @@
 
 open Browser.Dom
 open Feliz
-
-let [<Literal>] STATE_KEY = "state"
+open Lattice.Web
 
 [<ReactComponent>]
 let Login () =
+    let _, dispatch = React.useContext StateContext.context
+
     React.useEffect((fun () ->
         let state = "" // TODO: Generate random secure state here
+        StateContext.Msg.Set state |> dispatch
 
-        window.sessionStorage.setItem(STATE_KEY, state)
         window.location.href <- "https://discord.com/oauth2/authorize?client_id=1169979466303418368&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A4280%2Fauth%2Flogin&scope=identify"
 
         // TODO: Make redirect URL a configuration value (also create & use builder function in FSharp.Discord.Utils?)
-        // TODO: Create react context for state to abstract away session storage
     ), [||])
 
     Html.div [
@@ -23,19 +23,21 @@ let Login () =
     
 [<ReactComponent>]
 let Callback code state =
+    let savedState, dispatch = React.useContext StateContext.context
+
     let loading, setLoading = React.useState true
     let success, setSuccess = React.useState false
 
     React.useEffect((fun () ->
-        let sessionState = window.sessionStorage.getItem STATE_KEY
-
-        if state = sessionState then
-            window.sessionStorage.removeItem STATE_KEY
+        match state, savedState.State with
+        | state, Some saved when state = saved ->
+            StateContext.Msg.Clear |> dispatch
 
             // TODO: Create api client to handle interacting with lattice orchestrator
             // TODO: Send code to server to exchange for token (then store it in local storage, abstracted away with react context)
 
             setSuccess true
+        | _ -> ()
 
         setLoading false
     ), [||])

@@ -30,9 +30,15 @@ let Router () =
 
 [<ReactComponent>]
 let App () =
-    // TODO: Initialise contexts here
+    // Providers listed in order of wrapping (outermost to innermost)
+    let providers = [
+        StateContext.Provider
+    ]
 
-    Router()
+    // Fold providers into router to render
+    providers
+    |> List.rev
+    |> List.fold (fun acc provider -> provider [ acc ]) (Router ())
 
 ReactDOM
     .createRoot(document.getElementById "root")
