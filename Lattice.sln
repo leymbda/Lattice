@@ -33,6 +33,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infras
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Infrastructure.Messaging.Tests.Unit", "Tests\Lattice.Orchestrator.Infrastructure.Messaging.Tests.Unit\Lattice.Orchestrator.Infrastructure.Messaging.Tests.Unit.fsproj", "{F6553E3C-FAE7-47A4-BC5B-9F22852EDD6D}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Web", "Lattice.Web\Lattice.Web.fsproj", "{7F8581DA-F04C-4FE0-A1D1-E35D3DC8AF00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,10 @@ Global
 		{F6553E3C-FAE7-47A4-BC5B-9F22852EDD6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6553E3C-FAE7-47A4-BC5B-9F22852EDD6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6553E3C-FAE7-47A4-BC5B-9F22852EDD6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F8581DA-F04C-4FE0-A1D1-E35D3DC8AF00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F8581DA-F04C-4FE0-A1D1-E35D3DC8AF00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F8581DA-F04C-4FE0-A1D1-E35D3DC8AF00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F8581DA-F04C-4FE0-A1D1-E35D3DC8AF00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

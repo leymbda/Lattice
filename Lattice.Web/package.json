@@ -1,0 +1,17 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "vite": "^6.0.1"
+  },
+  "scripts": {
+    "start": "dotnet fable watch . --sourceMaps --run vite",
+    "build": "dotnet fable . --sourceMaps --run vite build",
+    "serve": "vite serve"
+  }
+}
