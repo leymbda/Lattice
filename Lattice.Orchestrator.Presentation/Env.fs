@@ -8,7 +8,6 @@ open Lattice.Orchestrator.Infrastructure.Messaging
 open Lattice.Orchestrator.Infrastructure.Persistence
 open FSharp.Discord.Rest
 open Microsoft.Azure.Cosmos
-open Microsoft.Extensions.Configuration
 
 type IEnv =
     inherit IDiscord
@@ -17,7 +16,7 @@ type IEnv =
     inherit ISecrets
 
 type Env (
-    configuration: IConfiguration,
+    secrets: SecretsOptions,
     discordClientFactory: IDiscordClientFactory,
     cosmosClient: CosmosClient,
     eventGridPublisherClient: EventGridPublisherClient,
@@ -28,13 +27,7 @@ type Env (
     interface IDiscord with
         member _.GetApplicationInformation botToken = Discord.getApplicationInformation discordClientFactory botToken
         member _.GetUserInformation accessToken = Discord.getUserInformation discordClientFactory accessToken
-        member _.ExchangeCodeForAccessToken redirectUri code =
-            Discord.exchangeCodeForAccessToken
-                discordClientFactory
-                (configuration.GetValue<string>("DiscordClientId"))
-                (configuration.GetValue<string>("DiscordClientSecret"))
-                redirectUri
-                code
+        member _.ExchangeCodeForAccessToken redirectUri code = Discord.exchangeCodeForAccessToken discordClientFactory secrets.DiscordClientId secrets.DiscordClientSecret redirectUri code
 
     interface IEvents with
         member _.NodeHeartbeat nodeId heartbeatTime = EventGrid.nodeHeartbeat eventGridPublisherClient nodeId heartbeatTime
@@ -58,13 +51,11 @@ type Env (
         member _.DeleteShardById id = Cosmos.deleteShardById cosmosClient id
         
     interface ISecrets with
-        member _.ClientId = configuration.GetValue<string>("DiscordClientId")
-        member _.ClientSecret = configuration.GetValue<string>("DiscordClientSecret")
+        member _.ClientId = secrets.DiscordClientId
+        member _.ClientSecret = secrets.DiscordClientSecret
 
-        member _.UserAccessTokenEncryptionKey = configuration.GetValue<string>("UserAccessTokenEncryptionKey")
-        member _.UserRefreshTokenEncryptionKey = configuration.GetValue<string>("UserRefreshTokenEncryptionKey")
-        member _.BotTokenEncryptionKey = configuration.GetValue<string>("BotTokenEncryptionKey")
+        member _.UserAccessTokenEncryptionKey = secrets.UserAccessTokenEncryptionKey
+        member _.UserRefreshTokenEncryptionKey = secrets.UserRefreshTokenEncryptionKey
+        member _.BotTokenEncryptionKey = secrets.BotTokenEncryptionKey
 
-        member _.JwtHashingKey = configuration.GetValue<string>("JwtHashingKey")
-
-    // TODO: Create options instead of accessing configuration directly (which will also clean up IDiscord.ExchangeCodeForAccessToken) 
+        member _.JwtHashingKey = secrets.JwtHashingKey

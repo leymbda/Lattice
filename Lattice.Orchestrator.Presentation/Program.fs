@@ -27,18 +27,21 @@ HostBuilder()
         !builder
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("local.settings.json", true)
+            .AddJsonFile("appsettings.json", true)
             .AddEnvironmentVariables()
     )
     .ConfigureServices(fun ctx services ->
-        // Register services
+        !services.Configure<SecretsOptions>(ctx.Configuration.GetSection(nameof SecretsOptions))
+
         !services.AddHttpClient()
         !services.AddLogging()
         !services.AddApplicationInsightsTelemetryWorkerService()
         !services.ConfigureFunctionsApplicationInsights()
+
         !services.AddSingleton<IDiscordClientFactory, DiscordClientFactory>()
-        !services.AddSingleton<CosmosClient>(fun _ -> new CosmosClient(ctx.Configuration.GetValue<string>("CosmosDbConnectionString")))
-        !services.AddSingleton<EventGridPublisherClient>(fun _ -> new EventGridPublisherClient(Uri (ctx.Configuration.GetValue<string>("EventGridEndpoint")), DefaultAzureCredential()))
-        !services.AddSingleton<ServiceBusClient>(fun _ -> new ServiceBusClient(ctx.Configuration.GetValue<string>("ServiceBusConnectionString")))
+        !services.AddSingleton<CosmosClient>(fun _ -> new CosmosClient(ctx.Configuration.GetValue<string>("CosmosDb")))
+        !services.AddSingleton<EventGridPublisherClient>(fun sp -> new EventGridPublisherClient(Uri (ctx.Configuration.GetValue<string>("EventGridEndpoint")), DefaultAzureCredential()))
+        !services.AddSingleton<ServiceBusClient>(fun _ -> new ServiceBusClient(ctx.Configuration.GetValue<string>("ServiceBus")))
         !services.AddDurableTaskClient(fun builder -> !builder.UseGrpc())
 
         !services.AddSingleton<IEnv, Env>()
