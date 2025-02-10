@@ -29,9 +29,9 @@ let Provider (children: ReactElement seq) =
     React.useEffect ((fun () ->
         let key = "state"
 
-        match state with
-        | { State = Some s } -> window.sessionStorage.setItem(key, s)
-        | { State = None } -> window.sessionStorage.removeItem key
+        match state.State with
+        | Some s -> window.sessionStorage.setItem(key, s)
+        | None -> window.sessionStorage.removeItem key
     ), [| box state |])
 
     React.contextProvider(context, (state, dispatch), children)
