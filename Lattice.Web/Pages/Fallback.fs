@@ -1,4 +1,4 @@
-﻿module Lattice.Web.Pages.NotFound
+﻿module Lattice.Web.Pages.Fallback
 
 open Feliz
 

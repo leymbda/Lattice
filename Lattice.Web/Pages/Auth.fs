@@ -11,8 +11,9 @@ let Login () =
         let state = "" // TODO: Generate random secure state here
 
         window.sessionStorage.setItem(STATE_KEY, state)
-        // window.location.href <- "https://google.com" // TODO: Redirect to discord application
+        window.location.href <- "https://discord.com/oauth2/authorize?client_id=1169979466303418368&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A4280%2Fauth%2Flogin&scope=identify"
 
+        // TODO: Make redirect URL a configuration value (also create & use builder function in FSharp.Discord.Utils?)
         // TODO: Create react context for state to abstract away session storage
     ), [||])
 
@@ -21,33 +22,30 @@ let Login () =
     ]
     
 [<ReactComponent>]
-let Callback (code: string) (state: string) =
-    let (loading, setLoading) = React.useState true
-    let (success, setSuccess) = React.useState false
+let Callback code state =
+    let loading, setLoading = React.useState true
+    let success, setSuccess = React.useState false
 
     React.useEffect((fun () ->
         let sessionState = window.sessionStorage.getItem STATE_KEY
 
-        match state with
-        | state when state = sessionState && code <> "" ->
+        if state = sessionState then
             window.sessionStorage.removeItem STATE_KEY
 
-            // TODO: Send code to server to exchange for token
+            // TODO: Create api client to handle interacting with lattice orchestrator
+            // TODO: Send code to server to exchange for token (then store it in local storage, abstracted away with react context)
 
-        | _ ->
-            setSuccess false
+            setSuccess true
 
         setLoading false
     ), [||])
 
-    let text =
-        if loading then
-            "Loading..."
-        elif not success then
-            "Invalid request"
-        else
-            "Success!"
+    let message =
+        match loading, success with
+        | true, _ -> "Loading..."
+        | false, false -> "Invalid request"
+        | false, true -> "Success!"
 
     Html.div [
-        Html.text text
+        Html.text message
     ]

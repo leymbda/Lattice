@@ -8,7 +8,7 @@
   <ItemGroup>
     <Compile Include="Pages\Index.fs" />
     <Compile Include="Pages\Auth.fs" />
-    <Compile Include="Pages\NotFound.fs" />
+    <Compile Include="Pages\Fallback.fs" />
     <Compile Include="App.fs" />
     <None Include="index.html" CopyToOutputDirectory="Always" />
     <None Include="staticwebapp.config.json" CopyToOutputDirectory="Always" />
