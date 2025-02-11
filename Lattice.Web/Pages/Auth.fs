@@ -3,18 +3,25 @@
 open Browser.Dom
 open Feliz
 open Lattice.Web
+open System.Security.Cryptography
+open System.Web
 
 [<ReactComponent>]
 let Login () =
     let _, dispatch = React.useContext StateContext.context
 
     React.useEffect((fun () ->
-        let state = "" // TODO: Generate random secure state here
+        // Create state for CSRF protection
+        let state = RandomNumberGenerator.GetHexString 16
         StateContext.Msg.Set state |> dispatch
 
-        window.location.href <- "https://discord.com/oauth2/authorize?client_id=1169979466303418368&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A4280%2Fauth%2Flogin&scope=identify"
+        // Redirect to oauth authorization page
+        let authorizeUrl (clientId: string) (redirectUri: string) (scopes: string list) =
+            $"""https://discord.com/oauth2/authorize?client_id={clientId}&response_type=code&redirect_uri={HttpUtility.UrlEncode redirectUri}&scope={scopes |> String.concat "+"}"""
+            // TODO: Implement this kind of function in FSharp.Discord then use here
+            // TODO: Figure out how to use environment variables to set client ID and redirect URI
 
-        // TODO: Make redirect URL a configuration value (also create & use builder function in FSharp.Discord.Utils?)
+        window.location.href <- authorizeUrl "1169979466303418368" "http://localhost:4280/auth/login" ["identify"]
     ), [||])
 
     Html.div [
