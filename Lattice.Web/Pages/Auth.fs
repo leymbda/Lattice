@@ -2,10 +2,11 @@
 
 open Browser.Dom
 open Feliz
+open FSharp.Discord.Types
+open FSharp.Discord.Utils
 open Lattice.Web
 open System.Net.Http
 open System.Security.Cryptography
-open System.Web
 
 let [<Literal>] CLIENT_ID = "1169979466303418368" // TODO: Set from configuration
 let [<Literal>] REDIRECT_URI = "http://localhost:4280/auth/login" // TODO: Set from configuration
@@ -20,11 +21,7 @@ let Login () =
         StateContext.Msg.Set state |> dispatch
 
         // Redirect to oauth authorization page
-        let authorizeUrl (clientId: string) (redirectUri: string) (scopes: string list) =
-            $"""https://discord.com/oauth2/authorize?client_id={clientId}&response_type=code&redirect_uri={HttpUtility.UrlEncode redirectUri}&scope={scopes |> String.concat "+"}"""
-            // TODO: Implement this kind of function in FSharp.Discord then use here
-
-        window.location.href <- authorizeUrl CLIENT_ID REDIRECT_URI ["identify"]
+        window.location.href <- OAuth.authorizationUrl CLIENT_ID REDIRECT_URI [OAuth2Scope.IDENTIFY] (Some state) OAuthConsent.None None
     ), [||])
 
     Html.div [
