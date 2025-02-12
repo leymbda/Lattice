@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <Compile Include="Contexts\StateContext.fs" />
+    <Compile Include="Modules\Api.fs" />
     <Compile Include="Pages\Index.fs" />
     <Compile Include="Pages\Auth.fs" />
     <Compile Include="Pages\Fallback.fs" />
