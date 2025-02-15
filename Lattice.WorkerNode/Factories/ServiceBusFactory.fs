@@ -1,4 +1,4 @@
-﻿namespace Lattice.WorkerNode.Factories
+﻿namespace Lattice.WorkerNode
 
 open Azure.Messaging.ServiceBus
 

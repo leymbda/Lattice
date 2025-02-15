@@ -1,7 +1,7 @@
-﻿namespace Lattice.WorkerNode.Types
+﻿namespace Lattice.WorkerNode
 
 open System
 
 type GatewayEventHandler =
-    | Http of endpoint: Uri
-    | ServiceBus of connectionString: string * queueName: string
+    | Http of endpoint: Uri * ed25519PrivateKey: string
+    | ServiceBus of queueName: string * connectionString: string
