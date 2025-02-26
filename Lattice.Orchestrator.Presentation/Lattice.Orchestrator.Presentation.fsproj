@@ -14,7 +14,7 @@
     <Compile Include="Payloads\RegisterApplicationPayload.fs" />
     <Compile Include="Payloads\CreateHandlerPayload.fs" />
     <Compile Include="Payloads\UpdateApplicationPayload.fs" />
-    <Compile Include="Responses\TokenResponse.fs" />
+    <Compile Include="Responses\UserResponse.fs" />
     <Compile Include="Responses\ErrorResponse.fs" />
     <Compile Include="Responses\HandlerResponse.fs" />
     <Compile Include="Responses\DisabledApplicationReasonResponse.fs" />

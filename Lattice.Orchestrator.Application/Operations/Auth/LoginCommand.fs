@@ -40,5 +40,5 @@ module LoginCommand =
             |> Jwt.create
             |> Jwt.encode env.JwtHashingKey
 
-        return Ok token
+        return Ok (user, token)
     }

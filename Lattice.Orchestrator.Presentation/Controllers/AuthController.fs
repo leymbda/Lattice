@@ -3,6 +3,7 @@
 open Lattice.Orchestrator.Application
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Azure.Functions.Worker.Http
+open System
 open System.Net
 open Thoth.Json.Net
 
@@ -36,8 +37,12 @@ type AuthController (env: IEnv) =
                     req.CreateResponse HttpStatusCode.InternalServerError
                     |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
 
-            | Ok token ->
+            | Ok (user, token) ->
+                let domain = req.Url.GetLeftPart UriPartial.Authority
+                let cookie = HttpCookie("token", token, Domain = domain, HttpOnly = true, Secure = true)
+
                 return!
                     req.CreateResponse HttpStatusCode.OK
-                    |> HttpResponseData.withResponse TokenResponse.encoder (TokenResponse.fromDomain token)
+                    |> HttpResponseData.withCookie cookie
+                    |> HttpResponseData.withResponse UserResponse.encoder (UserResponse.fromDomain user)
     }
