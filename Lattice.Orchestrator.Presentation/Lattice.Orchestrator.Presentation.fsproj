@@ -12,9 +12,8 @@
     <Compile Include="Common\ErrorCode.fs" />
     <Compile Include="Payloads\LoginPayload.fs" />
     <Compile Include="Payloads\RegisterApplicationPayload.fs" />
+    <Compile Include="Payloads\CreateHandlerPayload.fs" />
     <Compile Include="Payloads\UpdateApplicationPayload.fs" />
-    <Compile Include="Payloads\SetWebhookApplicationHandlerPayload.fs" />
-    <Compile Include="Payloads\SetServiceBusApplicationHandlerPayload.fs" />
     <Compile Include="Responses\TokenResponse.fs" />
     <Compile Include="Responses\ErrorResponse.fs" />
     <Compile Include="Responses\HandlerResponse.fs" />
@@ -24,7 +23,6 @@
     <Compile Include="Modules\HttpResponseData.fs" />
     <Compile Include="Controllers\AuthController.fs" />
     <Compile Include="Controllers\ApplicationController.fs" />
-    <Compile Include="Controllers\HandlerController.fs" />
     <Compile Include="Controllers\DisabledReasonsController.fs" />
     <Compile Include="Controllers\MessagingHandler.fs" />
     <Compile Include="Program.fs" />

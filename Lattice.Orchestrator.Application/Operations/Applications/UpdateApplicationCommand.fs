@@ -3,12 +3,16 @@
 open Lattice.Orchestrator.Domain
 open System.Threading.Tasks
 
+type UpdateApplicationCommandHandlerProps =
+    | WEBHOOK of endpoint: string
+    | SERVICE_BUS of queueName: string * connectionString: string
+
 type UpdateApplicationCommandProps = {
     ApplicationId: string
     DiscordBotToken: string option
     Intents: int option
     ShardCount: int option
-    DisabledReasons: DisabledApplicationReason list option
+    Handler: UpdateApplicationCommandHandlerProps option option
 }
 
 type UpdateApplicationCommandError =
@@ -39,15 +43,30 @@ module UpdateApplicationCommand =
         | Some err -> return Error err
         | None ->
 
+        // Configure or remove handler based on prop
+        let updateHandler handler app =
+            match handler with
+            | Some (UpdateApplicationCommandHandlerProps.WEBHOOK endpoint) ->
+                let ed25519 = Ed25519.generate()
+                let handler = Handler.WEBHOOK (WebhookHandler.create endpoint ed25519.PublicKey ed25519.PrivateKey)
+                app |> Application.setHandler handler
+
+            | Some (UpdateApplicationCommandHandlerProps.SERVICE_BUS (queueName, connectionString)) ->
+                let handler = Handler.SERVICE_BUS (ServiceBusHandler.create queueName connectionString)
+                app |> Application.setHandler handler
+
+            | None ->
+                app |> Application.removeHandler
+
         // Update provided properties
         let encryptedBotToken = props.DiscordBotToken |> Option.map (Aes.encrypt env.BotTokenEncryptionKey)
 
         let updatedApp =
             app
             |> Option.foldBack (fun encryptedBotToken app -> Application.setEncryptedBotToken encryptedBotToken app) encryptedBotToken
-            |> Option.foldBack (fun disabledReasons app -> Application.setDisabledReasons disabledReasons app) props.DisabledReasons
             |> Option.foldBack (fun intents app -> Application.setIntents intents app) props.Intents
             |> Option.foldBack (fun shardCount app -> Application.setProvisionedShardCount shardCount app) props.ShardCount
+            |> Option.foldBack (fun handler app -> app |> updateHandler handler) props.Handler
 
         match! env.UpsertApplication updatedApp with
         | Error _ -> return Error UpdateApplicationCommandError.UpdateFailed

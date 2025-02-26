@@ -82,7 +82,11 @@ type ApplicationController (env: IEnv) =
                 DiscordBotToken = payload.DiscordBotToken
                 Intents = payload.Intents
                 ShardCount = payload.ShardCount
-                DisabledReasons = payload.DisabledReasons |> Option.map DisabledApplicationReason.fromBitfield
+                Handler = payload.Handler |> Option.map (fun handler -> handler |> function
+                    | Some (CreateHandlerPayload.WEBHOOK handler) -> Some (UpdateApplicationCommandHandlerProps.WEBHOOK (handler.Endpoint))
+                    | Some (CreateHandlerPayload.SERVICE_BUS handler) -> Some (UpdateApplicationCommandHandlerProps.SERVICE_BUS (handler.QueueName, handler.ConnectionString))
+                    | None -> None
+                )
             }
         
             match! UpdateApplicationCommand.run env props with

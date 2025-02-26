@@ -20,9 +20,6 @@
     <Compile Include="Operations\Applications\UpdateApplicationCommand.fs" />
     <Compile Include="Operations\Applications\DeleteApplicationCommand.fs" />
     <Compile Include="Operations\Applications\SyncApplicationPrivilegedIntentsCommand.fs" />
-    <Compile Include="Operations\Applications\SetWebhookApplicationHandlerCommand.fs" />
-    <Compile Include="Operations\Applications\SetServiceBusApplicationHandlerCommand.fs" />
-    <Compile Include="Operations\Applications\RemoveApplicationHandlerCommand.fs" />
     <Compile Include="Operations\Applications\AddDisabledApplicationReasonCommand.fs" />
     <Compile Include="Operations\Applications\RemoveDisabledApplicationReasonCommand.fs" />
     <Compile Include="Operations\Nodes\HeartbeatNodeCommand.fs" />

@@ -6,7 +6,7 @@ type UpdateApplicationPayload = {
     DiscordBotToken: string option
     Intents: int option
     ShardCount: int option
-    DisabledReasons: int option
+    Handler: CreateHandlerPayload option option
 }
 
 module UpdateApplicationPayload =
@@ -15,5 +15,5 @@ module UpdateApplicationPayload =
             DiscordBotToken = get.Optional.Field "discordBotToken" Decode.string
             Intents = get.Optional.Field "intents" Decode.int
             ShardCount = get.Optional.Field "shardCount" Decode.int
-            DisabledReasons = get.Optional.Field "disabledReasons" Decode.int
+            Handler = get.Optional.Raw (Decode.field "handler" (Decode.option CreateHandlerPayload.decoder))
         })
