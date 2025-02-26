@@ -1,7 +1,6 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
 open Lattice.Orchestrator.Application
-open Lattice.Orchestrator.Domain
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Azure.Functions.Worker.Http
 open System.Net
@@ -16,9 +15,9 @@ type ApplicationController (env: IEnv) =
 
         match Decode.fromString RegisterApplicationPayload.decoder json with
         | Error message ->
-            let res = req.CreateResponse HttpStatusCode.BadRequest
-            do! res.WriteAsJsonAsync (ErrorResponse.fromSerializationError message)
-            return res
+            return!
+                req.CreateResponse HttpStatusCode.BadRequest
+                |> HttpResponseData.withErrorResponse (ErrorResponse.fromSerializationError message)
 
         | Ok payload ->
             let props: RegisterApplicationCommandProps = {
@@ -72,9 +71,9 @@ type ApplicationController (env: IEnv) =
 
         match Decode.fromString UpdateApplicationPayload.decoder json with
         | Error message ->
-            let res = req.CreateResponse HttpStatusCode.BadRequest
-            do! res.WriteAsJsonAsync (ErrorResponse.fromSerializationError message)
-            return res
+            return!
+                req.CreateResponse HttpStatusCode.BadRequest
+                |> HttpResponseData.withErrorResponse (ErrorResponse.fromSerializationError message)
 
         | Ok payload ->
             let props: UpdateApplicationCommandProps = {

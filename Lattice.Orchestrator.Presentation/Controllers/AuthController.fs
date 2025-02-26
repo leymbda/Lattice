@@ -16,9 +16,9 @@ type AuthController (env: IEnv) =
 
         match Decode.fromString LoginPayload.decoder json with
         | Error message ->
-            let res = req.CreateResponse HttpStatusCode.BadRequest
-            do! res.WriteAsJsonAsync (ErrorResponse.fromSerializationError message)
-            return res
+            return!
+                req.CreateResponse HttpStatusCode.BadRequest
+                |> HttpResponseData.withErrorResponse (ErrorResponse.fromSerializationError message)
 
         | Ok payload ->
             let props: LoginCommandProps = {
@@ -45,4 +45,21 @@ type AuthController (env: IEnv) =
                     req.CreateResponse HttpStatusCode.OK
                     |> HttpResponseData.withCookie cookie
                     |> HttpResponseData.withResponse UserResponse.encoder (UserResponse.fromDomain user)
+    }
+
+    [<Function "Logout">]
+    member _.Logout (
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "auth/logout")>] req: HttpRequestData
+    ) = task {
+        // TODO: Setup auth middleware which then handles this check already. So `Seq.find` could be used instead
+        // TODO: Create env function for getting current time to remove `DateTime.UtcNow` side effect
+
+        match req.Cookies |> Seq.tryFind (fun c -> c.Name = "token") with
+        | None -> return req.CreateResponse HttpStatusCode.Unauthorized
+        | Some cookie ->
+            let removalCookie = HttpCookie(cookie.Name, String.Empty, Expires = DateTime.UtcNow.AddYears -1)
+
+            return
+                req.CreateResponse HttpStatusCode.NoContent
+                |> HttpResponseData.withCookie removalCookie
     }
