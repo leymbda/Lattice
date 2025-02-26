@@ -39,7 +39,7 @@ type AuthController (env: IEnv) =
 
             | Ok (user, token) ->
                 let domain = req.Url.GetLeftPart UriPartial.Authority
-                let cookie = HttpCookie("token", token, Domain = domain, HttpOnly = true, Secure = true)
+                let cookie = HttpCookie(Constants.TOKEN_COOKIE_NAME, token, Domain = domain, HttpOnly = true, Secure = true)
 
                 return!
                     req.CreateResponse HttpStatusCode.OK
@@ -47,19 +47,16 @@ type AuthController (env: IEnv) =
                     |> HttpResponseData.withResponse UserResponse.encoder (UserResponse.fromDomain user)
     }
 
+    [<Authorize>]
     [<Function "Logout">]
     member _.Logout (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "auth/logout")>] req: HttpRequestData
     ) = task {
-        // TODO: Setup auth middleware which then handles this check already. So `Seq.find` could be used instead
         // TODO: Create env function for getting current time to remove `DateTime.UtcNow` side effect
 
-        match req.Cookies |> Seq.tryFind (fun c -> c.Name = "token") with
-        | None -> return req.CreateResponse HttpStatusCode.Unauthorized
-        | Some cookie ->
-            let removalCookie = HttpCookie(cookie.Name, String.Empty, Expires = DateTime.UtcNow.AddYears -1)
+        let removalCookie = HttpCookie(Constants.TOKEN_COOKIE_NAME, String.Empty, Expires = DateTime.UtcNow.AddYears -1)
 
-            return
-                req.CreateResponse HttpStatusCode.NoContent
-                |> HttpResponseData.withCookie removalCookie
+        return
+            req.CreateResponse HttpStatusCode.NoContent
+            |> HttpResponseData.withCookie removalCookie
     }

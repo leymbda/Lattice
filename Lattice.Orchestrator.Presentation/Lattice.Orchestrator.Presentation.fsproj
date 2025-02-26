@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="Options\SecretsOptions.fs" />
     <Compile Include="Env.fs" />
+    <Compile Include="Common\Constants.fs" />
     <Compile Include="Common\ErrorCode.fs" />
     <Compile Include="Payloads\LoginPayload.fs" />
     <Compile Include="Payloads\RegisterApplicationPayload.fs" />
@@ -20,7 +21,9 @@
     <Compile Include="Responses\DisabledApplicationReasonResponse.fs" />
     <Compile Include="Responses\PrivilegedIntentsResponse.fs" />
     <Compile Include="Responses\ApplicationResponse.fs" />
+    <Compile Include="Modules\FunctionContext.fs" />
     <Compile Include="Modules\HttpResponseData.fs" />
+    <Compile Include="Middleware\AuthorizeMiddleware.fs" />
     <Compile Include="Controllers\AuthController.fs" />
     <Compile Include="Controllers\ApplicationController.fs" />
     <Compile Include="Controllers\DisabledReasonsController.fs" />

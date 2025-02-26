@@ -17,7 +17,9 @@ open Microsoft.DurableTask.Client
 let (!) f = f |> ignore
 
 HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWorkerDefaults(fun (builder: IFunctionsWorkerApplicationBuilder) ->
+        !builder.UseWhen<AuthorizeMiddleware>(FunctionContext.getCustomAttribute<AuthorizeAttribute> >> Option.isSome)
+    )
     .ConfigureAppConfiguration(fun builder ->
         // Add environment variables to configuration
         !builder

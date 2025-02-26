@@ -7,6 +7,7 @@ open Microsoft.Azure.Functions.Worker.Http
 open System.Net
 
 type DisabledReasonsController (env: IEnv) =
+    [<Authorize>]
     [<Function "AddDisabledApplicationReason">]
     member _.AddDisabledApplicationReason (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "applications/{applicationId:long}/disabled-reasons/{reasonId:int}")>] req: HttpRequestData,
@@ -34,7 +35,8 @@ type DisabledReasonsController (env: IEnv) =
                 req.CreateResponse HttpStatusCode.OK
                 |> HttpResponseData.withResponse DisabledApplicationReasonResponse.encoder (DisabledApplicationReasonResponse.fromDomain reasons)
     }
-
+    
+    [<Authorize>]
     [<Function "RemoveDisabledApplicationReason">]
     member _.RemoveDisabledApplicationReason (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "applications/{applicationId:long}/disabled-reasons/{reasonId:int}")>] req: HttpRequestData,
