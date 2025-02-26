@@ -4,31 +4,40 @@ open Lattice.Orchestrator.Application
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Azure.Functions.Worker.Http
 open System.Net
+open Thoth.Json.Net
 
 type AuthController (env: IEnv) =
     [<Function "Login">]
     member _.Login (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "auth/login")>] req: HttpRequestData,
-        [<FromBody>] payload: LoginPayload
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "auth/login")>] req: HttpRequestData
     ) = task {
-        let! res = LoginCommand.run env {
-            Code = payload.Code |> String.defaultValue ""
-            RedirectUri = payload.RedirectUri |> String.defaultValue ""
-        }
+        let! json = req.ReadAsStringAsync()
 
-        match res with
-        | Error LoginCommandError.CodeExchangeFailed ->
+        match Decode.fromString LoginPayload.decoder json with
+        | Error message ->
             let res = req.CreateResponse HttpStatusCode.BadRequest
-            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.INVALID_OAUTH_CODE)
+            do! res.WriteAsJsonAsync (ErrorResponse.fromSerializationError message)
             return res
 
-        | Error LoginCommandError.LoginFailed ->
-            let res = req.CreateResponse HttpStatusCode.InternalServerError
-            do! res.WriteAsJsonAsync (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
-            return res
+        | Ok payload ->
+            let props: LoginCommandProps = {
+                Code = payload.Code
+                RedirectUri = payload.RedirectUri
+            }
 
-        | Ok token ->
-            let res = req.CreateResponse HttpStatusCode.OK
-            do! res.WriteAsJsonAsync (TokenResponse(token))
-            return res
+            match! LoginCommand.run env props with
+            | Error LoginCommandError.CodeExchangeFailed ->
+                return!
+                    req.CreateResponse HttpStatusCode.UnprocessableContent
+                    |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INVALID_OAUTH_CODE)
+
+            | Error LoginCommandError.LoginFailed ->
+                return!
+                    req.CreateResponse HttpStatusCode.InternalServerError
+                    |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
+
+            | Ok token ->
+                return!
+                    req.CreateResponse HttpStatusCode.OK
+                    |> HttpResponseData.withResponse TokenResponse.encoder (TokenResponse.fromDomain token)
     }

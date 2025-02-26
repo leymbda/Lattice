@@ -10,8 +10,6 @@
     <Compile Include="Options\SecretsOptions.fs" />
     <Compile Include="Env.fs" />
     <Compile Include="Common\ErrorCode.fs" />
-    <Compile Include="Common\Option.fs" />
-    <Compile Include="Common\String.fs" />
     <Compile Include="Payloads\LoginPayload.fs" />
     <Compile Include="Payloads\RegisterApplicationPayload.fs" />
     <Compile Include="Payloads\UpdateApplicationPayload.fs" />
@@ -23,6 +21,7 @@
     <Compile Include="Responses\DisabledApplicationReasonResponse.fs" />
     <Compile Include="Responses\PrivilegedIntentsResponse.fs" />
     <Compile Include="Responses\ApplicationResponse.fs" />
+    <Compile Include="Modules\HttpResponseData.fs" />
     <Compile Include="Controllers\AuthController.fs" />
     <Compile Include="Controllers\ApplicationController.fs" />
     <Compile Include="Controllers\HandlerController.fs" />
@@ -41,10 +40,10 @@
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.2.2" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.EventGrid" Version="3.4.2" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.2.0" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.OpenApi" Version="1.5.1" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.22.0" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.0" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
+	<PackageReference Include="Thoth.Json.Net" Version="12.0.0" />
   </ItemGroup>
 	
   <ItemGroup>

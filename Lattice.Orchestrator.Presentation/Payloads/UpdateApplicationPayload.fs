@@ -1,19 +1,19 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
-open Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes
-open System
-open System.Text.Json.Serialization
+open Thoth.Json.Net
 
-type UpdateApplicationPayload (discordBotToken, intents, shardCount, disabledReasons) =
-    [<JsonPropertyName "discordBotToken">]
-    [<OpenApiProperty(Nullable = true)>]
-    member _.DiscordBotToken: string = discordBotToken
+type UpdateApplicationPayload = {
+    DiscordBotToken: string option
+    Intents: int option
+    ShardCount: int option
+    DisabledReasons: int option
+}
 
-    [<JsonPropertyName "intents">]
-    member _.Intents: Nullable<int> = intents
-
-    [<JsonPropertyName "shardCount">]
-    member _.ShardCount: Nullable<int> = shardCount
-
-    [<JsonPropertyName "disabledReasons">]
-    member _.DisabledReasons: Nullable<int> = disabledReasons
+module UpdateApplicationPayload =
+    let decoder: Decoder<UpdateApplicationPayload> =
+        Decode.object (fun get -> {
+            DiscordBotToken = get.Optional.Field "discordBotToken" Decode.string
+            Intents = get.Optional.Field "intents" Decode.int
+            ShardCount = get.Optional.Field "shardCount" Decode.int
+            DisabledReasons = get.Optional.Field "disabledReasons" Decode.int
+        })

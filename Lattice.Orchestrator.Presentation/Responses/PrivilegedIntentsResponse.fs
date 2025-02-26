@@ -1,34 +1,33 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
 open Lattice.Orchestrator.Domain
-open System.Text.Json.Serialization
+open Thoth.Json.Net
 
-type PrivilegedIntentsResponse (messageContent, messageContentLimited, guildMembers, guildMembersLimited, presence, presenceLimited) =
-    [<JsonPropertyName "messageContent">]
-    member _.MessageContent: bool = messageContent
-
-    [<JsonPropertyName "messageContentLimited">]
-    member _.MessageContentLimited: bool = messageContentLimited
-
-    [<JsonPropertyName "guildMembers">]
-    member _.GuildMembers: bool = guildMembers
-
-    [<JsonPropertyName "guildMembersLimited">]
-    member _.GuildMembersLimited: bool = guildMembersLimited
-
-    [<JsonPropertyName "presence">]
-    member _.Presence: bool = presence
-
-    [<JsonPropertyName "presenceLimited">]
-    member _.PresenceLimited: bool = presenceLimited
+type PrivilegedIntentsResponse = {
+    MessageContent: bool
+    MessageContentLimited: bool
+    GuildMembers: bool
+    GuildMembersLimited: bool
+    Presence: bool
+    PresenceLimited: bool
+}
 
 module PrivilegedIntentsResponse =
-    let fromDomain (privilegedIntents: PrivilegedIntents) =
-        PrivilegedIntentsResponse(
-            privilegedIntents.MessageContent,
-            privilegedIntents.MessageContentLimited,
-            privilegedIntents.GuildMembers,
-            privilegedIntents.GuildMembersLimited,
-            privilegedIntents.Presence,
-            privilegedIntents.PresenceLimited
-        )
+    let encoder (v: PrivilegedIntentsResponse) =
+        Encode.object [
+            "messageContent", Encode.bool v.MessageContent
+            "messageContentLimited", Encode.bool v.MessageContentLimited
+            "guildMembers", Encode.bool v.GuildMembers
+            "guildMembersLimited", Encode.bool v.GuildMembersLimited
+            "presence", Encode.bool v.Presence
+            "presenceLimited", Encode.bool v.PresenceLimited
+        ]
+
+    let fromDomain (v: PrivilegedIntents) = {
+        MessageContent = v.MessageContent
+        MessageContentLimited = v.MessageContentLimited
+        GuildMembers = v.GuildMembers
+        GuildMembersLimited = v.GuildMembersLimited
+        Presence = v.Presence
+        PresenceLimited = v.PresenceLimited
+    }

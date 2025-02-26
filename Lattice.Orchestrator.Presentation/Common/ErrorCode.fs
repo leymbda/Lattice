@@ -2,6 +2,7 @@
 
 type ErrorCode =
     | INTERNAL_SERVER_ERROR = 1000
+    | MALFORMED_REQUEST_BODY = 1001
     | APPLICATION_NOT_FOUND = 2000
     | APPLICATION_NOT_ACTIVATED = 2001
     | NODE_NOT_FOUND = 2002
@@ -13,6 +14,7 @@ module ErrorCode =
     let getMessage (code: ErrorCode) =
         match code with
         | ErrorCode.INTERNAL_SERVER_ERROR -> "Internal server error"
+        | ErrorCode.MALFORMED_REQUEST_BODY -> "Malformed request body"
         | ErrorCode.APPLICATION_NOT_FOUND -> "Application not found"
         | ErrorCode.APPLICATION_NOT_ACTIVATED -> "Application not activated"
         | ErrorCode.NODE_NOT_FOUND -> "Node not found"

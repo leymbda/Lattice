@@ -1,48 +1,53 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
 open Lattice.Orchestrator.Domain
-open Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes
-open System.Text.Json.Serialization
+open Thoth.Json.Net
 
-type WebhookHandlerResponse (endpoint, ed25519PublicKey) =
-    [<JsonPropertyName "endpoint">]
-    member _.Endpoint: string = endpoint
-
-    [<JsonPropertyName "ed25519PublicKey">]
-    member _.Ed25519PublicKey: string = ed25519PublicKey
+type WebhookHandlerResponse = {
+    Endpoint: string
+    Ed25519PublicKey: string
+}
 
 module WebhookHandlerResponse =
-    let fromDomain (handler: WebhookHandler) =
-        WebhookHandlerResponse(handler.Endpoint, handler.Ed25519PublicKey)
+    let encoder (v: WebhookHandlerResponse) =
+        Encode.object [
+            "endpoint", Encode.string v.Endpoint
+            "ed25519PublicKey", Encode.string v.Ed25519PublicKey
+        ]
+
+    let fromDomain (handler: WebhookHandler) = {
+        Endpoint = handler.Endpoint
+        Ed25519PublicKey = handler.Ed25519PublicKey
+    }
         
-type ServiceBusHandlerResponse (queueName) =
-    [<JsonPropertyName "queueName">]
-    member _.QueueName: string = queueName
+type ServiceBusHandlerResponse = {
+    QueueName: string
+}
 
 module ServiceBusHandlerResponse =
-    let fromDomain (handler: ServiceBusHandler) =
-        ServiceBusHandlerResponse(handler.QueueName)
+    let encoder (v: ServiceBusHandlerResponse) =
+        Encode.object [
+            "queueName", Encode.string v.QueueName
+        ]
 
-// The `HandlerResponse` must contain all possible properties from webhook and service bus handlers. It is notably used
-// in the `ApplicationResponse` where a handler could be of any type.
+    let fromDomain (handler: ServiceBusHandler) = {
+        QueueName = handler.QueueName
+    }
 
-[<AllowNullLiteral>]
-type HandlerResponse (endpoint, ed25519PublicKey, queueName) =
-    [<JsonPropertyName "endpoint">]
-    [<OpenApiProperty(Nullable = true)>]
-    member _.Endpoint: string = endpoint
+type HandlerResponse =
+    | UNCONFIGURED
+    | WEBHOOK of WebhookHandlerResponse
+    | SERVICE_BUS of ServiceBusHandlerResponse
 
-    [<JsonPropertyName "ed25519PublicKey">]
-    [<OpenApiProperty(Nullable = true)>]
-    member _.Ed25519PublicKey: string = ed25519PublicKey
-    
-    [<JsonPropertyName "queueName">]
-    [<OpenApiProperty(Nullable = true)>]
-    member _.QueueName: string = queueName
-    
 module HandlerResponse =
+    let encoder (v: HandlerResponse) =
+        match v with
+        | WEBHOOK handler -> WebhookHandlerResponse.encoder handler
+        | SERVICE_BUS handler -> ServiceBusHandlerResponse.encoder handler
+        | UNCONFIGURED -> Encode.nil
+
     let fromDomain (handler: Handler option) =
         match handler with
-        | Some (Handler.WEBHOOK handler) -> HandlerResponse(handler.Endpoint, handler.Ed25519PublicKey, null)
-        | Some (Handler.SERVICE_BUS handler) -> HandlerResponse(null, null, handler.QueueName)
-        | None -> null
+        | Some (Handler.WEBHOOK handler) -> HandlerResponse.WEBHOOK (WebhookHandlerResponse.fromDomain handler)
+        | Some (Handler.SERVICE_BUS handler) -> HandlerResponse.SERVICE_BUS (ServiceBusHandlerResponse.fromDomain handler)
+        | None -> HandlerResponse.UNCONFIGURED

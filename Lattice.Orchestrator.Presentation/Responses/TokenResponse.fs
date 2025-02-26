@@ -1,7 +1,17 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
-open System.Text.Json.Serialization
+open Thoth.Json.Net
 
-type TokenResponse (token) =
-    [<JsonPropertyName "token">]
-    member _.Token: string = token
+type TokenResponse = {
+    Token: string
+}
+
+module TokenResponse =
+    let encoder (v: TokenResponse) =
+        Encode.object [
+            "token", Encode.string v.Token
+        ]
+
+    let fromDomain (token: string) = {
+        Token = token
+    }

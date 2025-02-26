@@ -1,12 +1,18 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
 open Lattice.Orchestrator.Domain
-open System.Text.Json.Serialization
+open Thoth.Json.Net
 
-type DisabledApplicationReasonResponse (disabledReasons) =
-    [<JsonPropertyName "disabledReasons">]
-    member _.DisabledReasons: int = disabledReasons
+type DisabledApplicationReasonResponse = {
+    DisabledReasons: int
+}
 
 module DisabledApplicationReasonResponse =
-    let fromDomain (reasons: DisabledApplicationReason list) =
-        DisabledApplicationReasonResponse(DisabledApplicationReason.toBitfield reasons)
+    let encoder (v: DisabledApplicationReasonResponse) =
+        Encode.object [
+            "disabledReasons", Encode.int v.DisabledReasons
+        ]
+
+    let fromDomain (reasons: DisabledApplicationReason list) = {
+        DisabledReasons = DisabledApplicationReason.toBitfield reasons
+    }

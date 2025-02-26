@@ -1,7 +1,13 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
-open System.Text.Json.Serialization
+open Thoth.Json.Net
 
-type SetWebhookApplicationHandlerPayload (endpoint) =
-    [<JsonPropertyName "endpoint">]
-    member _.Endpoint: string = endpoint
+type SetWebhookApplicationHandlerPayload = {
+    Endpoint: string
+}
+
+module SetWebhookApplicationHandlerPayload =
+    let decoder: Decoder<SetWebhookApplicationHandlerPayload> =
+        Decode.object (fun get -> {
+            Endpoint = get.Required.Field "endpoint" Decode.string
+        })

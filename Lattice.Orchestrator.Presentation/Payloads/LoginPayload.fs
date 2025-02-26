@@ -1,10 +1,15 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
-open System.Text.Json.Serialization
+open Thoth.Json.Net
 
-type LoginPayload (code, redirectUri) =
-    [<JsonPropertyName "code">]
-    member _.Code: string = code
-    
-    [<JsonPropertyName "redirectUri">]
-    member _.RedirectUri: string = redirectUri
+type LoginPayload = {
+    Code: string
+    RedirectUri: string
+}
+
+module LoginPayload =
+    let decoder: Decoder<LoginPayload> =
+        Decode.object (fun get -> {
+            Code = get.Required.Field "code" Decode.string
+            RedirectUri = get.Required.Field "redirectUri" Decode.string
+        })

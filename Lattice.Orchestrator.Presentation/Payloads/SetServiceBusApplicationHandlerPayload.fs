@@ -1,10 +1,15 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
-open System.Text.Json.Serialization
+open Thoth.Json.Net
 
-type SetServiceBusApplicationHandlerPayload (connectionString, queueName) =
-    [<JsonPropertyName "connectionString">]
-    member _.ConnectionString: string = connectionString
+type SetServiceBusApplicationHandlerPayload = {
+    ConnectionString: string
+    QueueName: string
+}
 
-    [<JsonPropertyName "queueName">]
-    member _.QueueName: string = queueName
+module SetServiceBusApplicationHandlerPayload =
+    let decoder: Decoder<SetServiceBusApplicationHandlerPayload> =
+        Decode.object (fun get -> {
+            ConnectionString = get.Required.Field "connectionString" Decode.string
+            QueueName = get.Required.Field "queueName" Decode.string
+        })

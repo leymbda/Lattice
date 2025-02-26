@@ -1,14 +1,25 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
-open System.Text.Json.Serialization
+open Thoth.Json.Net
 
-type ErrorResponse (code, message) =
-    [<JsonPropertyName "code">]
-    member _.Code: ErrorCode = code
-    
-    [<JsonPropertyName "message">]
-    member _.Message: string = message
+type ErrorResponse = {
+    Code: ErrorCode
+    Message: string
+}
 
 module ErrorResponse =
-    let fromCode (code: ErrorCode) =
-        ErrorResponse(code, ErrorCode.getMessage code)
+    let encoder (v: ErrorResponse) =
+        Encode.object [
+            "code", Encode.Enum.int<ErrorCode> v.Code
+            "message", Encode.string v.Message
+        ]
+
+    let fromCode code = {
+        Code = code
+        Message = ErrorCode.getMessage code
+    }
+
+    let fromSerializationError message = {
+        Code = ErrorCode.MALFORMED_REQUEST_BODY
+        Message = message
+    }
