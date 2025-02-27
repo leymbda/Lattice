@@ -11,11 +11,9 @@ type BiddingShard = {
 }
 
 module BiddingShard =
-    let bid nodeId amount (shard: BiddingShard) =
-        let bid = { NodeId = nodeId; Amount = amount }
-
+    let bid (bid: Bid) (shard: BiddingShard) =
         match shard.GreatestBid with
-        | Some { Amount = currentAmount } when amount > currentAmount -> { shard with GreatestBid = Some bid }
+        | Some { Amount = currentAmount } when bid.Amount > currentAmount -> { shard with GreatestBid = Some bid }
         | None -> { shard with GreatestBid = Some bid }
         | _ -> shard
 
