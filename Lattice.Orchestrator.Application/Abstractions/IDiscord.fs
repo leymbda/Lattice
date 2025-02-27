@@ -11,6 +11,7 @@ type IDiscordToken =
 
 type IDiscordUser =
     abstract Id: string
+    abstract Username: string
 
 type IDiscordApplication =
     abstract Id: string

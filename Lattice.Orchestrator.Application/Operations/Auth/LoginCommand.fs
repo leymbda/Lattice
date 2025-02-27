@@ -28,7 +28,7 @@ module LoginCommand =
         let encryptedAccessToken = token.AccessToken |> Aes.encrypt env.UserAccessTokenEncryptionKey
         let encryptedRefreshToken = token.RefreshToken |> Aes.encrypt env.UserRefreshTokenEncryptionKey
 
-        let user = User.create discordUser.Id encryptedAccessToken encryptedRefreshToken
+        let user = User.create discordUser.Id discordUser.Username encryptedAccessToken encryptedRefreshToken
 
         match! env.UpsertUser user with
         | Error _ -> return Error LoginCommandError.LoginFailed

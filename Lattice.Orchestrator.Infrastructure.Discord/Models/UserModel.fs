@@ -6,6 +6,7 @@ open Lattice.Orchestrator.Application
 type UserModel = FSharp.Discord.Types.User
 
 module UserModel =
-    let toDomain (app: UserModel): IDiscordUser =
+    let toDomain (v: UserModel): IDiscordUser =
         { new IDiscordUser with
-            member _.Id = app.Id }
+            member _.Id = v.Id
+            member _.Username = v.Username }

@@ -5,20 +5,23 @@ open System.Text.Json.Serialization
 
 type UserModel = {
     [<JsonPropertyName "id">] Id: string
+    [<JsonPropertyName "username">] Username: string
     [<JsonPropertyName "accessToken">] AccessToken: string
     [<JsonPropertyName "refreshToken">] RefreshToken: string
 }
 
 module UserModel =
-    let toDomain (model: UserModel): User = {
-        Id = model.Id
-        EncryptedAccessToken = model.AccessToken
-        EncryptedRefreshToken = model.RefreshToken
+    let toDomain (v: UserModel): User = {
+        Id = v.Id
+        Username = v.Username
+        EncryptedAccessToken = v.AccessToken
+        EncryptedRefreshToken = v.RefreshToken
     }
 
-    let fromDomain (user: User): UserModel = {
-        Id = user.Id
-        AccessToken = user.EncryptedAccessToken
-        RefreshToken = user.EncryptedRefreshToken
+    let fromDomain (v: User): UserModel = {
+        Id = v.Id
+        Username = v.Username
+        AccessToken = v.EncryptedAccessToken
+        RefreshToken = v.EncryptedRefreshToken
     }
     
