@@ -13,4 +13,4 @@ module DisabledApplicationReason =
     let fromBitfield (bitfield: int) =
         DisabledApplicationReason.GetValues()
         |> Array.toList
-        |> List.filter (fun (t: DisabledApplicationReason) -> bitfield &&& (~~~(int t)) = bitfield)
+        |> List.filter (fun (t: DisabledApplicationReason) -> bitfield ||| (int t) = bitfield)

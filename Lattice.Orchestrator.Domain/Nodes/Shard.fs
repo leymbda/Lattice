@@ -3,7 +3,7 @@
 open System
 
 type BiddingShard = {
-    Id:                   string
+    Id:                   Guid
     ApplicationId:        string
     ShardUnit:            (int * int)
     GreatestBid:          Bid option
@@ -33,10 +33,10 @@ module BiddingShard =
         | _ -> None
 
 type PurchasedShard = {
-    Id:               string
+    Id:               Guid
     ApplicationId:    string
     ShardUnit:        (int * int)
-    NodeId:           string
+    NodeId:           Guid
     ActivationExpiry: DateTime
 }
 
@@ -52,10 +52,10 @@ module PurchasedShard =
     }
 
 type ActiveShard = {
-    Id:                string
+    Id:                Guid
     ApplicationId:     string
     ShardUnit:         (int * int)
-    NodeId:            string
+    NodeId:            Guid
     GatewayResumeUrl:  string
     GatewaySequenceId: int
     LastHeartbeat:     DateTime

@@ -1,7 +1,9 @@
 ﻿namespace Lattice.Orchestrator.Domain
 
+open System
+
 type Bid = {
-    NodeId: string
+    NodeId: Guid
     Amount: int
 }
 

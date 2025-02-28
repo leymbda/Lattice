@@ -11,33 +11,33 @@ type ShardModelType =
     | ACTIVE    = 2
 
 and BiddingShardModel = {
-    [<JsonPropertyName "id">] Id: string
+    [<JsonPropertyName "id">] Id: Guid
     [<JsonPropertyName "applicationId">] ApplicationId: string
     [<JsonPropertyName "type">] Type: ShardModelType
     [<JsonPropertyName "shardNumber">] ShardNumber: int
     [<JsonPropertyName "shardCount">] ShardCount: int
-    [<JsonPropertyName "greatestBidNodeId">] GreatestBidNodeId: string option
+    [<JsonPropertyName "greatestBidNodeId">] GreatestBidNodeId: Guid option
     [<JsonPropertyName "greatestBigAmount">] GreatestBidAmount: int option
     [<JsonPropertyName "biddingExpiry">] BiddingExpiry: int
 }
 
 and PurchasedShardModel = {
-    [<JsonPropertyName "id">] Id: string
+    [<JsonPropertyName "id">] Id: Guid
     [<JsonPropertyName "applicationId">] ApplicationId: string
     [<JsonPropertyName "type">] Type: ShardModelType
     [<JsonPropertyName "shardNumber">] ShardNumber: int
     [<JsonPropertyName "shardCount">] ShardCount: int
-    [<JsonPropertyName "nodeId">] NodeId: string
+    [<JsonPropertyName "nodeId">] NodeId: Guid
     [<JsonPropertyName "activationExpiry">] ActivationExpiry: int
 }
 
 and ActiveShardModel = {
-    [<JsonPropertyName "id">] Id: string
+    [<JsonPropertyName "id">] Id: Guid
     [<JsonPropertyName "applicationId">] ApplicationId: string
     [<JsonPropertyName "type">] Type: ShardModelType
     [<JsonPropertyName "shardNumber">] ShardNumber: int
     [<JsonPropertyName "shardCount">] ShardCount: int
-    [<JsonPropertyName "nodeId">] NodeId: string
+    [<JsonPropertyName "nodeId">] NodeId: Guid
     [<JsonPropertyName "gatewayResumeUrl">] GatewayResumeUrl: string
     [<JsonPropertyName "gatewaySequenceId">] GatewaySequenceId: int
     [<JsonPropertyName "lastHeartbeat">] LastHeartbeat: int

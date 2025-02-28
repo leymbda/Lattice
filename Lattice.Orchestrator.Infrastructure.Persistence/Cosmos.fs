@@ -126,10 +126,13 @@ let getShardsByApplicationId (cosmosClient: CosmosClient) id = task {
 let upsertShard (cosmosClient: CosmosClient) shard = task {
     let container = getShardContainer cosmosClient
 
-    let id = shard |> function
+    let id =
+        shard
+        |> function
         | Shard.BIDDING shard -> shard.Id
         | Shard.PURCHASED shard -> shard.Id
         | Shard.ACTIVE shard -> shard.Id
+        |> _.ToString()
 
     try
         let! res = container.UpsertItemAsync<ShardModel>(ShardModel.fromDomain shard, PartitionKey id)
