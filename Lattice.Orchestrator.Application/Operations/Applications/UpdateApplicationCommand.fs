@@ -65,7 +65,7 @@ module UpdateApplicationCommand =
             app
             |> Option.foldBack (fun encryptedBotToken app -> Application.setEncryptedBotToken encryptedBotToken app) encryptedBotToken
             |> Option.foldBack (fun intents app -> Application.setIntents intents app) props.Intents
-            |> Option.foldBack (fun shardCount app -> Application.setProvisionedShardCount shardCount app) props.ShardCount
+            |> Option.foldBack (fun shardCount app -> Application.setShardCount shardCount app) props.ShardCount
             |> Option.foldBack (fun handler app -> app |> updateHandler handler) props.Handler
 
         match! env.UpsertApplication updatedApp with

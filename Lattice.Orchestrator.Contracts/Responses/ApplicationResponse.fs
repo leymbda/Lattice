@@ -8,7 +8,7 @@ type ApplicationResponse = {
     PrivilegedIntents: PrivilegedIntentsResponse
     DisabledReasons: int
     Intents: int
-    ProvisionedShardCount: int
+    ShardCount: int
     Handler: HandlerResponse option
 }
 
@@ -19,7 +19,7 @@ module ApplicationResponse =
             PrivilegedIntents = get.Required.Field "privilegedIntents" PrivilegedIntentsResponse.decoder
             DisabledReasons = get.Required.Field "disabledReasons" Decode.int
             Intents = get.Required.Field "intents" Decode.int
-            ProvisionedShardCount = get.Required.Field "provisionedShardCount" Decode.int
+            ShardCount = get.Required.Field "shardCount" Decode.int
             Handler = get.Optional.Field "handler" HandlerResponse.decoder
         })
 
@@ -29,7 +29,7 @@ module ApplicationResponse =
             "privilegedIntents", PrivilegedIntentsResponse.encoder v.PrivilegedIntents
             "disabledReasons", Encode.int v.DisabledReasons
             "intents", Encode.int v.Intents
-            "provisionedShardCount", Encode.int v.ProvisionedShardCount
+            "shardCount", Encode.int v.ShardCount
             "handler", Encode.option HandlerResponse.encoder v.Handler
         ]
 
@@ -38,6 +38,6 @@ module ApplicationResponse =
         PrivilegedIntents = PrivilegedIntentsResponse.fromDomain v.PrivilegedIntents
         DisabledReasons = DisabledApplicationReason.toBitfield v.DisabledReasons
         Intents = v.Intents
-        ProvisionedShardCount = v.ProvisionedShardCount
+        ShardCount = v.ShardCount
         Handler = v.Handler |> Option.map HandlerResponse.fromDomain
     }

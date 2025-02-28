@@ -10,13 +10,13 @@ type PrivilegedIntents = {
 }
 
 type Application = {
-    Id:                    string
-    EncryptedBotToken:     string
-    PrivilegedIntents:     PrivilegedIntents
-    DisabledReasons:       DisabledApplicationReason list
-    Intents:               int
-    ProvisionedShardCount: int
-    Handler:               Handler option
+    Id:                string
+    EncryptedBotToken: string
+    PrivilegedIntents: PrivilegedIntents
+    DisabledReasons:   DisabledApplicationReason list
+    Intents:           int
+    ShardCount:        int
+    Handler:           Handler option
 }
 
 module Application =
@@ -27,7 +27,7 @@ module Application =
             PrivilegedIntents = privilegedIntents
             DisabledReasons = []
             Intents = 0
-            ProvisionedShardCount = 0
+            ShardCount = 0
             Handler = None
         }
         
@@ -55,8 +55,8 @@ module Application =
     let setIntents intents (app: Application) =
         { app with Intents = intents }
 
-    let setProvisionedShardCount provisionedShardCount (app: Application) =
-        { app with ProvisionedShardCount = provisionedShardCount }
+    let setShardCount shardCount (app: Application) =
+        { app with ShardCount = shardCount }
 
     let setHandler handler (app: Application) =
         { app with Handler = Some handler }

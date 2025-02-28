@@ -16,7 +16,6 @@
     <Compile Include="Middleware\ExceptionMiddleware.fs" />
     <Compile Include="Controllers\AuthController.fs" />
     <Compile Include="Controllers\ApplicationController.fs" />
-    <Compile Include="Controllers\DisabledReasonsController.fs" />
     <Compile Include="Controllers\MessagingHandler.fs" />
     <Compile Include="Program.fs" />
     <None Include="appsettings.json" CopyToOutputDirectory="Always" />

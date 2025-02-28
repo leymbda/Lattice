@@ -9,7 +9,7 @@ type ApplicationModel = {
     [<JsonPropertyName "privilegedIntents">] PrivilegedIntents: PrivilegedIntentsModel
     [<JsonPropertyName "disabledReasons">] DisabledReasons: int
     [<JsonPropertyName "intents">] Intents: int
-    [<JsonPropertyName "provisionedShardCount">] ProvisionedShardCount: int
+    [<JsonPropertyName "shardCount">] ShardCount: int
     [<JsonPropertyName "handler">] Handler: HandlerModel option
 }
 
@@ -21,7 +21,7 @@ module ApplicationModel =
             PrivilegedIntents = PrivilegedIntentsModel.toDomain model.PrivilegedIntents
             DisabledReasons = DisabledApplicationReason.fromBitfield model.DisabledReasons
             Intents = model.Intents
-            ProvisionedShardCount = model.ProvisionedShardCount
+            ShardCount = model.ShardCount
             Handler = Option.map HandlerModel.toDomain model.Handler
         }
 
@@ -32,6 +32,6 @@ module ApplicationModel =
             PrivilegedIntents = PrivilegedIntentsModel.fromDomain application.PrivilegedIntents
             DisabledReasons = DisabledApplicationReason.toBitfield application.DisabledReasons
             Intents = application.Intents
-            ProvisionedShardCount = application.ProvisionedShardCount
+            ShardCount = application.ShardCount
             Handler = Option.map HandlerModel.fromDomain application.Handler
         }
