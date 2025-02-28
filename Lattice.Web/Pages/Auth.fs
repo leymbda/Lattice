@@ -5,9 +5,9 @@ open Feliz
 open FSharp.Discord.Types
 open FSharp.Discord.Utils
 open Lattice.Web
-open System.Net.Http
 open System.Security.Cryptography
 
+let [<Literal>] API_BASE_URL = "http://localhost:7071/api" // TODO: Set from configuration
 let [<Literal>] CLIENT_ID = "1169979466303418368" // TODO: Set from configuration
 let [<Literal>] REDIRECT_URI = "http://localhost:4280/auth/login" // TODO: Set from configuration
 
@@ -33,21 +33,20 @@ let Callback code state =
     let savedState, dispatch = React.useContext StateContext.context
 
     let loading, setLoading = React.useState true
-    let error, setError = React.useState Option<int>.None
+    let error, setError = React.useState Option<string>.None
 
     React.useEffect((fun () -> task {
         match state, savedState.State with
         | state, Some saved when state = saved ->
             StateContext.Msg.Clear |> dispatch
 
-            use client = new HttpClient()
+            use api = Api.create API_BASE_URL
 
-            match! Api.login code REDIRECT_URI client with
-            | Error status ->
-                setError (Some (int status))
+            match! api |> Api.login code REDIRECT_URI with
+            | Error (ApiError.Serialization err) -> setError (Some $"Unexpected response: {err}")
+            | Error (ApiError.Api err) -> setError (Some err.Message)
+            | Ok user -> () // TODO: Save user to local storage with new context
 
-            | Ok res ->
-                res.Token |> ignore // TODO: Add to local storage as user context (should the api also return info about the user?)
         | _ -> ()
 
         setLoading false

@@ -1,37 +1,69 @@
-﻿module Lattice.Web.Api
+﻿namespace Lattice.Web
 
+open Lattice.Orchestrator.Contracts
+open System
 open System.Net.Http
 open System.Text
-open System.Text.Json
-open System.Text.Json.Nodes
+open Thoth.Json.Net
 
-// TODO: Can types be auto-generated from the api project?
+[<RequireQualifiedAccess>]
+type ApiError =
+    | Api of ErrorResponse
+    | Serialization of string
 
-module Json =
-    let add (key: string) (value: 'a) (json: JsonObject) =
-        json.Add(key, JsonValue.Create value)
-        json
+module HttpContent =
+    let json (encoder: Encoder<'a>) (payload: 'a) =
+        let json = Encode.toString 4 (encoder payload)
+        new StringContent(json, Encoding.UTF8, "application/json")
 
-    let get<'a> (key: string) (json: JsonNode) =
-        json[key].GetValue<'a>()
-
-let [<Literal>] BASE_URL = "http://localhost:7071/api/" // TODO: Configure in environment
-
-let login (code: string) (redirectUri: string) (client: HttpClient) = task {
-    let json =
-        JsonObject()
-        |> Json.add "code" code
-        |> Json.add "redirectUri" redirectUri
-
-    use content = new StringContent(JsonSerializer.Serialize json, Encoding.UTF8, "application/json")
-
-    match! client.PostAsync(BASE_URL + "auth/login", content) with
-    | res when not res.IsSuccessStatusCode -> return Error res.StatusCode
-    | res ->
+module HttpResponseMessage =
+    let decode (decoder: Decoder<'a>) (res: HttpResponseMessage) = task {
         let! body = res.Content.ReadAsStringAsync()
-        let json = JsonObject.Parse body
 
-        return Ok {|
-            Token = json |> Json.get<string> "token"
-        |}
-}
+        match res.IsSuccessStatusCode with
+        | false ->
+            return
+                Decode.fromString ErrorResponse.decoder body
+                |> function | Error e -> ApiError.Serialization e | Ok e -> ApiError.Api e
+                |> Error
+
+        | true ->
+            return
+                Decode.fromString decoder body
+                |> Result.mapError (fun e -> ApiError.Serialization e)
+    }
+
+    let unit (res: HttpResponseMessage) = task {
+        let! body = res.Content.ReadAsStringAsync()
+
+        match res.IsSuccessStatusCode with
+        | false ->
+            return
+                Decode.fromString ErrorResponse.decoder body
+                |> function | Error e -> ApiError.Serialization e | Ok e -> ApiError.Api e
+                |> Error
+
+        | true ->
+            return Ok ()  
+    }
+
+type Api = HttpClient
+
+module Api =
+    let create (baseUrl: string): Api =
+        use httpClient = new HttpClient()
+        httpClient.BaseAddress <- Uri baseUrl
+        httpClient
+
+    let login code redirectUri (client: Api) = task {
+        let payload = { Code = code; RedirectUri = redirectUri }
+        let content = HttpContent.json LoginPayload.encoder payload
+
+        let! res = client.PostAsync("/auth/login", content)
+        return! HttpResponseMessage.decode UserResponse.decoder res
+    }
+
+    let logout (client: Api) = task {
+        let! res = client.PostAsync("/auth/logout", null)
+        return! HttpResponseMessage.unit res
+    }
