@@ -27,4 +27,8 @@
     <ProjectReference Include="..\Lattice.Orchestrator.Domain\Lattice.Orchestrator.Domain.fsproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="9.0.201" />
+  </ItemGroup>
+
 </Project>

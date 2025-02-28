@@ -11,8 +11,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Azure.Messaging.EventGrid" Version="4.29.0" />
-	  <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.18.3" />
+	  <PackageReference Include="Azure.Messaging.EventGrid" Version="4.30.0" />
+	  <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.18.4" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -20,7 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Update="FSharp.Core" Version="8.0.403" />
+		<PackageReference Update="FSharp.Core" Version="9.0.201" />
 	</ItemGroup>
 
 </Project>
