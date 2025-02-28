@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Presentation
+﻿namespace Lattice.Orchestrator.Contracts
 
 open Lattice.Orchestrator.Domain
 open Thoth.Json.Net
@@ -13,6 +13,16 @@ type PrivilegedIntentsResponse = {
 }
 
 module PrivilegedIntentsResponse =
+    let decoder: Decoder<PrivilegedIntentsResponse> =
+        Decode.object (fun get -> {
+            MessageContent = get.Required.Field "messageContent" Decode.bool
+            MessageContentLimited = get.Required.Field "messageContentLimited" Decode.bool
+            GuildMembers = get.Required.Field "guildMembers" Decode.bool
+            GuildMembersLimited = get.Required.Field "guildMembersLimited" Decode.bool
+            Presence = get.Required.Field "presence" Decode.bool
+            PresenceLimited = get.Required.Field "presenceLimited" Decode.bool
+        })
+
     let encoder (v: PrivilegedIntentsResponse) =
         Encode.object [
             "messageContent", Encode.bool v.MessageContent

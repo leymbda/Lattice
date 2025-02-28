@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Presentation
+﻿namespace Lattice.Orchestrator.Contracts
 
 open Lattice.Orchestrator.Domain
 open Thoth.Json.Net
@@ -8,6 +8,11 @@ type DisabledApplicationReasonResponse = {
 }
 
 module DisabledApplicationReasonResponse =
+    let decoder: Decoder<DisabledApplicationReasonResponse> =
+        Decode.object (fun get -> {
+            DisabledReasons = get.Required.Field "disabledReasons" Decode.int
+        })
+
     let encoder (v: DisabledApplicationReasonResponse) =
         Encode.object [
             "disabledReasons", Encode.int v.DisabledReasons

@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Presentation
+﻿namespace Lattice.Orchestrator.Contracts
 
 open Thoth.Json.Net
 
@@ -17,3 +17,11 @@ module UpdateApplicationPayload =
             ShardCount = get.Optional.Field "shardCount" Decode.int
             Handler = get.Optional.Raw (Decode.field "handler" (Decode.option CreateHandlerPayload.decoder))
         })
+
+    let encoder (v: UpdateApplicationPayload) =
+        Encode.object [
+            match v.DiscordBotToken with | Some p -> "discordBotToken", Encode.string p | None -> ()
+            match v.Intents with | Some p -> "intents", Encode.int p | None -> ()
+            match v.ShardCount with | Some p -> "shardCount", Encode.int p | None -> ()
+            match v.Handler with | Some p -> "handler", Encode.option CreateHandlerPayload.encoder p | None -> ()
+        ]

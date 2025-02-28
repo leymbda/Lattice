@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Presentation
+﻿namespace Lattice.Orchestrator.Contracts
 
 open Thoth.Json.Net
 
@@ -11,3 +11,8 @@ module RegisterApplicationPayload =
         Decode.object (fun get -> {
             DiscordBotToken = get.Required.Field "discordBotToken" Decode.string
         })
+
+    let encoder (v: RegisterApplicationPayload) =
+        Encode.object [
+            "discordBotToken", Encode.string v.DiscordBotToken
+        ]

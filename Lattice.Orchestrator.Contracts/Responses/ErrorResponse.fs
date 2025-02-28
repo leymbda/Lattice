@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Presentation
+﻿namespace Lattice.Orchestrator.Contracts
 
 open Thoth.Json.Net
 
@@ -8,6 +8,12 @@ type ErrorResponse = {
 }
 
 module ErrorResponse =
+    let decoder: Decoder<ErrorResponse> =
+        Decode.object (fun get -> {
+            Code = get.Required.Field "code" Decode.Enum.int<ErrorCode>
+            Message = get.Required.Field "message" Decode.string
+        })
+
     let encoder (v: ErrorResponse) =
         Encode.object [
             "code", Encode.Enum.int<ErrorCode> v.Code

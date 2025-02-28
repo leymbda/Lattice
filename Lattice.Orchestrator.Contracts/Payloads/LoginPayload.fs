@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Presentation
+﻿namespace Lattice.Orchestrator.Contracts
 
 open Thoth.Json.Net
 
@@ -13,3 +13,9 @@ module LoginPayload =
             Code = get.Required.Field "code" Decode.string
             RedirectUri = get.Required.Field "redirectUri" Decode.string
         })
+
+    let encoder (v: LoginPayload) =
+        Encode.object [
+            "code", Encode.string v.Code
+            "redirectUri", Encode.string v.RedirectUri
+        ]

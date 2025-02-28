@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Presentation
+﻿namespace Lattice.Orchestrator.Contracts
 
 type ErrorCode =
     | INTERNAL_SERVER_ERROR = 1000

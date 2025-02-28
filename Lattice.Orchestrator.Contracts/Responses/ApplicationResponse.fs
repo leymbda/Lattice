@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Presentation
+﻿namespace Lattice.Orchestrator.Contracts
 
 open Lattice.Orchestrator.Domain
 open Thoth.Json.Net
@@ -9,10 +9,20 @@ type ApplicationResponse = {
     DisabledReasons: int
     Intents: int
     ProvisionedShardCount: int
-    Handler: HandlerResponse
+    Handler: HandlerResponse option
 }
 
 module ApplicationResponse =
+    let decoder: Decoder<ApplicationResponse> =
+        Decode.object (fun get -> {
+            Id = get.Required.Field "id" Decode.string
+            PrivilegedIntents = get.Required.Field "privilegedIntents" PrivilegedIntentsResponse.decoder
+            DisabledReasons = get.Required.Field "disabledReasons" Decode.int
+            Intents = get.Required.Field "intents" Decode.int
+            ProvisionedShardCount = get.Required.Field "provisionedShardCount" Decode.int
+            Handler = get.Optional.Field "handler" HandlerResponse.decoder
+        })
+
     let encoder (v: ApplicationResponse) =
         Encode.object [
             "id", Encode.string v.Id
@@ -20,7 +30,7 @@ module ApplicationResponse =
             "disabledReasons", Encode.int v.DisabledReasons
             "intents", Encode.int v.Intents
             "provisionedShardCount", Encode.int v.ProvisionedShardCount
-            "handler", HandlerResponse.encoder v.Handler
+            "handler", Encode.option HandlerResponse.encoder v.Handler
         ]
 
     let fromDomain (v: Application) = {
@@ -29,5 +39,5 @@ module ApplicationResponse =
         DisabledReasons = DisabledApplicationReason.toBitfield v.DisabledReasons
         Intents = v.Intents
         ProvisionedShardCount = v.ProvisionedShardCount
-        Handler = HandlerResponse.fromDomain v.Handler
+        Handler = v.Handler |> Option.map HandlerResponse.fromDomain
     }

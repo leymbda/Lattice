@@ -1,6 +1,7 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
 open Lattice.Orchestrator.Application
+open Lattice.Orchestrator.Contracts
 open Lattice.Orchestrator.Domain
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Azure.Functions.Worker.Http

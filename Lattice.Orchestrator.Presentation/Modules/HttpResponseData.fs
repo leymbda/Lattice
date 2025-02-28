@@ -1,5 +1,6 @@
 ﻿module Lattice.Orchestrator.Presentation.HttpResponseData
 
+open Lattice.Orchestrator.Contracts
 open Microsoft.Azure.Functions.Worker.Http
 open Thoth.Json.Net
 
