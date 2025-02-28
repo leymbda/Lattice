@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Presentation
+﻿namespace Lattice.Orchestrator.Contracts
 
 open Lattice.Orchestrator.Domain
 open Thoth.Json.Net
@@ -9,6 +9,12 @@ type UserResponse = {
 }
 
 module UserResponse =
+    let decoder: Decoder<UserResponse> =
+        Decode.object (fun get -> {
+            Id = get.Required.Field "id" Decode.string
+            Username = get.Required.Field "username" Decode.string
+        })
+
     let encoder (v: UserResponse) =
         Encode.object [
             "id", Encode.string v.Id
