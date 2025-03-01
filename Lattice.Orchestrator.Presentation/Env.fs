@@ -41,15 +41,6 @@ type Env (
         member _.UpsertApplication application = Cosmos.upsertApplication cosmosClient application
         member _.DeleteApplicationById id = Cosmos.deleteApplicationById cosmosClient id
 
-        member _.GetNodeById id = Cosmos.getNodeById cosmosClient id
-        member _.UpsertNode node = Cosmos.upsertNode cosmosClient node
-        member _.DeleteNodeById id = Cosmos.deleteNodeById cosmosClient id
-
-        member _.GetShardById id = Cosmos.getShardById cosmosClient id
-        member _.GetShardsByApplicationId id = Cosmos.getShardsByApplicationId cosmosClient id
-        member _.UpsertShard shard = Cosmos.upsertShard cosmosClient shard
-        member _.DeleteShardById id = Cosmos.deleteShardById cosmosClient id
-        
     interface ISecrets with
         member _.ClientId = secrets.DiscordClientId
         member _.ClientSecret = secrets.DiscordClientSecret

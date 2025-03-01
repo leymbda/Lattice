@@ -14,7 +14,6 @@
 		<Compile Include="Applications\HandlerTests.fs" />
 		<Compile Include="Applications\ApplicationTests.fs" />
 		<Compile Include="Nodes\NodeTests.fs" />
-		<Compile Include="Nodes\NodeHealthTests.fs" />
 		<Compile Include="Nodes\BidTests.fs" />
 		<Compile Include="Nodes\ShardTests.fs" />
 		<Compile Include="Program.fs" />

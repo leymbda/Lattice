@@ -25,7 +25,7 @@
     <Compile Include="Operations\Nodes\HeartbeatNodeCommand.fs" />
     <Compile Include="Operations\Nodes\ReleaseNodeCommand.fs" />
     <Compile Include="Operations\Nodes\RedistributeNodeCommand.fs" />
-    <Compile Include="Durables\NodeHealthDurableEntity.fs" />
+    <Compile Include="Orchestrations\NodeOrchestrator.fs" />
   </ItemGroup>
 	
   <ItemGroup>

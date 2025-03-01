@@ -9,18 +9,21 @@ type NodeTests () =
     member _.``create - Creates with provided values`` () =
         // Arrange
         let id = Guid.NewGuid()
+        let currentTime = DateTime.UtcNow
 
         // Act
-        let node = Node.create id
+        let node = Node.create id currentTime
 
         // Assert
         Assert.AreEqual<Guid>(id, node.Id)
         Assert.AreEqual<int>(0, List.length node.Shards)
+        Assert.AreEqual<DateTime>(currentTime, node.LastHeartbeatAck)
+        Assert.IsFalse(node.Zombied)
 
     [<TestMethod>]
     member _.``addShard - Adds first shard to node`` () =
         // Arrange
-        let node = Node.create (Guid.NewGuid())
+        let node = Node.create (Guid.NewGuid()) DateTime.UtcNow
         let shardId = Guid.NewGuid()
 
         // Act
@@ -34,7 +37,7 @@ type NodeTests () =
     member _.``addShard - Adds shard to node with existing shards`` () =
         // Arrange
         let node =
-            Node.create (Guid.NewGuid())
+            Node.create (Guid.NewGuid()) DateTime.UtcNow
             |> Node.addShard (Guid.NewGuid())
             |> Node.addShard (Guid.NewGuid())
 
@@ -52,7 +55,7 @@ type NodeTests () =
         // Arrange
         let shardId = Guid.NewGuid()
         let node =
-            Node.create (Guid.NewGuid())
+            Node.create (Guid.NewGuid()) DateTime.UtcNow
             |> Node.addShard shardId
 
         // Act
@@ -67,7 +70,7 @@ type NodeTests () =
         // Arrange
         let shardId = Guid.NewGuid()
         let node =
-            Node.create (Guid.NewGuid())
+            Node.create (Guid.NewGuid()) DateTime.UtcNow
             |> Node.addShard shardId
             |> Node.addShard (Guid.NewGuid())
             |> Node.addShard (Guid.NewGuid())
@@ -78,3 +81,79 @@ type NodeTests () =
         // Assert
         Assert.IsFalse(List.exists ((=) shardId) updatedNode.Shards)
         Assert.AreEqual<int>(2, List.length updatedNode.Shards)
+
+    [<TestMethod>]
+    member _.``heartbeat - Updates last heartbeat ack`` () =
+        // Arrange
+        let currentTime = DateTime.UtcNow
+        let previousAckTime = currentTime.Subtract (TimeSpan.FromSeconds 10)
+        let node = Node.create (Guid.NewGuid()) previousAckTime
+
+        // Act
+        let updatedNode = Node.heartbeat currentTime node
+
+        // Assert
+        Assert.AreEqual<DateTime>(currentTime, updatedNode.LastHeartbeatAck)
+        
+    [<TestMethod>]
+    member _.``isAlive - Returns true when node is alive`` () =
+        // Arrange
+        let currentTime = DateTime.UtcNow
+        let node = Node.create (Guid.NewGuid()) currentTime
+
+        // Act
+        let result = Node.isAlive currentTime node
+
+        // Assert
+        Assert.IsTrue(result)
+
+    [<TestMethod>]
+    member _.``isAlive - Returns false when node has not acked heartbeat in lifetime duration`` () =
+        // Arrange
+        let currentTime = DateTime.UtcNow
+        let timeBeforeLifetime = currentTime.Subtract (TimeSpan.FromSeconds (Node.LIFETIME_SECONDS + 1 |> float))
+        let node = Node.create (Guid.NewGuid()) timeBeforeLifetime
+
+        // Act
+        let result = Node.isAlive currentTime node
+
+        // Assert
+        Assert.IsFalse(result)
+        
+    [<TestMethod>]
+    member _.``isAlive - Returns false when node is a zombie`` () =
+        // Arrange
+        let currentTime = DateTime.UtcNow
+        let node =
+            Node.create (Guid.NewGuid()) currentTime
+            |> Node.zombify
+
+        // Act
+        let result = Node.isAlive currentTime node
+
+        // Assert
+        Assert.IsFalse(result)
+
+    [<TestMethod>]
+    member _.``isTransferReady - Returns true when node has no shards`` () =
+        // Arrange
+        let node = Node.create (Guid.NewGuid()) DateTime.UtcNow
+
+        // Act
+        let result = Node.isTransferReady node
+
+        // Assert
+        Assert.IsTrue(result)
+        
+    [<TestMethod>]
+    member _.``isTransferReady - Returns false when node has shards`` () =
+        // Arrange
+        let node =
+            Node.create (Guid.NewGuid()) DateTime.UtcNow
+            |> Node.addShard (Guid.NewGuid())
+
+        // Act
+        let result = Node.isTransferReady node
+
+        // Assert
+        Assert.IsFalse(result)
