@@ -10,15 +10,17 @@ open System.Threading.Tasks
 type NodeEvent =
     | Timeout
     | Heartbeat of DateTime
-    | AddShard of Guid
-    | RemoveShard of Guid
+    | CreateShard of ShardId
+    | StartShard of ShardId
+    | RemoveShard of ShardId * DateTime
     | Teardown
 
 type NodeEvents = {
     Timeout: Task
     Heartbeat: Task<DateTime>
-    AddShard: Task<Guid>
-    RemoveShard: Task<Guid>
+    CreateShard: Task<ShardId>
+    StartShard: Task<ShardId>
+    RemoveShard: Task<ShardId * DateTime>
     Teardown: Task
 }
 
@@ -28,7 +30,8 @@ module NodeEvents =
             let! winner = Task.WhenAny [|
                 events.Timeout
                 events.Heartbeat
-                events.AddShard
+                events.CreateShard
+                events.StartShard
                 events.RemoveShard
                 events.Teardown
             |]
@@ -36,7 +39,8 @@ module NodeEvents =
             return
                 match winner with
                 | winner when winner = events.Heartbeat -> NodeEvent.Heartbeat events.Heartbeat.Result
-                | winner when winner = events.AddShard -> NodeEvent.AddShard events.AddShard.Result
+                | winner when winner = events.CreateShard -> NodeEvent.CreateShard events.CreateShard.Result
+                | winner when winner = events.StartShard -> NodeEvent.StartShard events.StartShard.Result
                 | winner when winner = events.RemoveShard -> NodeEvent.RemoveShard events.RemoveShard.Result
                 | winner when winner = events.Teardown -> NodeEvent.Teardown
                 | _ -> NodeEvent.Timeout
@@ -49,44 +53,83 @@ type NodeOrchestrator () =
         fctx: FunctionContext,
         node: Node
     ) = task {
+        let ct = fctx.CancellationToken
+        
         let events = {
-            Timeout = ctx.CreateTimer(TimeSpan.FromSeconds Node.LIFETIME_SECONDS, fctx.CancellationToken)
-            Heartbeat = ctx.WaitForExternalEvent<DateTime>(nameof NodeEvent.Heartbeat)
-            AddShard = ctx.WaitForExternalEvent<Guid>(nameof NodeEvent.AddShard)
-            RemoveShard = ctx.WaitForExternalEvent<Guid>(nameof NodeEvent.RemoveShard)
-            Teardown = ctx.WaitForExternalEvent(nameof NodeEvent.Teardown)
+            Timeout = ctx.CreateTimer(node.LastHeartbeatAck.AddSeconds Node.LIFETIME_SECONDS, ct)
+            Heartbeat = ctx.WaitForExternalEvent<DateTime>(nameof NodeEvent.Heartbeat, ct)
+            CreateShard = ctx.WaitForExternalEvent<ShardId>(nameof NodeEvent.CreateShard, ct)
+            StartShard = ctx.WaitForExternalEvent<ShardId>(nameof NodeEvent.StartShard, ct)
+            RemoveShard = ctx.WaitForExternalEvent<ShardId * DateTime>(nameof NodeEvent.RemoveShard, ct)
+            Teardown = ctx.WaitForExternalEvent(nameof NodeEvent.Teardown, ct)
         }
 
-        match Node.isAlive ctx.CurrentUtcDateTime node with
-        | false ->
+        // TODO: Refactor using suborchestrations and other patterns to prevent blocking (e.g. RemoveShard's timer)
+
+        match! NodeEvents.awaitEvent events with
+        | NodeEvent.Timeout ->
+            // TODO: Force release and delete
+
             return ()
+
+        | NodeEvent.Heartbeat heartbeatTime ->
+            let newNode = Node.heartbeat heartbeatTime node
+            return ctx.ContinueAsNew newNode
             
-            // Check to ensure this appropriately handles race conditions. May want a new event that triggers once
-            // closure is complete to end the orchestrator without preserving unprocessed events.
+        | NodeEvent.CreateShard shardId ->
+            let! createdId = ctx.Entities.CallEntityAsync<ShardId option>(
+                ShardEntity.entityId shardId,
+                ShardEntity.Operations.CREATE)
 
-        | true ->
-            match! NodeEvents.awaitEvent events with
-            | NodeEvent.Timeout ->
-                // TODO: Force release and delete
-                return ()
+            let newNode =
+                match createdId with
+                | None -> node
+                | Some createdId -> Node.addShard createdId node
 
-            | NodeEvent.Heartbeat heartbeatTime ->
-                let newNode = Node.heartbeat heartbeatTime node
-                return ctx.ContinueAsNew(newNode)
+            return ctx.ContinueAsNew newNode
+
+        | NodeEvent.StartShard shardId ->
+            do! ctx.Entities.SignalEntityAsync(
+                ShardEntity.entityId shardId,
+                ShardEntity.Operations.START)
+
+            return ctx.ContinueAsNew node       
             
-            | NodeEvent.AddShard shardId ->
-                // TODO: Handle shard addition
+        | NodeEvent.RemoveShard (shardId, removalTime) ->
+            do! ctx.Entities.SignalEntityAsync(
+                ShardEntity.entityId shardId,
+                ShardEntity.Operations.SCHEDULE_SHUTDOWN,
+                removalTime)
 
-                let newNode = Node.addShard shardId node
-                return ctx.ContinueAsNew(newNode)
-            
-            | NodeEvent.RemoveShard shardId ->
-                // TODO: Handle shard removal
+            do! ctx.CreateTimer(removalTime, ct)
 
-                let newNode = Node.removeShard shardId node
-                return ctx.ContinueAsNew(newNode)
+            let newNode = Node.removeShard shardId node
+            return ctx.ContinueAsNew newNode
 
-            | NodeEvent.Teardown ->
-                // TODO: Soft release and delete
-                return ()
+        | NodeEvent.Teardown ->
+            let mutable shutdownTime: DateTime option = None
+
+            for shardId in node.Shards do
+                shutdownTime <- Some (ctx.CurrentUtcDateTime.AddSeconds ShardEntity.SHUTDOWN_GRACE_SECONDS)
+
+                do! ctx.Entities.SignalEntityAsync(
+                    ShardEntity.entityId shardId,
+                    ShardEntity.Operations.SCHEDULE_SHUTDOWN,
+                    shutdownTime)
+
+                // TODO: Enqueue new node to pick up the slack (where events start being processed as of `scheduledTime`)
+
+            match shutdownTime with
+            | Some time -> do! ctx.CreateTimer(time, ct)
+            | None -> ()
+
+            for shardId in node.Shards do
+                do! ctx.Entities.SignalEntityAsync(
+                    ShardEntity.entityId shardId,
+                    ShardEntity.Operations.DELETE)
+
+            // TODO: Nodes should just transfer ownership (property on shard model) instead of creating/deleting entities.
+            //       Current implementation has a collision on the entity ID meaning this will not work. Grace period and
+            //       all that should probably simply be handled by each invidual shard, where this orchestrator waits for
+            //       successful transfer of all shards before ending.
     }

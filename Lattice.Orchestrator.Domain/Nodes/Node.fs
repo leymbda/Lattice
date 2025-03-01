@@ -4,9 +4,8 @@ open System
 
 type Node = {
     Id: Guid
-    Shards: Guid list
+    Shards: ShardId list
     LastHeartbeatAck: DateTime
-    Zombied: bool
 }
 
 module Node =
@@ -17,7 +16,6 @@ module Node =
         Id = id
         Shards = []
         LastHeartbeatAck = currentTime
-        Zombied = false
     }
 
     let addShard shardId node =
@@ -29,11 +27,8 @@ module Node =
     let heartbeat currentTime node =
         { node with LastHeartbeatAck = currentTime }
         
-    let zombify node =
-        { node with Zombied = true }
-
     let isAlive currentTime node =
-        (currentTime - node.LastHeartbeatAck).TotalSeconds < float LIFETIME_SECONDS && not node.Zombied
+        (currentTime - node.LastHeartbeatAck).TotalSeconds < float LIFETIME_SECONDS
 
     let isTransferReady node =
         List.isEmpty node.Shards

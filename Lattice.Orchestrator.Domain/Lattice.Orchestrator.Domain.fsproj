@@ -10,9 +10,10 @@
     <Compile Include="Applications\DisabledApplicationReason.fs" />
     <Compile Include="Applications\Handler.fs" />
     <Compile Include="Applications\Application.fs" />
+    <Compile Include="Nodes\Shard.fs" />
     <Compile Include="Nodes\Node.fs" />
     <Compile Include="Nodes\Bid.fs" />
-    <Compile Include="Nodes\Shard.fs" />
+    <Compile Include="Nodes\OldShard.fs" />
   </ItemGroup>
 
   <ItemGroup>
