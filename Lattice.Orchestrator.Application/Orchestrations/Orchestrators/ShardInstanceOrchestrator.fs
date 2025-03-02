@@ -33,7 +33,7 @@ type ShardInstanceOrchestrator () =
             | ShardInstanceEvent.START startAt ->
                 match state with
                 | ShardInstanceState.NotStarted ->
-                    ctx.SendEvent(NodeEvent.orchestratorId shardInstance.NodeId, NodeEvent.Events.START_INSTANCE, startAt)
+                    ctx.SendEvent(NodeEvent.orchestratorId shardInstance.NodeId, NodeEvent.Events.START_INSTANCE, (shardInstance.ShardId, startAt))
                     ctx.ContinueAsNew (shardInstance |> ShardInstance.start startAt)
 
                 | _ -> ctx.ContinueAsNew shardInstance
@@ -47,7 +47,7 @@ type ShardInstanceOrchestrator () =
 
                 | ShardInstanceState.Starting _
                 | ShardInstanceState.Active ->
-                    ctx.SendEvent(NodeEvent.orchestratorId shardInstance.NodeId, NodeEvent.Events.SHUTDOWN_INSTANCE, shutdownAt)
+                    ctx.SendEvent(NodeEvent.orchestratorId shardInstance.NodeId, NodeEvent.Events.SHUTDOWN_INSTANCE, (shardInstance.ShardId, shutdownAt))
                     ctx.ContinueAsNew newShardInstance
 
                 | _ -> ctx.ContinueAsNew shardInstance
@@ -55,7 +55,7 @@ type ShardInstanceOrchestrator () =
             | ShardInstanceEvent.SEND_EVENT ->
                 match state with
                 | ShardInstanceState.Active ->
-                    ctx.SendEvent(NodeEvent.orchestratorId shardInstance.NodeId, NodeEvent.Events.SEND_INSTANCE_EVENT, ())
+                    ctx.SendEvent(NodeEvent.orchestratorId shardInstance.NodeId, NodeEvent.Events.SEND_INSTANCE_EVENT, (shardInstance.ShardId))
                     ctx.ContinueAsNew shardInstance
                 
                 | _ -> ctx.ContinueAsNew shardInstance

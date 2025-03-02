@@ -9,6 +9,7 @@ type NodeState =
 type Node = {
     Id: Guid
     LastHeartbeatAck: DateTime
+    Shards: ShardId list
 }
 
 module Node =
@@ -18,10 +19,17 @@ module Node =
     let create id currentTime = {
         Id = id
         LastHeartbeatAck = currentTime
+        Shards = []
     }
 
     let heartbeat currentTime node =
         { node with LastHeartbeatAck = currentTime }
+
+    let addStard shardId node =
+        { node with Shards = node.Shards @ [shardId] |> List.distinct }
+
+    let removeShard shardId shutdownAt node =
+        { node with Shards = node.Shards |> List.filter ((<>) shardId) }
         
     let getState (currentTime: DateTime) node =
         match node with

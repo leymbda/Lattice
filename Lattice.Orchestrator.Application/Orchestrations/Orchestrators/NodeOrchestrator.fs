@@ -13,43 +13,49 @@ type NodeOrchestrator () =
         node: Node
     ) = task {
         let ct = fctx.CancellationToken
+        let currentTime = ctx.CurrentUtcDateTime
 
-        let lastHeartbeatAck = ctx.CurrentUtcDateTime // TODO: Get from node state
-
-        let events = {
-            StartInstance = ctx.WaitForExternalEvent<ShardId * DateTime>(NodeEvent.Events.START_INSTANCE, ct)
-            ShutdownInstance = ctx.WaitForExternalEvent<ShardId * DateTime>(NodeEvent.Events.SHUTDOWN_INSTANCE, ct)
-            TransferInstance = ctx.WaitForExternalEvent<ShardId * DateTime>(NodeEvent.Events.TRANSFER_INSTANCE, ct)
-            SendInstanceEvent = ctx.WaitForExternalEvent<ShardId>(NodeEvent.Events.SEND_INSTANCE_EVENT, ct)
-            HeartbeatAck = ctx.WaitForExternalEvent<DateTime>(NodeEvent.Events.HEARTBEAT_ACK, ct)
-            HeartbeatTimeout = ctx.CreateTimer(lastHeartbeatAck.AddSeconds Node.LIFETIME_SECONDS, ct)
-        }
-
-        match! NodeEvent.awaitAny events with
-        | NodeEvent.UNKNOWN_EVENT ->
-            ctx.ContinueAsNew node
-
-        | NodeEvent.START_INSTANCE (shardId, startAt) ->
-            // TODO: Notify node to start a shard instance
+        match Node.getState currentTime node with
+        | NodeState.Expired ->
+            // TODO: Handle expired node (immediately transfer all shards)
             ()
 
-        | NodeEvent.SHUTDOWN_INSTANCE (shardId, shutdownAt) ->
-            // TODO: Notify node to shutdown a shard instance
-            ()
+        | NodeState.Active ->
+            let events = {
+                StartInstance = ctx.WaitForExternalEvent<ShardId * DateTime>(NodeEvent.Events.START_INSTANCE, ct)
+                ShutdownInstance = ctx.WaitForExternalEvent<ShardId * DateTime>(NodeEvent.Events.SHUTDOWN_INSTANCE, ct)
+                SendInstanceEvent = ctx.WaitForExternalEvent<ShardId>(NodeEvent.Events.SEND_INSTANCE_EVENT, ct)
+                TransferAllInstances = ctx.WaitForExternalEvent(NodeEvent.Events.TRANSFER_ALL_INSTANCES, ct)
+                HeartbeatAck = ctx.WaitForExternalEvent<DateTime>(NodeEvent.Events.HEARTBEAT_ACK, ct)
+                HeartbeatTimeout = ctx.CreateTimer(node.LastHeartbeatAck.AddSeconds Node.LIFETIME_SECONDS, ct)
+            }
 
-        | NodeEvent.TRANSFER_INSTANCE (shardId, transferAt) ->
-            // TODO: ShardEvent.CREATE_OR_TRANSFER transferAt
-            ()
+            // TODO: Should timers be created to handle timeouts for instructions with time limits? Instance start and
+            //       shutdown currently instantly remove shard IDs which could cause issues.
 
-        | NodeEvent.SEND_INSTANCE_EVENT shardId ->
-            // TODO: Send gateway event through node
-            ()
+            match! NodeEvent.awaitAny events with
+            | NodeEvent.START_INSTANCE (shardId, startAt) ->
+                // TODO: Notify node to start a shard instance at the given time
+                ctx.ContinueAsNew (node |> Node.addStard shardId)
 
-        | NodeEvent.HEARTBEAT_ACK sentAt ->
-            // TODO: Handle heartbeat
-            ()
+            | NodeEvent.SHUTDOWN_INSTANCE (shardId, shutdownAt) ->
+                // TODO: Notify node to shutdown a shard instance at the given time
+                ctx.ContinueAsNew (node |> Node.removeShard shardId)
 
-        | NodeEvent.HEARTBEAT_TIMEOUT ->
-            // TODO: Trigger instant transfer to recover dead shard instance
-            ()
+            | NodeEvent.SEND_INSTANCE_EVENT shardId ->
+                // TODO: Send gateway event through node
+                ctx.ContinueAsNew node
+
+            | NodeEvent.TRANSFER_ALL_INSTANCES ->
+                // TODO: Gracefully transfer all shards (ShardEvent.CREATE_OR_TRANSFER shardId)
+                ctx.ContinueAsNew node
+
+            | NodeEvent.HEARTBEAT_ACK sentAt ->
+                ctx.ContinueAsNew (node |> Node.heartbeat sentAt)
+                ctx.ContinueAsNew node
+
+            | NodeEvent.HEARTBEAT_TIMEOUT ->
+                ctx.ContinueAsNew node
+
+            | NodeEvent.UNKNOWN_EVENT -> ()
     }
