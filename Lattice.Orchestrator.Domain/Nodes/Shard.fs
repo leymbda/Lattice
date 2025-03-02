@@ -50,7 +50,7 @@ module Shard =
     let getState currentTime shard =
         match shard with
         | { Instances = [] } -> NotStarted
-        | { Instances = (createAt, Some current) :: _ } when createAt < currentTime -> Active current
+        | { Instances = (createAt, Some current) :: _ } when createAt <= currentTime -> Active current
         | { Instances = (transferAt, Some next) :: (_, Some current) :: _ } when transferAt > currentTime -> Transferring (current, next, transferAt)
         | { Instances = (createAt, Some next) :: _ } -> Starting (next, createAt)
         | { Instances = (shutdownAt, None) :: (_, Some current) :: _ } when shutdownAt > currentTime -> ShuttingDown (current, shutdownAt)
