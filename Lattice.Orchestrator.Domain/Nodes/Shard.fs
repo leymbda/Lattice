@@ -21,17 +21,37 @@ module ShardId =
         with | _ ->
             None
 
+type ShardState =
+    | NotStarted
+    | Starting of next: Guid * startAt: DateTime
+    | Active of current: Guid
+    | Transferring of current: Guid * next: Guid * transferAt: DateTime
+    | ShuttingDown of current: Guid * shutdownAt: DateTime
+    | Shutdown of shutdownAt: DateTime
+
 type Shard = {
     Id: ShardId
-    ShutdownTime: DateTime option
+    Instances: (DateTime * Guid option) list
 }
 
 module Shard =
-    let create id =
+    let create applicationId formulaId numShards =
         {
-            Id = id
-            ShutdownTime = None
+            Id = ShardId.create applicationId formulaId numShards
+            Instances = []
         }
 
-    let scheduleShutdown time (shard: Shard) =
-        { shard with ShutdownTime = Some time }
+    let addInstance nodeId createAt shard =
+        { shard with Instances = shard.Instances @ [createAt, Some nodeId] }
+
+    let shutdown shutdownAt shard =
+        { shard with Instances = shard.Instances @ [shutdownAt, None] }
+
+    let getState currentTime shard =
+        match shard with
+        | { Instances = [] } -> NotStarted
+        | { Instances = (createAt, Some current) :: _ } when createAt < currentTime -> Active current
+        | { Instances = (transferAt, Some next) :: (_, Some current) :: _ } when transferAt > currentTime -> Transferring (current, next, transferAt)
+        | { Instances = (createAt, Some next) :: _ } -> Starting (next, createAt)
+        | { Instances = (shutdownAt, None) :: (_, Some current) :: _ } when shutdownAt > currentTime -> ShuttingDown (current, shutdownAt)
+        | { Instances = (shutdownAt, None) :: _ } -> Shutdown shutdownAt
