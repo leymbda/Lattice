@@ -15,11 +15,17 @@ type ExceptionMiddleware () =
             with | ex ->
                 // TODO: Handle exception here (logging, etc.)
 
-                let! req = ctx.GetHttpRequestDataAsync()
+                let binding =
+                    ctx.GetOutputBindings<HttpResponseData>()
+                    |> Seq.tryFind (fun b -> b.BindingType = "http" && b.Name <> "$return")
 
-                let res =
+                let! req = ctx.GetHttpRequestDataAsync()
+                    
+                let! res =
                     req.CreateResponse HttpStatusCode.InternalServerError
                     |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
 
-                ctx.GetInvocationResult().Value <- res
+                match binding with
+                | Some http -> http.Value <- res
+                | None -> ctx.GetInvocationResult().Value <- res
         }

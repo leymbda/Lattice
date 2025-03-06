@@ -54,26 +54,6 @@ module Async =
     }
 
 module Api =
-    // ----- Auth -----
-
-    let login code redirectUri =
-        let payload = {
-            Code = code
-            RedirectUri = redirectUri
-        }
-
-        Http.create POST "/api/auth/login"
-        |> Http.encode LoginPayload.encoder payload
-        |> Http.send
-        |> Async.map (Http.decode UserResponse.decoder)
-
-    let logout () =
-        Http.create POST "/api/auth/logout"
-        |> Http.send
-        |> Async.map Http.unit
-
-    // ----- Application -----
-
     let registerApplication discordBotToken =
         let payload = {
             DiscordBotToken = discordBotToken
@@ -111,8 +91,6 @@ module Api =
         Http.create POST $"/api/applications/{applicationId}/sync-privileged-intents"
         |> Http.send
         |> Async.map (Http.decode PrivilegedIntentsResponse.decoder)
-
-    // ----- Disabled Reasons -----
 
     let addDisabledApplicationReason (applicationId: string) (disabledReason: DisabledApplicationReason) =
         Http.create PUT $"/api/applications/{applicationId}/disabled-reasons/{int disabledReason}"

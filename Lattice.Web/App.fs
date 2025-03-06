@@ -17,12 +17,6 @@ let Router () =
             // Main content pages
             | [] -> Index.Index()
 
-            // Auth pages
-            | "auth" :: "login" :: rest ->
-                match rest with
-                | [ Route.Query ["code", code; "state", state] ] -> Auth.Callback code state
-                | _ -> Auth.Login ()
-
             // Fallback pages
             | _ -> Fallback.NotFound()
         ]
@@ -31,9 +25,7 @@ let Router () =
 [<ReactComponent>]
 let App () =
     // Providers listed in order of wrapping (outermost to innermost)
-    let providers = [
-        StateContext.Provider
-    ]
+    let providers = []
 
     // Fold providers into router to render
     providers

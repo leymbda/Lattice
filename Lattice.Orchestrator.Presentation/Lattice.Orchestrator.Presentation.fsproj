@@ -14,7 +14,6 @@
     <Compile Include="Modules\HttpResponseData.fs" />
     <Compile Include="Middleware\AuthorizeMiddleware.fs" />
     <Compile Include="Middleware\ExceptionMiddleware.fs" />
-    <Compile Include="Controllers\AuthController.fs" />
     <Compile Include="Controllers\ApplicationController.fs" />
     <Compile Include="Controllers\MessagingHandler.fs" />
     <Compile Include="Program.fs" />
