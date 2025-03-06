@@ -36,7 +36,7 @@ type NodeOrchestrator () =
             match! NodeEvent.awaitAny events with
             | NodeEvent.START_INSTANCE (shardId, startAt) ->
                 // TODO: Notify node to start a shard instance at the given time
-                ctx.ContinueAsNew (node |> Node.addStard shardId)
+                ctx.ContinueAsNew (node |> Node.addShard shardId)
 
             | NodeEvent.SHUTDOWN_INSTANCE (shardId, shutdownAt) ->
                 // TODO: Notify node to shutdown a shard instance at the given time

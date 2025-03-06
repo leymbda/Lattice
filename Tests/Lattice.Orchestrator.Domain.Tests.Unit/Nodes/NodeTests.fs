@@ -95,50 +95,29 @@ type NodeTests () =
         Assert.AreEqual<DateTime>(currentTime, updatedNode.LastHeartbeatAck)
         
     [<TestMethod>]
-    member _.``isAlive - Returns true when node is alive`` () =
+    member _.``getState - Returns expired state when heartbeat too old`` () =
+        // Arrange
+        let expiredTime = DateTime.UtcNow.Add (TimeSpan.FromSeconds -Node.LIFETIME_SECONDS)
+        let node = Node.create (Guid.NewGuid()) expiredTime
+
+        // Act
+        let state = Node.getState DateTime.UtcNow node
+
+        // Assert
+        match state with
+        | NodeState.Expired -> ()
+        | _ -> Assert.Fail()
+
+    [<TestMethod>]
+    member _.``getState - Returns active state when heartbeat recent`` () =
         // Arrange
         let currentTime = DateTime.UtcNow
         let node = Node.create (Guid.NewGuid()) currentTime
 
         // Act
-        let result = Node.isAlive currentTime node
+        let state = Node.getState currentTime node
 
         // Assert
-        Assert.IsTrue(result)
-
-    [<TestMethod>]
-    member _.``isAlive - Returns false when node has not acked heartbeat in lifetime duration`` () =
-        // Arrange
-        let currentTime = DateTime.UtcNow
-        let timeBeforeLifetime = currentTime.Subtract (TimeSpan.FromSeconds (Node.LIFETIME_SECONDS + 1 |> float))
-        let node = Node.create (Guid.NewGuid()) timeBeforeLifetime
-
-        // Act
-        let result = Node.isAlive currentTime node
-
-        // Assert
-        Assert.IsFalse(result)
-
-    [<TestMethod>]
-    member _.``isTransferReady - Returns true when node has no shards`` () =
-        // Arrange
-        let node = Node.create (Guid.NewGuid()) DateTime.UtcNow
-
-        // Act
-        let result = Node.isTransferReady node
-
-        // Assert
-        Assert.IsTrue(result)
-        
-    [<TestMethod>]
-    member _.``isTransferReady - Returns false when node has shards`` () =
-        // Arrange
-        let node =
-            Node.create (Guid.NewGuid()) DateTime.UtcNow
-            |> Node.addShard (ShardId.create "" 0 1)
-
-        // Act
-        let result = Node.isTransferReady node
-
-        // Assert
-        Assert.IsFalse(result)
+        match state with
+        | NodeState.Active -> ()
+        | _ -> Assert.Fail()
