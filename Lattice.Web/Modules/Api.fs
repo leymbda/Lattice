@@ -1,10 +1,8 @@
 ﻿namespace Lattice.Web
 
+open Fable.SimpleHttp
 open Lattice.Orchestrator.Contracts
 open Lattice.Orchestrator.Domain
-open System
-open System.Net.Http
-open System.Text
 open Thoth.Json.Net
 
 [<RequireQualifiedAccess>]
@@ -12,106 +10,116 @@ type ApiError =
     | Api of ErrorResponse
     | Serialization of string
 
-module HttpContent =
-    let json (encoder: Encoder<'a>) (payload: 'a) =
+module Http =
+    let create (method: HttpMethod) (url: string) =
+        Http.request url |> Http.method method
+
+    let encode (encoder: Encoder<'a>) (payload: 'a) (req: HttpRequest) =
         let json = Encode.toString 4 (encoder payload)
-        new StringContent(json, Encoding.UTF8, "application/json")
+        
+        req
+        |> Http.header (Headers.contentType "application/json")
+        |> Http.content (BodyContent.Text json)
 
-module HttpResponseMessage =
-    let decode (decoder: Decoder<'a>) (res: HttpResponseMessage) = task {
-        let! body = res.Content.ReadAsStringAsync()
+    let decode (decoder: Decoder<'a>) (res: HttpResponse) =
+        match res.statusCode, res.content with
+        | v, ResponseContent.Text data when v >= 200 && v < 300 ->
+            Decode.fromString decoder data
+            |> Result.mapError (fun e -> ApiError.Serialization e)
 
-        match res.IsSuccessStatusCode with
-        | false ->
-            return
-                Decode.fromString ErrorResponse.decoder body
-                |> function | Error e -> ApiError.Serialization e | Ok e -> ApiError.Api e
-                |> Error
+        | _, ResponseContent.Text data ->
+            Decode.fromString ErrorResponse.decoder data
+            |> function | Error e -> ApiError.Serialization e | Ok e -> ApiError.Api e
+            |> Error
 
-        | true ->
-            return
-                Decode.fromString decoder body
-                |> Result.mapError (fun e -> ApiError.Serialization e)
+        | _, _ ->
+            Error (ApiError.Serialization "Invalid response content")
+
+    let unit (res: HttpResponse) =
+        match res.statusCode, res.content with
+        | v, _ when v >= 200 && v < 300 -> Ok ()
+
+        | _, ResponseContent.Text data ->
+            Decode.fromString ErrorResponse.decoder data
+            |> function | Error e -> ApiError.Serialization e | Ok e -> ApiError.Api e
+            |> Error
+
+        | _, _ ->
+            Error (ApiError.Serialization "Invalid response content")
+
+module Async =
+    let map f a = async {
+        let! r = a
+        return f r
     }
-
-    let unit (res: HttpResponseMessage) = task {
-        let! body = res.Content.ReadAsStringAsync()
-
-        match res.IsSuccessStatusCode with
-        | false ->
-            return
-                Decode.fromString ErrorResponse.decoder body
-                |> function | Error e -> ApiError.Serialization e | Ok e -> ApiError.Api e
-                |> Error
-
-        | true ->
-            return Ok ()  
-    }
-
-type Api = HttpClient
 
 module Api =
-    let create (baseUrl: string): Api =
-        use httpClient = new HttpClient()
-        httpClient.BaseAddress <- Uri baseUrl
-        httpClient
-
     // ----- Auth -----
 
-    let login code redirectUri (client: Api) = task {
-        let payload = { Code = code; RedirectUri = redirectUri }
-        let content = HttpContent.json LoginPayload.encoder payload
+    let login code redirectUri =
+        let payload = {
+            Code = code
+            RedirectUri = redirectUri
+        }
 
-        let! res = client.PostAsync("/auth/login", content)
-        return! HttpResponseMessage.decode UserResponse.decoder res
-    }
+        Http.create POST "/api/auth/login"
+        |> Http.encode LoginPayload.encoder payload
+        |> Http.send
+        |> Async.map (Http.decode UserResponse.decoder)
 
-    let logout (client: Api) = task {
-        let! res = client.PostAsync("/auth/logout", null)
-        return! HttpResponseMessage.unit res
-    }
+    let logout () =
+        Http.create POST "/api/auth/logout"
+        |> Http.send
+        |> Async.map Http.unit
 
     // ----- Application -----
 
-    let registerApplication discordBotToken (client: Api) = task {
-        let payload = { DiscordBotToken = discordBotToken }
-        let content = HttpContent.json RegisterApplicationPayload.encoder payload
+    let registerApplication discordBotToken =
+        let payload = {
+            DiscordBotToken = discordBotToken
+        }
 
-        let! res = client.PostAsync("/applications", content)
-        return! HttpResponseMessage.decode ApplicationResponse.decoder res
-    }
+        Http.create POST "/api/applications"
+        |> Http.encode RegisterApplicationPayload.encoder payload
+        |> Http.send
+        |> Async.map (Http.decode ApplicationResponse.decoder)
 
-    let getApplication (applicationId: string) (client: Api) = task {
-        let! res = client.GetAsync($"/applications/{applicationId}")
-        return! HttpResponseMessage.decode ApplicationResponse.decoder res
-    }
+    let getApplication (applicationId: string) =
+        Http.create GET $"/api/applications/{applicationId}"
+        |> Http.send
+        |> Async.map (Http.decode ApplicationResponse.decoder)
 
-    let updateApplication (applicationId: string) discordBotToken intents shardCount handler (client: Api) = task {
-        let payload = { DiscordBotToken = discordBotToken; Intents = intents; ShardCount = shardCount; Handler = handler }
-        let content = HttpContent.json UpdateApplicationPayload.encoder payload
+    let updateApplication (applicationId: string) discordBotToken intents shardCount handler =
+        let payload = {
+            DiscordBotToken = discordBotToken
+            Intents = intents
+            ShardCount = shardCount
+            Handler = handler
+        }
 
-        let! res = client.PatchAsync($"/applications/{applicationId}", content)
-        return! HttpResponseMessage.decode ApplicationResponse.decoder res
-    }
+        Http.create PATCH $"/api/applications/{applicationId}"
+        |> Http.encode UpdateApplicationPayload.encoder payload
+        |> Http.send
+        |> Async.map (Http.decode ApplicationResponse.decoder)
 
-    let deleteApplication (applicationId: string) (client: Api) = task {
-        let! res = client.DeleteAsync($"/applications/{applicationId}")
-        return! HttpResponseMessage.unit res
-    }
+    let deleteApplication (applicationId: string) =
+        Http.create DELETE $"/api/applications/{applicationId}"
+        |> Http.send
+        |> Async.map Http.unit
 
-    let syncApplicationPrivilegedIntents (applicationId: string) (client: Api) = task {
-        let! res = client.PostAsync($"/applications/{applicationId}/sync-privileged-intents", null)
-        return! HttpResponseMessage.decode PrivilegedIntentsResponse.decoder res
-    }
+    let syncApplicationPrivilegedIntents (applicationId: string) =
+        Http.create POST $"/api/applications/{applicationId}/sync-privileged-intents"
+        |> Http.send
+        |> Async.map (Http.decode PrivilegedIntentsResponse.decoder)
 
     // ----- Disabled Reasons -----
 
-    let addDisabledApplicationReason (applicationId: string) (disabledReason: DisabledApplicationReason) (client: Api) = task {
-        let! res= client.PutAsync($"/applications/{applicationId}/disabled-reasons/{int disabledReason}", null)
-        return! HttpResponseMessage.decode DisabledApplicationReasonResponse.decoder res
-    }
+    let addDisabledApplicationReason (applicationId: string) (disabledReason: DisabledApplicationReason) =
+        Http.create PUT $"/api/applications/{applicationId}/disabled-reasons/{int disabledReason}"
+        |> Http.send
+        |> Async.map (Http.decode DisabledApplicationReasonResponse.decoder)
 
-    let removeDisabledApplicationReason (applicationId: string) (disabledReason: DisabledApplicationReason) (client: Api) = task {
-        let! res= client.DeleteAsync($"/applications/{applicationId}/disabled-reasons/{int disabledReason}")
-        return! HttpResponseMessage.decode DisabledApplicationReasonResponse.decoder res
-    }
+    let removeDisabledApplicationReason (applicationId: string) (disabledReason: DisabledApplicationReason) =
+        Http.create DELETE $"/api/applications/{applicationId}/disabled-reasons/{int disabledReason}"
+        |> Http.send
+        |> Async.map (Http.decode DisabledApplicationReasonResponse.decoder)

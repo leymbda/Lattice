@@ -35,14 +35,12 @@ let Callback code state =
     let loading, setLoading = React.useState true
     let error, setError = React.useState Option<string>.None
 
-    React.useEffect((fun () -> task {
+    React.useEffect((fun () -> (async {
         match state, savedState.State with
         | state, Some saved when state = saved ->
             StateContext.Msg.Clear |> dispatch
 
-            use api = Api.create API_BASE_URL
-
-            match! api |> Api.login code REDIRECT_URI with
+            match! Api.login code REDIRECT_URI with
             | Error (ApiError.Serialization err) -> setError (Some $"Unexpected response: {err}")
             | Error (ApiError.Api err) -> setError (Some err.Message)
             | Ok user -> () // TODO: Save user to local storage with new context
@@ -50,7 +48,9 @@ let Callback code state =
         | _ -> ()
 
         setLoading false
-    }), [||])
+    } |> Async.StartAsTask)), [||])
+
+    // TODO: Refactor to use React.useElmish to clean up effect, or at least clean up this async implementation
 
     let message =
         match loading, error with
