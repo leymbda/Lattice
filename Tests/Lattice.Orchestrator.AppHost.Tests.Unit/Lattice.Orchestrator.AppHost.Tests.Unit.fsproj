@@ -1,4 +1,4 @@
-<Project Sdk="MSTest.Sdk/3.6.1">
+﻿<Project Sdk="MSTest.Sdk/3.6.1">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -14,7 +14,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Lattice.Orchestrator.Presentation\Lattice.Orchestrator.Presentation.fsproj" />
+	  <ProjectReference Include="..\..\Lattice.Orchestrator.AppHost\Lattice.Orchestrator.AppHost.fsproj" />
 	</ItemGroup>
 
 	<ItemGroup>

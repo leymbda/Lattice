@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AzureFunctionsVersion>v4</AzureFunctionsVersion>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Lattice.Orchestrator.AppHost</RootNamespace>
+  </PropertyGroup>
+	
+  <ItemGroup>
+    <Compile Include="Options\SecretsOptions.fs" />
+    <Compile Include="Env.fs" />
+    <Compile Include="Program.fs" />
+    <None Include="appsettings.json" CopyToOutputDirectory="Always" />
+    <None Include="local.settings.json" CopyToOutputDirectory="Always" />
+    <None Include="host.json" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+	
+  <ItemGroup>
+	<PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
+	<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
+	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.CosmosDB" Version="4.12.0" />
+	<PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.1" />
+	<PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\Lattice.Orchestrator.Infrastructure.Discord\Lattice.Orchestrator.Infrastructure.Discord.fsproj" />
+    <ProjectReference Include="..\Lattice.Orchestrator.Infrastructure.Messaging\Lattice.Orchestrator.Infrastructure.Messaging.fsproj" />
+    <ProjectReference Include="..\Lattice.Orchestrator.Infrastructure.Persistence\Lattice.Orchestrator.Infrastructure.Persistence.fsproj" />
+    <ProjectReference Include="..\Lattice.Orchestrator.Presentation\Lattice.Orchestrator.Presentation.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="9.0.201" />
+  </ItemGroup>
+</Project>

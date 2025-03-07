@@ -1,5 +1,6 @@
 ﻿open Azure.Messaging.ServiceBus
 open FSharp.Discord.Rest
+open Lattice.Orchestrator.AppHost
 open Lattice.Orchestrator.Application
 open Lattice.Orchestrator.Infrastructure.Discord
 open Lattice.Orchestrator.Presentation

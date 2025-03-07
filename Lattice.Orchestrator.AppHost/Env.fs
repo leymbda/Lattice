@@ -1,18 +1,13 @@
-﻿namespace Lattice.Orchestrator.Presentation
+﻿namespace Lattice.Orchestrator.AppHost
 
 open Azure.Messaging.ServiceBus
 open Lattice.Orchestrator.Application
 open Lattice.Orchestrator.Infrastructure.Discord
 open Lattice.Orchestrator.Infrastructure.Messaging
 open Lattice.Orchestrator.Infrastructure.Persistence
+open Lattice.Orchestrator.Presentation
 open FSharp.Discord.Rest
 open Microsoft.Azure.Cosmos
-
-type IEnv =
-    inherit IDiscord
-    inherit IEvents
-    inherit IPersistence
-    inherit ISecrets
 
 type Env (
     secrets: SecretsOptions,

@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Presentation
+﻿namespace Lattice.Orchestrator.AppHost
 
 type SecretsOptions () =
     member val DiscordClientId = "" with get

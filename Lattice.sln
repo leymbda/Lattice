@@ -5,13 +5,13 @@ VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Lattice.WorkerNode", "Lattice.WorkerNode\Lattice.WorkerNode.fsproj", "{2B0CE0E9-D2C6-4C3E-B269-25BCDE9812C6}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Lattice.Orchestrator.Presentation", "Lattice.Orchestrator.Presentation\Lattice.Orchestrator.Presentation.fsproj", "{CECDF63B-A9F9-4D61-B0CF-96CC964A3FA5}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Lattice.Orchestrator.AppHost", "Lattice.Orchestrator.AppHost\Lattice.Orchestrator.AppHost.fsproj", "{CECDF63B-A9F9-4D61-B0CF-96CC964A3FA5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0B9F285C-06BC-42D1-9596-F8F3834C71F5}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Lattice.WorkerNode.Tests.Unit", "Tests\Lattice.WorkerNode.Tests.Unit\Lattice.WorkerNode.Tests.Unit.fsproj", "{93E0C53F-462E-497D-BC35-B0F183A4A02B}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Lattice.Orchestrator.Presentation.Tests.Unit", "Tests\Lattice.Orchestrator.Presentation.Tests.Unit\Lattice.Orchestrator.Presentation.Tests.Unit.fsproj", "{B4290E72-2EF1-42E6-9AF5-C15B2D675C2F}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Lattice.Orchestrator.AppHost.Tests.Unit", "Tests\Lattice.Orchestrator.AppHost.Tests.Unit\Lattice.Orchestrator.AppHost.Tests.Unit.fsproj", "{B4290E72-2EF1-42E6-9AF5-C15B2D675C2F}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Lattice.Orchestrator.Domain", "Lattice.Orchestrator.Domain\Lattice.Orchestrator.Domain.fsproj", "{E43A5EF1-8ABE-4BE2-B4A1-226239D76681}"
 EndProject
@@ -40,6 +40,10 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Contracts.Tests.Unit", "Tests\Lattice.Orchestrator.Contracts.Tests.Unit\Lattice.Orchestrator.Contracts.Tests.Unit.fsproj", "{55B77ED7-2B87-4D52-9222-17772B4547E4}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Web.Tests.Unit", "Tests\Lattice.Web.Tests.Unit\Lattice.Web.Tests.Unit.fsproj", "{8C24A4D2-5842-409C-823B-5F7B5CA8D0BC}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Presentation", "Lattice.Orchestrator.Presentation\Lattice.Orchestrator.Presentation.fsproj", "{DE554E7D-15BE-488B-879B-5DFF33640F93}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lattice.Orchestrator.Presentation.Tests.Unit", "Tests\Lattice.Orchestrator.Presentation.Tests.Unit\Lattice.Orchestrator.Presentation.Tests.Unit.fsproj", "{5AF25F9A-A2E8-4782-818C-D8DB519539A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -119,6 +123,14 @@ Global
 		{8C24A4D2-5842-409C-823B-5F7B5CA8D0BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C24A4D2-5842-409C-823B-5F7B5CA8D0BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C24A4D2-5842-409C-823B-5F7B5CA8D0BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE554E7D-15BE-488B-879B-5DFF33640F93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE554E7D-15BE-488B-879B-5DFF33640F93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE554E7D-15BE-488B-879B-5DFF33640F93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE554E7D-15BE-488B-879B-5DFF33640F93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AF25F9A-A2E8-4782-818C-D8DB519539A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AF25F9A-A2E8-4782-818C-D8DB519539A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AF25F9A-A2E8-4782-818C-D8DB519539A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AF25F9A-A2E8-4782-818C-D8DB519539A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -133,6 +145,7 @@ Global
 		{F6553E3C-FAE7-47A4-BC5B-9F22852EDD6D} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
 		{55B77ED7-2B87-4D52-9222-17772B4547E4} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
 		{8C24A4D2-5842-409C-823B-5F7B5CA8D0BC} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
+		{5AF25F9A-A2E8-4782-818C-D8DB519539A9} = {0B9F285C-06BC-42D1-9596-F8F3834C71F5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B4EAA907-0DCB-484A-A207-F87B5A66D73A}
