@@ -18,7 +18,6 @@ let (!) f = f |> ignore
 
 HostBuilder()
     .ConfigureFunctionsWorkerDefaults(fun (builder: IFunctionsWorkerApplicationBuilder) ->
-        !builder.UseWhen<AuthorizeMiddleware>(FunctionContext.getCustomAttribute<AuthorizeAttribute> >> Option.isSome)
         !builder.UseMiddleware<ExceptionMiddleware>()
     )
     .ConfigureAppConfiguration(fun builder ->

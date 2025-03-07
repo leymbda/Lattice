@@ -10,9 +10,7 @@
     <Compile Include="Options\SecretsOptions.fs" />
     <Compile Include="Env.fs" />
     <Compile Include="Common\Constants.fs" />
-    <Compile Include="Modules\FunctionContext.fs" />
     <Compile Include="Modules\HttpResponseData.fs" />
-    <Compile Include="Middleware\AuthorizeMiddleware.fs" />
     <Compile Include="Middleware\ExceptionMiddleware.fs" />
     <Compile Include="Controllers\ApplicationController.fs" />
     <Compile Include="Controllers\MessagingHandler.fs" />

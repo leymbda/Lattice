@@ -9,7 +9,6 @@ open System.Net
 open Thoth.Json.Net
 
 type ApplicationController (env: IEnv) =
-    [<Authorize>]
     [<Function "RegisterApplication">]
     member _.RegisterApplication (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "applications")>] req: HttpRequestData
@@ -44,7 +43,6 @@ type ApplicationController (env: IEnv) =
                     |> HttpResponseData.withResponse ApplicationResponse.encoder (ApplicationResponse.fromDomain application)
     }
     
-    [<Authorize>]
     [<Function "GetApplication">]
     member _.GetApplication (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "applications/{applicationId:long}")>] req: HttpRequestData,
@@ -66,7 +64,6 @@ type ApplicationController (env: IEnv) =
                 |> HttpResponseData.withResponse ApplicationResponse.encoder (ApplicationResponse.fromDomain application)
     }
     
-    [<Authorize>]
     [<Function "UpdateApplication">]
     member _.UpdateApplication (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "applications/{applicationId:long}")>] req: HttpRequestData,
@@ -120,7 +117,6 @@ type ApplicationController (env: IEnv) =
                     |> HttpResponseData.withResponse ApplicationResponse.encoder (ApplicationResponse.fromDomain application)
     }
     
-    [<Authorize>]
     [<Function "DeleteApplication">]
     member _.DeleteApplication (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "applications/{applicationId:long}")>] req: HttpRequestData,
@@ -140,7 +136,6 @@ type ApplicationController (env: IEnv) =
             return req.CreateResponse HttpStatusCode.NoContent
     }
     
-    [<Authorize>]
     [<Function "SyncApplicationPrivilegedIntents">]
     member _.SyncApplicationPrivilegedIntents (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "applications/{applicationId:long}/sync-privileged-intents")>] req: HttpRequestData,
@@ -177,7 +172,6 @@ type ApplicationController (env: IEnv) =
                 |> HttpResponseData.withResponse PrivilegedIntentsResponse.encoder (PrivilegedIntentsResponse.fromDomain privilegedIntents)
     }
     
-    [<Authorize>]
     [<Function "AddDisabledApplicationReason">]
     member _.AddDisabledApplicationReason (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "applications/{applicationId:long}/disabled-reasons/{reasonId:int}")>] req: HttpRequestData,
@@ -206,7 +200,6 @@ type ApplicationController (env: IEnv) =
                 |> HttpResponseData.withResponse DisabledApplicationReasonResponse.encoder (DisabledApplicationReasonResponse.fromDomain reasons)
     }
     
-    [<Authorize>]
     [<Function "RemoveDisabledApplicationReason">]
     member _.RemoveDisabledApplicationReason (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "applications/{applicationId:long}/disabled-reasons/{reasonId:int}")>] req: HttpRequestData,
