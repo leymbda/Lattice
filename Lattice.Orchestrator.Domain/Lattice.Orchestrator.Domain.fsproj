@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Auth\User.fs" />
+    <Compile Include="Users\User.fs" />
     <Compile Include="Applications\DisabledApplicationReason.fs" />
     <Compile Include="Applications\Handler.fs" />
     <Compile Include="Applications\Application.fs" />

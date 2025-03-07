@@ -9,7 +9,6 @@
     <Compile Include="Factories\DiscordClientFactory.fs" />
     <Compile Include="Models\UserModel.fs" />
     <Compile Include="Models\ApplicationModel.fs" />
-    <Compile Include="Models\TokenModel.fs" />
     <Compile Include="Discord.fs" />
   </ItemGroup>
 

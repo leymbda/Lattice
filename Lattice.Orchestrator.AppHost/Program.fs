@@ -19,16 +19,12 @@ HostBuilder()
         !builder.UseMiddleware<ExceptionMiddleware>()
     )
     .ConfigureAppConfiguration(fun builder ->
-        // Add environment variables to configuration
         !builder
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("local.settings.json", true)
-            .AddJsonFile("appsettings.json", true)
+            .AddJsonFile("local.settings.json", optional = true)
             .AddEnvironmentVariables()
     )
     .ConfigureServices(fun ctx services ->
-        !services.Configure<SecretsOptions>(ctx.Configuration.GetSection(nameof SecretsOptions))
-
         !services.AddHttpClient()
         !services.AddLogging()
         !services.AddApplicationInsightsTelemetryWorkerService()
@@ -43,6 +39,7 @@ HostBuilder()
         !services.AddSingleton<IDiscord>(fun sp -> sp.GetRequiredService<IEnv>() :> IDiscord)
         !services.AddSingleton<IEvents>(fun sp -> sp.GetRequiredService<IEnv>() :> IEvents)
         !services.AddSingleton<IPersistence>(fun sp -> sp.GetRequiredService<IEnv>() :> IPersistence)
+        !services.AddSingleton<ISecrets>(fun sp -> sp.GetRequiredService<IEnv>() :> ISecrets)
     )
     .Build()
     .Run()

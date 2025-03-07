@@ -8,9 +8,10 @@ open Lattice.Orchestrator.Infrastructure.Persistence
 open Lattice.Orchestrator.Presentation
 open FSharp.Discord.Rest
 open Microsoft.Azure.Cosmos
+open Microsoft.Extensions.Configuration
 
 type Env (
-    secrets: SecretsOptions,
+    configuration: IConfiguration,
     discordClientFactory: IDiscordClientFactory,
     cosmosClient: CosmosClient,
     serviceBusClient: ServiceBusClient
@@ -20,7 +21,6 @@ type Env (
     interface IDiscord with
         member _.GetApplicationInformation botToken = Discord.getApplicationInformation discordClientFactory botToken
         member _.GetUserInformation accessToken = Discord.getUserInformation discordClientFactory accessToken
-        member _.ExchangeCodeForAccessToken redirectUri code = Discord.exchangeCodeForAccessToken discordClientFactory secrets.DiscordClientId secrets.DiscordClientSecret redirectUri code
 
     interface IEvents with
         member _.NodeHeartbeat nodeId heartbeatTime = ServiceBus.nodeHeartbeat serviceBusClient nodeId heartbeatTime
@@ -35,11 +35,4 @@ type Env (
         member _.DeleteApplicationById id = Cosmos.deleteApplicationById cosmosClient id
 
     interface ISecrets with
-        member _.ClientId = secrets.DiscordClientId
-        member _.ClientSecret = secrets.DiscordClientSecret
-
-        member _.UserAccessTokenEncryptionKey = secrets.UserAccessTokenEncryptionKey
-        member _.UserRefreshTokenEncryptionKey = secrets.UserRefreshTokenEncryptionKey
-        member _.BotTokenEncryptionKey = secrets.BotTokenEncryptionKey
-
-        member _.JwtHashingKey = secrets.JwtHashingKey
+        member _.BotTokenEncryptionKey = configuration.GetValue<string> "BotTokenEncryptionKey"

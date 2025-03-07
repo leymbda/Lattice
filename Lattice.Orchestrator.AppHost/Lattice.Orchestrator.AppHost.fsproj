@@ -7,10 +7,8 @@
   </PropertyGroup>
 	
   <ItemGroup>
-    <Compile Include="Options\SecretsOptions.fs" />
     <Compile Include="Env.fs" />
     <Compile Include="Program.fs" />
-    <None Include="appsettings.json" CopyToOutputDirectory="Always" />
     <None Include="local.settings.json" CopyToOutputDirectory="Always" />
     <None Include="host.json" CopyToOutputDirectory="Always" />
   </ItemGroup>
