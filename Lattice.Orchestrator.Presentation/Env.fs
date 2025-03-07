@@ -1,6 +1,5 @@
 ﻿namespace Lattice.Orchestrator.Presentation
 
-open Azure.Messaging.EventGrid
 open Azure.Messaging.ServiceBus
 open Lattice.Orchestrator.Application
 open Lattice.Orchestrator.Infrastructure.Discord
@@ -19,7 +18,6 @@ type Env (
     secrets: SecretsOptions,
     discordClientFactory: IDiscordClientFactory,
     cosmosClient: CosmosClient,
-    eventGridPublisherClient: EventGridPublisherClient,
     serviceBusClient: ServiceBusClient
 ) =
     interface IEnv
@@ -30,7 +28,7 @@ type Env (
         member _.ExchangeCodeForAccessToken redirectUri code = Discord.exchangeCodeForAccessToken discordClientFactory secrets.DiscordClientId secrets.DiscordClientSecret redirectUri code
 
     interface IEvents with
-        member _.NodeHeartbeat nodeId heartbeatTime = EventGrid.nodeHeartbeat eventGridPublisherClient nodeId heartbeatTime
+        member _.NodeHeartbeat nodeId heartbeatTime = ServiceBus.nodeHeartbeat serviceBusClient nodeId heartbeatTime
         member _.NodeRelease nodeId = ServiceBus.nodeRelease serviceBusClient nodeId
         member _.NodeRedistribute nodeId = ServiceBus.nodeRedistribute serviceBusClient nodeId
     

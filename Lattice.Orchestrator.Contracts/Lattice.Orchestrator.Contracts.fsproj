@@ -17,6 +17,7 @@
     <Compile Include="Responses\PrivilegedIntentsResponse.fs" />
     <Compile Include="Responses\ApplicationResponse.fs" />
     <Compile Include="Responses\UserResponse.fs" />
+    <Compile Include="Messages\NodeHeartbeatMessage.fs" />
   </ItemGroup>
 
   <ItemGroup>

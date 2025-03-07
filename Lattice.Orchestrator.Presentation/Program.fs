@@ -1,6 +1,4 @@
-﻿open Azure.Identity
-open Azure.Messaging.EventGrid
-open Azure.Messaging.ServiceBus
+﻿open Azure.Messaging.ServiceBus
 open FSharp.Discord.Rest
 open Lattice.Orchestrator.Application
 open Lattice.Orchestrator.Infrastructure.Discord
@@ -10,7 +8,6 @@ open Microsoft.Azure.Functions.Worker
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
-open System
 open System.IO
 open Microsoft.DurableTask.Client
 
@@ -38,7 +35,6 @@ HostBuilder()
 
         !services.AddSingleton<IDiscordClientFactory, DiscordClientFactory>()
         !services.AddSingleton<CosmosClient>(fun _ -> new CosmosClient(ctx.Configuration.GetValue<string>("CosmosDb")))
-        !services.AddSingleton<EventGridPublisherClient>(fun sp -> new EventGridPublisherClient(Uri (ctx.Configuration.GetValue<string>("EventGridEndpoint")), DefaultAzureCredential()))
         !services.AddSingleton<ServiceBusClient>(fun _ -> new ServiceBusClient(ctx.Configuration.GetValue<string>("ServiceBus")))
         !services.AddDurableTaskClient(fun builder -> !builder.UseGrpc())
 

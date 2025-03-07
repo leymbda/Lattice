@@ -6,12 +6,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Include="EventGrid.fs" />
 	  <Compile Include="ServiceBus.fs" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Azure.Messaging.EventGrid" Version="4.30.0" />
 	  <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.18.4" />
 	</ItemGroup>
 
