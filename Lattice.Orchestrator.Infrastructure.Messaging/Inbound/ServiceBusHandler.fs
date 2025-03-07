@@ -8,7 +8,7 @@ open Microsoft.Extensions.Logging
 open System
 open Thoth.Json.Net
 
-type MessagingHandler (env: IEnv) =
+type ServiceBusHandler (env: IEnv) =
     let [<Literal>] INVALID_SUBJECT_GUID_ERROR_MESSAGE = "Invalid guid provided as message subject"
 
     [<Function "NodeHeartbeat">]
@@ -16,7 +16,7 @@ type MessagingHandler (env: IEnv) =
         [<ServiceBusTrigger "node-heartbeats">] message: ServiceBusMessage,
         ctx: FunctionContext
     ) = task {
-        let logger = ctx.GetLogger(nameof MessagingHandler)
+        let logger = ctx.GetLogger(nameof ServiceBusHandler)
         use scope = logger.BeginScope(message.Subject)
 
         // Ensure the message subject is a guid
@@ -45,7 +45,7 @@ type MessagingHandler (env: IEnv) =
         [<ServiceBusTrigger "node-releases">] message: ServiceBusMessage,
         ctx: FunctionContext
     ) = task {
-        let logger = ctx.GetLogger(nameof MessagingHandler)
+        let logger = ctx.GetLogger(nameof ServiceBusHandler)
         use scope = logger.BeginScope(message.Subject)
 
         // Ensure the message subject is a guid
@@ -66,7 +66,7 @@ type MessagingHandler (env: IEnv) =
         [<ServiceBusTrigger "node-redistributes">] message: ServiceBusMessage,
         ctx: FunctionContext
     ) = task {
-        let logger = ctx.GetLogger(nameof MessagingHandler)
+        let logger = ctx.GetLogger(nameof ServiceBusHandler)
         use scope = logger.BeginScope(message.Subject)
 
         // Ensure the message subject is a guid

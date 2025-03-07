@@ -6,15 +6,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Include="ServiceBus.fs" />
+	  <Compile Include="Inbound\ServiceBusHandler.fs" />
+	  <Compile Include="Outbound\ServiceBus.fs" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.18.4" />
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.22.1" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Lattice.Orchestrator.Application\Lattice.Orchestrator.Application.fsproj" />
+		<ProjectReference Include="..\Lattice.Orchestrator.Contracts\Lattice.Orchestrator.Contracts.fsproj" />
 	</ItemGroup>
 
 	<ItemGroup>

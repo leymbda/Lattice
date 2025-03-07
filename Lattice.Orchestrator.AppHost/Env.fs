@@ -5,7 +5,6 @@ open Lattice.Orchestrator.Application
 open Lattice.Orchestrator.Infrastructure.Discord
 open Lattice.Orchestrator.Infrastructure.Messaging
 open Lattice.Orchestrator.Infrastructure.Persistence
-open Lattice.Orchestrator.Presentation
 open FSharp.Discord.Rest
 open Microsoft.Azure.Cosmos
 open Microsoft.Extensions.Configuration

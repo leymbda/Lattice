@@ -1,6 +1,4 @@
-﻿namespace Lattice.Orchestrator.Presentation
-
-open Lattice.Orchestrator.Application
+﻿namespace Lattice.Orchestrator.Application
 
 type IEnv =
     inherit IDiscord

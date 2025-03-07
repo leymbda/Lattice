@@ -11,6 +11,7 @@
     <Compile Include="Abstractions\IEvents.fs" />
     <Compile Include="Abstractions\IPersistence.fs" />
     <Compile Include="Abstractions\ISecrets.fs" />
+    <Compile Include="Abstractions\IEnv.fs" />
     <Compile Include="Modules\Crypto.fs" />
     <Compile Include="Operations\Applications\RegisterApplicationCommand.fs" />
     <Compile Include="Operations\Applications\GetApplicationQuery.fs" />

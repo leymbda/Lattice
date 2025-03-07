@@ -7,16 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Abstractions\IEnv.fs" />
     <Compile Include="Modules\HttpResponseData.fs" />
     <Compile Include="Middleware\ExceptionMiddleware.fs" />
     <Compile Include="Controllers\ApplicationController.fs" />
-    <Compile Include="Controllers\MessagingHandler.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.22.1" />
   </ItemGroup>
 
   <ItemGroup>
