@@ -42,10 +42,10 @@ module Shard =
         }
 
     let addInstance nodeId createAt shard =
-        { shard with Instances = shard.Instances @ [createAt, Some nodeId] }
+        { shard with Instances = (createAt, Some nodeId) :: shard.Instances }
 
     let shutdown shutdownAt shard =
-        { shard with Instances = shard.Instances @ [shutdownAt, None] }
+        { shard with Instances =  (shutdownAt, None) :: shard.Instances }
 
     let getState currentTime shard =
         match shard with
@@ -55,3 +55,5 @@ module Shard =
         | { Instances = (createAt, Some next) :: _ } -> Starting (next, createAt)
         | { Instances = (shutdownAt, None) :: (_, Some current) :: _ } when shutdownAt > currentTime -> ShuttingDown (current, shutdownAt)
         | { Instances = (shutdownAt, None) :: _ } -> Shutdown shutdownAt
+
+    // TODO: If multiple shutdowns are requested, this will treat it as already shutdown even if timer not reached (potential bug)
