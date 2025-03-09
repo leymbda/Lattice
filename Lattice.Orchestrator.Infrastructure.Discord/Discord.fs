@@ -3,13 +3,11 @@
 open FSharp.Discord.Rest
 
 let getApplicationInformation (discordClientFactory: IDiscordClientFactory) botToken = task {
-    match! discordClientFactory.CreateBotClient botToken |> Rest.getCurrentApplication with
-    | Error _ -> return None
-    | Ok { Data = app } -> return app |> ApplicationModel.toDomain |> Some
+    let! res = discordClientFactory.CreateBotClient botToken |> Rest.getCurrentApplication
+    return res |> Result.toOption |> Option.map _.Data
 }
 
 let getUserInformation (discordClientFactory: IDiscordClientFactory) accessToken = task {
-    match! discordClientFactory.CreateOAuthClient accessToken |> Rest.getCurrentUser with
-    | Error _ -> return None
-    | Ok { Data = user } -> return user |> UserModel.toDomain |> Some
+    let! res = discordClientFactory.CreateOAuthClient accessToken |> Rest.getCurrentUser
+    return res |> Result.toOption |> Option.map _.Data
 }

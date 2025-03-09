@@ -6,14 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Factories\DiscordClientFactory.fs" />
-    <Compile Include="Models\UserModel.fs" />
-    <Compile Include="Models\ApplicationModel.fs" />
+    <Compile Include="DiscordClientFactory.fs" />
     <Compile Include="Discord.fs" />
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FSharp.Discord" Version="0.0.15" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.2" />
 	</ItemGroup>
 
