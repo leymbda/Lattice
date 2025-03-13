@@ -10,17 +10,23 @@ type RegisterApplicationCommandProps = {
 
 type RegisterApplicationCommandError =
     | Forbidden
-    | InvalidToken
+    | InvalidBotToken
     | RegistrationFailed
 
 module RegisterApplicationCommand =
     let run (env: #IDiscord & #IPersistence & #ISecrets) (props: RegisterApplicationCommandProps) = task {
         // Validate application with Discord
         match! env.GetApplicationInformation props.DiscordBotToken with
-        | None -> return Error RegisterApplicationCommandError.InvalidToken
+        | None -> return Error RegisterApplicationCommandError.InvalidBotToken
         | Some discordApplication ->
 
-        // TODO: Check if user is authorized to register application (check app owner and/or team members)
+        // Ensure user has access to application
+        let members = Map.empty<string, TeamMemberRole> // TODO: Map app owner/team-members into here (requires new FSharp.Discord version)
+        let team = Team.create discordApplication.Id members // TODO: This is a duplicate of code in the Cache composite, this should all be refactored to be neat
+
+        match team.Members.TryFind props.UserId with
+        | None -> return Error RegisterApplicationCommandError.Forbidden
+        | Some _ ->
 
         // Create application and save to db
         let encryptedBotToken = props.DiscordBotToken |> Aes.encrypt env.BotTokenEncryptionKey

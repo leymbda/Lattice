@@ -29,15 +29,15 @@ type ApplicationController (env: IEnv) =
             }
 
             match! RegisterApplicationCommand.run env props with
+            | Error RegisterApplicationCommandError.InvalidBotToken ->
+                return!
+                    req.CreateResponse HttpStatusCode.UnprocessableContent
+                    |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
+
             | Error RegisterApplicationCommandError.Forbidden ->
                 return!
                     req.CreateResponse HttpStatusCode.Forbidden
                     |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.FORBIDDEN)
-
-            | Error RegisterApplicationCommandError.InvalidToken ->
-                return!
-                    req.CreateResponse HttpStatusCode.UnprocessableContent
-                    |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
 
             | Error RegisterApplicationCommandError.RegistrationFailed ->
                 return!
@@ -63,6 +63,11 @@ type ApplicationController (env: IEnv) =
         }
 
         match! GetApplicationQuery.run env props with
+        | Error GetApplicationQueryError.InvalidBotToken ->
+            return!
+                req.CreateResponse HttpStatusCode.UnprocessableContent
+                |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
+
         | Error GetApplicationQueryError.Forbidden ->
             return!
                 req.CreateResponse HttpStatusCode.Forbidden
@@ -108,6 +113,11 @@ type ApplicationController (env: IEnv) =
             }
         
             match! UpdateApplicationCommand.run env props with
+            | Error UpdateApplicationCommandError.InvalidBotToken ->
+                return!
+                    req.CreateResponse HttpStatusCode.UnprocessableContent
+                    |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
+
             | Error UpdateApplicationCommandError.Forbidden ->
                 return!
                     req.CreateResponse HttpStatusCode.Forbidden
@@ -117,11 +127,6 @@ type ApplicationController (env: IEnv) =
                 return!
                     req.CreateResponse HttpStatusCode.NotFound
                     |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
-
-            | Error UpdateApplicationCommandError.InvalidToken ->
-                return!
-                    req.CreateResponse HttpStatusCode.UnprocessableContent
-                    |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
 
             | Error UpdateApplicationCommandError.DifferentBotToken ->
                 return!
@@ -152,6 +157,11 @@ type ApplicationController (env: IEnv) =
         }
 
         match! DeleteApplicationCommand.run env props with
+        | Error DeleteApplicationCommandError.InvalidBotToken ->
+            return!
+                req.CreateResponse HttpStatusCode.UnprocessableContent
+                |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
+
         | Error DeleteApplicationCommandError.Forbidden ->
             return!
                 req.CreateResponse HttpStatusCode.Forbidden
@@ -162,7 +172,7 @@ type ApplicationController (env: IEnv) =
                 req.CreateResponse HttpStatusCode.NotFound
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
 
-        | _ ->
+        | Ok _ ->
             return req.CreateResponse HttpStatusCode.NoContent
     }
     
@@ -179,6 +189,11 @@ type ApplicationController (env: IEnv) =
         }
 
         match! SyncApplicationPrivilegedIntentsCommand.run env props with
+        | Error SyncApplicationPrivilegedIntentsCommandError.InvalidBotToken ->
+            return!
+                req.CreateResponse HttpStatusCode.UnprocessableContent
+                |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
+
         | Error SyncApplicationPrivilegedIntentsCommandError.Forbidden ->
             return!
                 req.CreateResponse HttpStatusCode.Forbidden
@@ -188,11 +203,6 @@ type ApplicationController (env: IEnv) =
             return!
                 req.CreateResponse HttpStatusCode.NotFound
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
-
-        | Error SyncApplicationPrivilegedIntentsCommandError.InvalidToken ->
-            return!
-                req.CreateResponse HttpStatusCode.UnprocessableContent
-                |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
 
         | Error SyncApplicationPrivilegedIntentsCommandError.DifferentBotToken ->
             return!

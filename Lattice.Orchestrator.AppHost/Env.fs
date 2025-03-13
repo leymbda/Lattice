@@ -33,5 +33,9 @@ type Env (
         member _.UpsertApplication application = Cosmos.upsertApplication cosmosClient application
         member _.DeleteApplicationById id = Cosmos.deleteApplicationById cosmosClient id
 
+        member _.GetCachedApplicationTeam applicationId = Cosmos.getCachedApplicationTeam cosmosClient applicationId
+        member _.UpsertCachedApplicationTeam team = Cosmos.upsertCachedApplicationTeam cosmosClient team
+        member _.DeleteCachedApplicationTeam applicationId = Cosmos.deleteCachedApplicationTeam cosmosClient applicationId
+
     interface ISecrets with
         member _.BotTokenEncryptionKey = configuration.GetValue<string> "BotTokenEncryptionKey"

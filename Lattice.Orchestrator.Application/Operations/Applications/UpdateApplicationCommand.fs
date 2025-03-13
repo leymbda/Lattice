@@ -17,9 +17,9 @@ type UpdateApplicationCommandProps = {
 }
 
 type UpdateApplicationCommandError =
+    | InvalidBotToken
     | Forbidden
     | ApplicationNotFound
-    | InvalidToken
     | DifferentBotToken
     | UpdateFailed
 
@@ -30,7 +30,14 @@ module UpdateApplicationCommand =
         | Error _ -> return Error UpdateApplicationCommandError.ApplicationNotFound
         | Ok app ->
 
-        // TODO: Check if user is authorized to handle this application
+        // Ensure user has access to application
+        match! Cache.getTeam env app with
+        | Error GetTeamError.InvalidBotToken -> return Error UpdateApplicationCommandError.InvalidBotToken
+        | Ok team ->
+
+        match team.Members.TryFind props.UserId with
+        | None -> return Error UpdateApplicationCommandError.Forbidden
+        | Some _ -> 
 
         // Ensure the new bot token if valid if one is provided
         let! error =
@@ -38,7 +45,7 @@ module UpdateApplicationCommand =
             | None -> Task.FromResult None
             | Some discordBotToken -> task {
                 match! env.GetApplicationInformation discordBotToken with
-                | None -> return Some UpdateApplicationCommandError.InvalidToken
+                | None -> return Some UpdateApplicationCommandError.InvalidBotToken
                 | Some app when app.Id <> props.ApplicationId -> return Some UpdateApplicationCommandError.DifferentBotToken
                 | Some _ -> return None
             }
