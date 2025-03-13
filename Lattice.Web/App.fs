@@ -15,7 +15,13 @@ let Router () =
         router.children [
             match currentUrl with
             // Main content pages
-            | [] -> Index.Index()
+            | [] -> Index.Page()
+
+            // Application pages
+            | ["applications"] -> ApplicationList.Page()
+            | ["applications"; "register"] -> ApplicationRegistration.Page()
+            | ["applications"; Route.Int64 applicationId; "overview"] -> ApplicationOverview.Page (string applicationId)
+            | ["applications"; Route.Int64 applicationId; "settings"] -> ApplicationSettings.Page (string applicationId)
 
             // Fallback pages
             | _ -> Fallback.NotFound()

@@ -1,4 +1,4 @@
-﻿module Lattice.Web.Pages.Index
+﻿module Lattice.Web.Pages.ApplicationList
 
 open Feliz
 
@@ -6,13 +6,7 @@ open Feliz
 let Page () =
     Html.div [
         Html.text "Index"
-        Html.br []
-        Html.a [
-            prop.href "/applications"
-            prop.children [
-                Html.text "View your applications"
-            ]
-        ]
+        // All applications associated with the user will be listed here (need to implement api side of saving apps to a user)
         Html.br []
         Html.a [
             prop.href "/applications/register"

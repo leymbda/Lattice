@@ -8,6 +8,10 @@
   <ItemGroup>
     <Compile Include="Modules\Api.fs" />
     <Compile Include="Pages\Index.fs" />
+    <Compile Include="Pages\ApplicationList.fs" />
+    <Compile Include="Pages\ApplicationRegistration.fs" />
+    <Compile Include="Pages\ApplicationOverview.fs" />
+    <Compile Include="Pages\ApplicationSettings.fs" />
     <Compile Include="Pages\Fallback.fs" />
     <Compile Include="App.fs" />
     <None Include="index.html" CopyToOutputDirectory="Always" />
