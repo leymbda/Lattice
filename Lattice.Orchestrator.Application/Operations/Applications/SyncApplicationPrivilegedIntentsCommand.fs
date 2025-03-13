@@ -4,10 +4,12 @@ open FSharp.Discord.Types
 open Lattice.Orchestrator.Domain
 
 type SyncApplicationPrivilegedIntentsCommandProps = {
+    UserId: string
     ApplicationId: string
 }
 
 type SyncApplicationPrivilegedIntentsCommandError =
+    | Forbidden
     | ApplicationNotFound
     | InvalidToken
     | DifferentBotToken
@@ -21,6 +23,8 @@ module SyncApplicationPrivilegedIntentsCommand =
         | Ok app ->
 
         let discordBotToken = app.EncryptedBotToken |> Aes.decrypt env.BotTokenEncryptionKey
+
+        // TODO: Check if user is authorized to handle this application
 
         // Get the current privileged intents
         match! env.GetApplicationInformation discordBotToken with

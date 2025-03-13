@@ -8,6 +8,7 @@ type UpdateApplicationCommandHandlerProps =
     | SERVICE_BUS of queueName: string * connectionString: string
 
 type UpdateApplicationCommandProps = {
+    UserId: string
     ApplicationId: string
     DiscordBotToken: string option
     Intents: int option
@@ -16,6 +17,7 @@ type UpdateApplicationCommandProps = {
 }
 
 type UpdateApplicationCommandError =
+    | Forbidden
     | ApplicationNotFound
     | InvalidToken
     | DifferentBotToken
@@ -27,6 +29,8 @@ module UpdateApplicationCommand =
         match! env.GetApplicationById props.ApplicationId with
         | Error _ -> return Error UpdateApplicationCommandError.ApplicationNotFound
         | Ok app ->
+
+        // TODO: Check if user is authorized to handle this application
 
         // Ensure the new bot token if valid if one is provided
         let! error =

@@ -14,6 +14,7 @@ type ApplicationController (env: IEnv) =
         [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "applications")>] req: HttpRequestData
     ) = task {
         let! json = req.ReadAsStringAsync()
+        let userId = "" // TODO: Get user ID from request header (TBD by swa auth stuff)
 
         match Decode.fromString RegisterApplicationPayload.decoder json with
         | Error message ->
@@ -23,10 +24,16 @@ type ApplicationController (env: IEnv) =
 
         | Ok payload ->
             let props: RegisterApplicationCommandProps = {
+                UserId = userId
                 DiscordBotToken = payload.DiscordBotToken
             }
 
             match! RegisterApplicationCommand.run env props with
+            | Error RegisterApplicationCommandError.Forbidden ->
+                return!
+                    req.CreateResponse HttpStatusCode.Forbidden
+                    |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.FORBIDDEN)
+
             | Error RegisterApplicationCommandError.InvalidToken ->
                 return!
                     req.CreateResponse HttpStatusCode.UnprocessableContent
@@ -48,11 +55,19 @@ type ApplicationController (env: IEnv) =
         [<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "applications/{applicationId:long}")>] req: HttpRequestData,
         applicationId: int64
     ) = task {
+        let userId = "" // TODO: Get user ID from request header (TBD by swa auth stuff)
+
         let props: GetApplicationQueryProps = {
+            UserId = userId
             ApplicationId = string applicationId
         }
 
         match! GetApplicationQuery.run env props with
+        | Error GetApplicationQueryError.Forbidden ->
+            return!
+                req.CreateResponse HttpStatusCode.Forbidden
+                |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.FORBIDDEN)
+
         | Error GetApplicationQueryError.ApplicationNotFound ->
             return!
                 req.CreateResponse HttpStatusCode.NotFound
@@ -70,6 +85,7 @@ type ApplicationController (env: IEnv) =
         applicationId: int64
     ) = task {
         let! json = req.ReadAsStringAsync()
+        let userId = "" // TODO: Get user ID from request header (TBD by swa auth stuff)
 
         match Decode.fromString UpdateApplicationPayload.decoder json with
         | Error message ->
@@ -79,6 +95,7 @@ type ApplicationController (env: IEnv) =
 
         | Ok payload ->
             let props: UpdateApplicationCommandProps = {
+                UserId = userId
                 ApplicationId = string applicationId
                 DiscordBotToken = payload.DiscordBotToken
                 Intents = payload.Intents
@@ -91,6 +108,11 @@ type ApplicationController (env: IEnv) =
             }
         
             match! UpdateApplicationCommand.run env props with
+            | Error UpdateApplicationCommandError.Forbidden ->
+                return!
+                    req.CreateResponse HttpStatusCode.Forbidden
+                    |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.FORBIDDEN)
+
             | Error UpdateApplicationCommandError.ApplicationNotFound ->
                 return!
                     req.CreateResponse HttpStatusCode.NotFound
@@ -122,11 +144,19 @@ type ApplicationController (env: IEnv) =
         [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "applications/{applicationId:long}")>] req: HttpRequestData,
         applicationId: int64
     ) = task {
+        let userId = "" // TODO: Get user ID from request header (TBD by swa auth stuff)
+
         let props: DeleteApplicationCommandProps = {
+            UserId = userId
             ApplicationId = string applicationId
         }
 
         match! DeleteApplicationCommand.run env props with
+        | Error DeleteApplicationCommandError.Forbidden ->
+            return!
+                req.CreateResponse HttpStatusCode.Forbidden
+                |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.FORBIDDEN)
+
         | Error DeleteApplicationCommandError.ApplicationNotFound ->
             return!
                 req.CreateResponse HttpStatusCode.NotFound
@@ -141,11 +171,19 @@ type ApplicationController (env: IEnv) =
         [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "applications/{applicationId:long}/sync-privileged-intents")>] req: HttpRequestData,
         applicationId: int64
     ) = task {
+        let userId = "" // TODO: Get user ID from request header (TBD by swa auth stuff)
+
         let props: SyncApplicationPrivilegedIntentsCommandProps = {
+            UserId = userId
             ApplicationId = string applicationId
         }
 
         match! SyncApplicationPrivilegedIntentsCommand.run env props with
+        | Error SyncApplicationPrivilegedIntentsCommandError.Forbidden ->
+            return!
+                req.CreateResponse HttpStatusCode.Forbidden
+                |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.FORBIDDEN)
+
         | Error SyncApplicationPrivilegedIntentsCommandError.ApplicationNotFound ->
             return!
                 req.CreateResponse HttpStatusCode.NotFound

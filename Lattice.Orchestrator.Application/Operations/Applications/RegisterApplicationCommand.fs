@@ -4,10 +4,12 @@ open FSharp.Discord.Types
 open Lattice.Orchestrator.Domain
 
 type RegisterApplicationCommandProps = {
+    UserId: string
     DiscordBotToken: string
 }
 
 type RegisterApplicationCommandError =
+    | Forbidden
     | InvalidToken
     | RegistrationFailed
 
@@ -17,6 +19,8 @@ module RegisterApplicationCommand =
         match! env.GetApplicationInformation props.DiscordBotToken with
         | None -> return Error RegisterApplicationCommandError.InvalidToken
         | Some discordApplication ->
+
+        // TODO: Check if user is authorized to register application (check app owner and/or team members)
 
         // Create application and save to db
         let encryptedBotToken = props.DiscordBotToken |> Aes.encrypt env.BotTokenEncryptionKey
