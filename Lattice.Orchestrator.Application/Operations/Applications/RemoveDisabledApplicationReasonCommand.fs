@@ -3,7 +3,7 @@
 open Lattice.Orchestrator.Domain
 
 type RemoveDisabledApplicationReasonCommandProps = {
-    ApplicationId: string
+    AppId: string
     DisabledReason: DisabledApplicationReason
 }
 
@@ -14,14 +14,14 @@ type RemoveDisabledApplicationReasonCommandError =
 module RemoveDisabledApplicationReasonCommand =
     let run (env: #IPersistence) (props: RemoveDisabledApplicationReasonCommandProps) = task {
         // Get current application from db
-        match! env.GetApplicationById props.ApplicationId with
+        match! env.GetApp props.AppId with
         | Error _ -> return Error RemoveDisabledApplicationReasonCommandError.ApplicationNotFound
         | Ok app ->
 
         // Remove handler from application
-        let updatedApp = app |> Application.removeDisabledReason props.DisabledReason
+        let updatedApp = app |> App.removeDisabledReason props.DisabledReason
 
-        match! env.UpsertApplication updatedApp with
+        match! env.SetApp updatedApp with
         | Ok app -> return Ok app.DisabledReasons
         | _ -> return Error RemoveDisabledApplicationReasonCommandError.RemoveFailed
     }

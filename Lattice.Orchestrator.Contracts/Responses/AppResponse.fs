@@ -3,7 +3,7 @@
 open Lattice.Orchestrator.Domain
 open Thoth.Json.Net
 
-type ApplicationResponse = {
+type AppResponse = {
     Id: string
     PrivilegedIntents: PrivilegedIntentsResponse
     DisabledReasons: int
@@ -12,8 +12,8 @@ type ApplicationResponse = {
     Handler: HandlerResponse option
 }
 
-module ApplicationResponse =
-    let decoder: Decoder<ApplicationResponse> =
+module AppResponse =
+    let decoder: Decoder<AppResponse> =
         Decode.object (fun get -> {
             Id = get.Required.Field "id" Decode.string
             PrivilegedIntents = get.Required.Field "privilegedIntents" PrivilegedIntentsResponse.decoder
@@ -23,7 +23,7 @@ module ApplicationResponse =
             Handler = get.Optional.Field "handler" HandlerResponse.decoder
         })
 
-    let encoder (v: ApplicationResponse) =
+    let encoder (v: AppResponse) =
         Encode.object [
             "id", Encode.string v.Id
             "privilegedIntents", PrivilegedIntentsResponse.encoder v.PrivilegedIntents
@@ -33,7 +33,7 @@ module ApplicationResponse =
             "handler", Encode.option HandlerResponse.encoder v.Handler
         ]
 
-    let fromDomain (v: Application) = {
+    let fromDomain (v: App) = {
         Id = v.Id
         PrivilegedIntents = PrivilegedIntentsResponse.fromDomain v.PrivilegedIntents
         DisabledReasons = DisabledApplicationReason.toBitfield v.DisabledReasons

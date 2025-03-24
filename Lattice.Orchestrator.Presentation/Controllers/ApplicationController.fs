@@ -16,7 +16,7 @@ type ApplicationController (env: IEnv) =
         let! json = req.ReadAsStringAsync()
         let userId = "" // TODO: Get user ID from request header (TBD by swa auth stuff)
 
-        match Decode.fromString RegisterApplicationPayload.decoder json with
+        match Decode.fromString RegisterAppPayload.decoder json with
         | Error message ->
             return!
                 req.CreateResponse HttpStatusCode.BadRequest
@@ -44,22 +44,22 @@ type ApplicationController (env: IEnv) =
                     req.CreateResponse HttpStatusCode.InternalServerError
                     |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
 
-            | Ok application ->
+            | Ok app ->
                 return!
                     req.CreateResponse HttpStatusCode.OK
-                    |> HttpResponseData.withResponse ApplicationResponse.encoder (ApplicationResponse.fromDomain application)
+                    |> HttpResponseData.withResponse AppResponse.encoder (AppResponse.fromDomain app)
     }
     
     [<Function "GetApplication">]
     member _.GetApplication (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "applications/{applicationId:long}")>] req: HttpRequestData,
-        applicationId: int64
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "applications/{appId:long}")>] req: HttpRequestData,
+        appId: int64
     ) = task {
         let userId = "" // TODO: Get user ID from request header (TBD by swa auth stuff)
 
         let props: GetApplicationQueryProps = {
             UserId = userId
-            ApplicationId = string applicationId
+            AppId = string appId
         }
 
         match! GetApplicationQuery.run env props with
@@ -78,21 +78,21 @@ type ApplicationController (env: IEnv) =
                 req.CreateResponse HttpStatusCode.NotFound
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.TEAM_NOT_FOUND)
 
-        | Ok application ->
+        | Ok app ->
             return!
                 req.CreateResponse HttpStatusCode.OK
-                |> HttpResponseData.withResponse ApplicationResponse.encoder (ApplicationResponse.fromDomain application)
+                |> HttpResponseData.withResponse AppResponse.encoder (AppResponse.fromDomain app)
     }
     
     [<Function "UpdateApplication">]
     member _.UpdateApplication (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "applications/{applicationId:long}")>] req: HttpRequestData,
-        applicationId: int64
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "applications/{appId:long}")>] req: HttpRequestData,
+        appId: int64
     ) = task {
         let! json = req.ReadAsStringAsync()
         let userId = "" // TODO: Get user ID from request header (TBD by swa auth stuff)
 
-        match Decode.fromString UpdateApplicationPayload.decoder json with
+        match Decode.fromString UpdateAppPayload.decoder json with
         | Error message ->
             return!
                 req.CreateResponse HttpStatusCode.BadRequest
@@ -101,7 +101,7 @@ type ApplicationController (env: IEnv) =
         | Ok payload ->
             let props: UpdateApplicationCommandProps = {
                 UserId = userId
-                ApplicationId = string applicationId
+                AppId = string appId
                 DiscordBotToken = payload.DiscordBotToken
                 Intents = payload.Intents
                 ShardCount = payload.ShardCount
@@ -143,22 +143,22 @@ type ApplicationController (env: IEnv) =
                     req.CreateResponse HttpStatusCode.InternalServerError
                     |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)
 
-            | Ok application ->
+            | Ok app ->
                 return!
                     req.CreateResponse HttpStatusCode.OK
-                    |> HttpResponseData.withResponse ApplicationResponse.encoder (ApplicationResponse.fromDomain application)
+                    |> HttpResponseData.withResponse AppResponse.encoder (AppResponse.fromDomain app)
     }
     
     [<Function "DeleteApplication">]
     member _.DeleteApplication (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "applications/{applicationId:long}")>] req: HttpRequestData,
-        applicationId: int64
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "applications/{appId:long}")>] req: HttpRequestData,
+        appId: int64
     ) = task {
         let userId = "" // TODO: Get user ID from request header (TBD by swa auth stuff)
 
         let props: DeleteApplicationCommandProps = {
             UserId = userId
-            ApplicationId = string applicationId
+            AppId = string appId
         }
 
         match! DeleteApplicationCommand.run env props with
@@ -183,14 +183,14 @@ type ApplicationController (env: IEnv) =
     
     [<Function "SyncApplicationPrivilegedIntents">]
     member _.SyncApplicationPrivilegedIntents (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "applications/{applicationId:long}/sync-privileged-intents")>] req: HttpRequestData,
-        applicationId: int64
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "applications/{appId:long}/sync-privileged-intents")>] req: HttpRequestData,
+        appId: int64
     ) = task {
         let userId = "" // TODO: Get user ID from request header (TBD by swa auth stuff)
 
         let props: SyncApplicationPrivilegedIntentsCommandProps = {
             UserId = userId
-            ApplicationId = string applicationId
+            AppId = string appId
         }
 
         match! SyncApplicationPrivilegedIntentsCommand.run env props with
@@ -232,12 +232,12 @@ type ApplicationController (env: IEnv) =
     
     [<Function "AddDisabledApplicationReason">]
     member _.AddDisabledApplicationReason (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "applications/{applicationId:long}/disabled-reasons/{reasonId:int}")>] req: HttpRequestData,
-        applicationId: int64,
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "applications/{appId:long}/disabled-reasons/{reasonId:int}")>] req: HttpRequestData,
+        appId: int64,
         reasonId: int
     ) = task {
         let props: AddDisabledApplicationReasonCommandProps = {
-            ApplicationId = string applicationId
+            AppId = string appId
             DisabledReason = enum<DisabledApplicationReason> reasonId
         }
 
@@ -260,12 +260,12 @@ type ApplicationController (env: IEnv) =
     
     [<Function "RemoveDisabledApplicationReason">]
     member _.RemoveDisabledApplicationReason (
-        [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "applications/{applicationId:long}/disabled-reasons/{reasonId:int}")>] req: HttpRequestData,
-        applicationId: int64,
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "applications/{appId:long}/disabled-reasons/{reasonId:int}")>] req: HttpRequestData,
+        appId: int64,
         reasonId: int
     ) = task {
         let props: RemoveDisabledApplicationReasonCommandProps = {
-            ApplicationId = string applicationId
+            AppId = string appId
             DisabledReason = enum<DisabledApplicationReason> reasonId
         }
         

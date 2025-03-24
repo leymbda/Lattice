@@ -9,7 +9,7 @@ type UpdateApplicationCommandHandlerProps =
 
 type UpdateApplicationCommandProps = {
     UserId: string
-    ApplicationId: string
+    AppId: string
     DiscordBotToken: string option
     Intents: int option
     ShardCount: int option
@@ -27,7 +27,7 @@ type UpdateApplicationCommandError =
 module UpdateApplicationCommand =
     let run (env: #IDiscord & #IPersistence & #ISecrets) (props: UpdateApplicationCommandProps) = task {
         // Get current application from db
-        match! env.GetApplicationById props.ApplicationId with
+        match! env.GetApp props.AppId with
         | Error _ -> return Error UpdateApplicationCommandError.ApplicationNotFound
         | Ok app ->
         
@@ -49,7 +49,7 @@ module UpdateApplicationCommand =
             | Some discordBotToken -> task {
                 match! env.GetApplicationInformation discordBotToken with
                 | None -> return Some UpdateApplicationCommandError.InvalidBotToken
-                | Some app when app.Id <> props.ApplicationId -> return Some UpdateApplicationCommandError.DifferentBotToken
+                | Some application when application.Id <> app.Id -> return Some UpdateApplicationCommandError.DifferentBotToken
                 | Some _ -> return None
             }
 
@@ -63,26 +63,26 @@ module UpdateApplicationCommand =
             | Some (UpdateApplicationCommandHandlerProps.WEBHOOK endpoint) ->
                 let ed25519 = Ed25519.generate()
                 let handler = Handler.WEBHOOK (WebhookHandler.create endpoint ed25519.PublicKey ed25519.PrivateKey)
-                app |> Application.setHandler handler
+                app |> App.setHandler handler
 
             | Some (UpdateApplicationCommandHandlerProps.SERVICE_BUS (queueName, connectionString)) ->
                 let handler = Handler.SERVICE_BUS (ServiceBusHandler.create queueName connectionString)
-                app |> Application.setHandler handler
+                app |> App.setHandler handler
 
             | None ->
-                app |> Application.removeHandler
+                app |> App.removeHandler
 
         // Update provided properties
         let encryptedBotToken = props.DiscordBotToken |> Option.map (Aes.encrypt env.BotTokenEncryptionKey)
 
         let updatedApp =
             app
-            |> Option.foldBack (fun encryptedBotToken app -> Application.setEncryptedBotToken encryptedBotToken app) encryptedBotToken
-            |> Option.foldBack (fun intents app -> Application.setIntents intents app) props.Intents
-            |> Option.foldBack (fun shardCount app -> Application.setShardCount shardCount app) props.ShardCount
+            |> Option.foldBack (fun encryptedBotToken app -> App.setEncryptedBotToken encryptedBotToken app) encryptedBotToken
+            |> Option.foldBack (fun intents app -> App.setIntents intents app) props.Intents
+            |> Option.foldBack (fun shardCount app -> App.setShardCount shardCount app) props.ShardCount
             |> Option.foldBack (fun handler app -> app |> updateHandler handler) props.Handler
 
-        match! env.UpsertApplication updatedApp with
+        match! env.SetApp updatedApp with
         | Error _ -> return Error UpdateApplicationCommandError.UpdateFailed
         | Ok app -> return Ok app
     }

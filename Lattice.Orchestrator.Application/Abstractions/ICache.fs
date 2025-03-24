@@ -4,6 +4,6 @@ open Lattice.Orchestrator.Domain
 open System.Threading.Tasks
 
 type ICache =
-    abstract GetTeam: applicationId: string -> Task<Result<Team, unit>>
+    abstract GetTeam: appId: string -> Task<Result<Team, unit>>
     abstract SetTeam: team: Team -> Task<Result<Team, unit>>
-    abstract RemoveTeam: applicationId: string -> Task<Result<unit, unit>>
+    abstract RemoveTeam: appId: string -> Task<Result<unit, unit>>

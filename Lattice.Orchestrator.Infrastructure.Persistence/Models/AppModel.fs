@@ -3,7 +3,7 @@
 open Lattice.Orchestrator.Domain
 open System.Text.Json.Serialization
 
-type ApplicationModel = {
+type AppModel = {
     [<JsonPropertyName "id">] Id: string
     [<JsonPropertyName "discordBotToken">] DiscordBotToken: string
     [<JsonPropertyName "privilegedIntents">] PrivilegedIntents: PrivilegedIntentsModel
@@ -13,8 +13,8 @@ type ApplicationModel = {
     [<JsonPropertyName "handler">] Handler: HandlerModel option
 }
 
-module ApplicationModel =
-    let toDomain (model: ApplicationModel): Application =
+module AppModel =
+    let toDomain (model: AppModel): App =
         {
             Id = model.Id
             EncryptedBotToken = model.DiscordBotToken
@@ -25,13 +25,13 @@ module ApplicationModel =
             Handler = Option.map HandlerModel.toDomain model.Handler
         }
 
-    let fromDomain (application: Application): ApplicationModel =
+    let fromDomain (app: App): AppModel =
         {
-            Id = application.Id
-            DiscordBotToken = application.EncryptedBotToken
-            PrivilegedIntents = PrivilegedIntentsModel.fromDomain application.PrivilegedIntents
-            DisabledReasons = DisabledApplicationReason.toBitfield application.DisabledReasons
-            Intents = application.Intents
-            ShardCount = application.ShardCount
-            Handler = Option.map HandlerModel.fromDomain application.Handler
+            Id = app.Id
+            DiscordBotToken = app.EncryptedBotToken
+            PrivilegedIntents = PrivilegedIntentsModel.fromDomain app.PrivilegedIntents
+            DisabledReasons = DisabledApplicationReason.toBitfield app.DisabledReasons
+            Intents = app.Intents
+            ShardCount = app.ShardCount
+            Handler = Option.map HandlerModel.fromDomain app.Handler
         }

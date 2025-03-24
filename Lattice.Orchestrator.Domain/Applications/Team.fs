@@ -7,13 +7,13 @@ type TeamMemberRole =
     | READONLY = 3
 
 type Team = {
-    ApplicationId: string
+    AppId: string
     Members: Map<string, TeamMemberRole>
 }
 
 module Team =
-    let create applicationId members =
+    let create appId members =
         {
-            ApplicationId = applicationId
+            AppId = appId
             Members = members
         }

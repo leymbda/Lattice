@@ -19,9 +19,9 @@ type Env (
     interface IEnv
     
     interface ICache with
-        member _.GetTeam applicationId = Cosmos.getTeam cosmosClient applicationId
+        member _.GetTeam appId = Cosmos.getTeam cosmosClient appId
         member _.SetTeam team = Cosmos.setTeam cosmosClient team
-        member _.RemoveTeam applicationId = Cosmos.removeTeam cosmosClient applicationId
+        member _.RemoveTeam appId = Cosmos.removeTeam cosmosClient appId
 
     interface IDiscord with
         member _.GetApplicationInformation botToken =
@@ -44,11 +44,11 @@ type Env (
         member _.NodeRedistribute nodeId = ServiceBus.nodeRedistribute serviceBusClient nodeId
     
     interface IPersistence with
-        member _.UpsertUser user = Cosmos.upsertUser cosmosClient user
+        member _.SetUser user = Cosmos.setUser cosmosClient user
 
-        member _.GetApplicationById id = Cosmos.getApplicationById cosmosClient id
-        member _.UpsertApplication application = Cosmos.upsertApplication cosmosClient application
-        member _.DeleteApplicationById id = Cosmos.deleteApplicationById cosmosClient id
+        member _.GetApp appId = Cosmos.getApp cosmosClient appId
+        member _.SetApp app = Cosmos.setApp cosmosClient app
+        member _.RemoveApp appId = Cosmos.removeApp cosmosClient appId
 
     interface ISecrets with
         member _.BotTokenEncryptionKey = configuration.GetValue<string> "BotTokenEncryptionKey"

@@ -60,16 +60,16 @@ module Api =
         }
 
         Http.create POST "/api/applications"
-        |> Http.encode RegisterApplicationPayload.encoder payload
+        |> Http.encode RegisterAppPayload.encoder payload
         |> Http.send
-        |> Async.map (Http.decode ApplicationResponse.decoder)
+        |> Async.map (Http.decode AppResponse.decoder)
 
-    let getApplication (applicationId: string) =
-        Http.create GET $"/api/applications/{applicationId}"
+    let getApplication (appId: string) =
+        Http.create GET $"/api/applications/{appId}"
         |> Http.send
-        |> Async.map (Http.decode ApplicationResponse.decoder)
+        |> Async.map (Http.decode AppResponse.decoder)
 
-    let updateApplication (applicationId: string) discordBotToken intents shardCount handler =
+    let updateApplication (appId: string) discordBotToken intents shardCount handler =
         let payload = {
             DiscordBotToken = discordBotToken
             Intents = intents
@@ -77,27 +77,27 @@ module Api =
             Handler = handler
         }
 
-        Http.create PATCH $"/api/applications/{applicationId}"
-        |> Http.encode UpdateApplicationPayload.encoder payload
+        Http.create PATCH $"/api/applications/{appId}"
+        |> Http.encode UpdateAppPayload.encoder payload
         |> Http.send
-        |> Async.map (Http.decode ApplicationResponse.decoder)
+        |> Async.map (Http.decode AppResponse.decoder)
 
-    let deleteApplication (applicationId: string) =
-        Http.create DELETE $"/api/applications/{applicationId}"
+    let deleteApplication (appId: string) =
+        Http.create DELETE $"/api/applications/{appId}"
         |> Http.send
         |> Async.map Http.unit
 
-    let syncApplicationPrivilegedIntents (applicationId: string) =
-        Http.create POST $"/api/applications/{applicationId}/sync-privileged-intents"
+    let syncApplicationPrivilegedIntents (appId: string) =
+        Http.create POST $"/api/applications/{appId}/sync-privileged-intents"
         |> Http.send
         |> Async.map (Http.decode PrivilegedIntentsResponse.decoder)
 
-    let addDisabledApplicationReason (applicationId: string) (disabledReason: DisabledApplicationReason) =
-        Http.create PUT $"/api/applications/{applicationId}/disabled-reasons/{int disabledReason}"
+    let addDisabledApplicationReason (appId: string) (disabledReason: DisabledApplicationReason) =
+        Http.create PUT $"/api/applications/{appId}/disabled-reasons/{int disabledReason}"
         |> Http.send
         |> Async.map (Http.decode DisabledApplicationReasonResponse.decoder)
 
-    let removeDisabledApplicationReason (applicationId: string) (disabledReason: DisabledApplicationReason) =
-        Http.create DELETE $"/api/applications/{applicationId}/disabled-reasons/{int disabledReason}"
+    let removeDisabledApplicationReason (appId: string) (disabledReason: DisabledApplicationReason) =
+        Http.create DELETE $"/api/applications/{appId}/disabled-reasons/{int disabledReason}"
         |> Http.send
         |> Async.map (Http.decode DisabledApplicationReasonResponse.decoder)

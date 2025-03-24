@@ -9,13 +9,13 @@
     <Compile Include="Enums\ErrorCode.fs" />
     <Compile Include="Payloads\CreateHandlerPayload.fs" />
     <Compile Include="Payloads\LoginPayload.fs" />
-    <Compile Include="Payloads\RegisterApplicationPayload.fs" />
-    <Compile Include="Payloads\UpdateApplicationPayload.fs" />
+    <Compile Include="Payloads\RegisterAppPayload.fs" />
+    <Compile Include="Payloads\UpdateAppPayload.fs" />
     <Compile Include="Responses\DisabledApplicationReasonResponse.fs" />
     <Compile Include="Responses\ErrorResponse.fs" />
     <Compile Include="Responses\HandlerResponse.fs" />
     <Compile Include="Responses\PrivilegedIntentsResponse.fs" />
-    <Compile Include="Responses\ApplicationResponse.fs" />
+    <Compile Include="Responses\AppResponse.fs" />
     <Compile Include="Responses\UserResponse.fs" />
     <Compile Include="Messages\NodeHeartbeatMessage.fs" />
   </ItemGroup>

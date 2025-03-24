@@ -21,7 +21,7 @@ type ApplicationTests () =
         let privilegedIntents = _defaultPrivilegedIntents
 
         // Act
-        let app = Application.create id encryptedBotToken privilegedIntents
+        let app = App.create id encryptedBotToken privilegedIntents
 
         // Assert
         Assert.AreEqual<string>(id, app.Id)
@@ -36,11 +36,11 @@ type ApplicationTests () =
     [<TestMethod>]
     member _.``setEncryptedBotToken - Sets encrypted bot token`` () =
         // Arrange
-        let app = Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+        let app = App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
         let newEncryptedBotToken = "newEncryptedBotToken"
 
         // Act
-        let newApp = Application.setEncryptedBotToken newEncryptedBotToken app
+        let newApp = App.setEncryptedBotToken newEncryptedBotToken app
 
         // Assert
         Assert.AreEqual<string>(newEncryptedBotToken, newApp.EncryptedBotToken)
@@ -48,7 +48,7 @@ type ApplicationTests () =
     [<TestMethod>]
     member _.``setPrivilegedIntents - Sets privileged intents`` () =
         // Arrange
-        let app = Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+        let app = App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
         let newPrivilegedIntents = {
             MessageContent = true
             MessageContentLimited = true
@@ -59,7 +59,7 @@ type ApplicationTests () =
         }
 
         // Act
-        let newApp = Application.setPrivilegedIntents newPrivilegedIntents app
+        let newApp = App.setPrivilegedIntents newPrivilegedIntents app
 
         // Assert
         Assert.AreEqual<bool>(newPrivilegedIntents.MessageContent, newApp.PrivilegedIntents.MessageContent)
@@ -72,10 +72,10 @@ type ApplicationTests () =
     [<TestMethod>]
     member _.``addDisabledReason - Adds new disabled reason`` () =
         // Arrange
-        let app = Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+        let app = App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
 
         // Act
-        let newApp = Application.addDisabledReason DisabledApplicationReason.BLACKLISTED app
+        let newApp = App.addDisabledReason DisabledApplicationReason.BLACKLISTED app
 
         // Assert
         Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
@@ -85,11 +85,11 @@ type ApplicationTests () =
     member _.``addDisabledReason - Doesn't duplicate existing reason`` () =
         // Arrange
         let app =
-            Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
-            |> Application.addDisabledReason DisabledApplicationReason.BLACKLISTED
+            App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+            |> App.addDisabledReason DisabledApplicationReason.BLACKLISTED
 
         // Act
-        let newApp = Application.addDisabledReason DisabledApplicationReason.BLACKLISTED app
+        let newApp = App.addDisabledReason DisabledApplicationReason.BLACKLISTED app
 
         // Assert
         Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
@@ -99,11 +99,11 @@ type ApplicationTests () =
     member _.``addDisabledReason - Adds to existing set of reasons`` () =
         // Arrange
         let app =
-            Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
-            |> Application.addDisabledReason DisabledApplicationReason.NOT_ENOUGH_SHARDS
+            App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+            |> App.addDisabledReason DisabledApplicationReason.NOT_ENOUGH_SHARDS
 
         // Act
-        let newApp = Application.addDisabledReason DisabledApplicationReason.BLACKLISTED app
+        let newApp = App.addDisabledReason DisabledApplicationReason.BLACKLISTED app
 
         // Assert
         Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
@@ -114,11 +114,11 @@ type ApplicationTests () =
     member _.``removeDisabledReason - Removes existing reason`` () =
         // Arrange
         let app =
-            Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
-            |> Application.addDisabledReason DisabledApplicationReason.BLACKLISTED
+            App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+            |> App.addDisabledReason DisabledApplicationReason.BLACKLISTED
 
         // Act
-        let newApp = Application.removeDisabledReason DisabledApplicationReason.BLACKLISTED app
+        let newApp = App.removeDisabledReason DisabledApplicationReason.BLACKLISTED app
 
         // Assert
         Assert.IsFalse(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
@@ -126,10 +126,10 @@ type ApplicationTests () =
     [<TestMethod>]
     member _.``removeDisabledReason - Doesn't remove non-existing reason`` () =
         // Arrange
-        let app = Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+        let app = App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
 
         // Act
-        let newApp = Application.removeDisabledReason DisabledApplicationReason.BLACKLISTED app
+        let newApp = App.removeDisabledReason DisabledApplicationReason.BLACKLISTED app
 
         // Assert
         Assert.IsFalse(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
@@ -138,12 +138,12 @@ type ApplicationTests () =
     member _.``removeDisabledReason - Removes one of several reasons`` () =
         // Arrange
         let app =
-            Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
-            |> Application.addDisabledReason DisabledApplicationReason.BLACKLISTED
-            |> Application.addDisabledReason DisabledApplicationReason.NOT_ENOUGH_SHARDS
+            App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+            |> App.addDisabledReason DisabledApplicationReason.BLACKLISTED
+            |> App.addDisabledReason DisabledApplicationReason.NOT_ENOUGH_SHARDS
 
         // Act
-        let newApp = Application.removeDisabledReason DisabledApplicationReason.BLACKLISTED app
+        let newApp = App.removeDisabledReason DisabledApplicationReason.BLACKLISTED app
 
         // Assert
         Assert.IsFalse(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
@@ -153,10 +153,10 @@ type ApplicationTests () =
     [<TestMethod>]
     member _.``setDisabledReasons - Sets disabled reasons from none`` () =
         // Arrange
-        let app = Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+        let app = App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
 
         // Act
-        let newApp = Application.setDisabledReasons [DisabledApplicationReason.BLACKLISTED; DisabledApplicationReason.NOT_ENOUGH_SHARDS] app
+        let newApp = App.setDisabledReasons [DisabledApplicationReason.BLACKLISTED; DisabledApplicationReason.NOT_ENOUGH_SHARDS] app
 
         // Assert
         Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
@@ -167,11 +167,11 @@ type ApplicationTests () =
     member _.``setDisabledReasons - Overwrites previous disabled reasons`` () =
         // Arrange
         let app =
-            Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
-            |> Application.addDisabledReason DisabledApplicationReason.BLACKLISTED
+            App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+            |> App.addDisabledReason DisabledApplicationReason.BLACKLISTED
 
         // Act
-        let newApp = Application.setDisabledReasons [DisabledApplicationReason.NOT_ENOUGH_SHARDS] app
+        let newApp = App.setDisabledReasons [DisabledApplicationReason.NOT_ENOUGH_SHARDS] app
 
         // Assert
         Assert.IsFalse(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
@@ -183,11 +183,11 @@ type ApplicationTests () =
     [<TestMethod>]
     member _.``setShardCount - Sets shard count`` () =
         // Arrange
-        let app = Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+        let app = App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
         let newShardCount = 5
 
         // Act
-        let newApp = Application.setShardCount newShardCount app
+        let newApp = App.setShardCount newShardCount app
 
         // Assert
         Assert.AreEqual<int>(newShardCount, newApp.ShardCount)
@@ -195,11 +195,11 @@ type ApplicationTests () =
     [<TestMethod>]
     member _.``setHandler - Adds handler to application`` () =
         // Arrange
-        let app = Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+        let app = App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
         let handler = WebhookHandler.create "https://example.com" "ed25519PublicKey" "ed25519PrivateKey" |> Handler.WEBHOOK
 
         // Act
-        let newApp = Application.setHandler handler app
+        let newApp = App.setHandler handler app
 
         // Assert
         Assert.AreEqual<Handler option>(Some handler, newApp.Handler)
@@ -208,13 +208,13 @@ type ApplicationTests () =
     member _.``setHandler - Replaces previous handler on application`` () =
         // Arrange
         let app =
-            Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
-            |> Application.setHandler (WebhookHandler.create "https://example.com" "ed25519PublicKey" "ed25519PrivateKey" |> Handler.WEBHOOK)
+            App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+            |> App.setHandler (WebhookHandler.create "https://example.com" "ed25519PublicKey" "ed25519PrivateKey" |> Handler.WEBHOOK)
         
         let newHandler = ServiceBusHandler.create "connectionString" "queueName" |> Handler.SERVICE_BUS
 
         // Act
-        let newApp = Application.setHandler newHandler app
+        let newApp = App.setHandler newHandler app
 
         // Assert
         Assert.AreEqual<Handler option>(Some newHandler, newApp.Handler)
@@ -223,11 +223,11 @@ type ApplicationTests () =
     member _.``removeHandler - Removes existing handler from application`` () =
         // Arrange
         let app =
-            Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
-            |> Application.setHandler (ServiceBusHandler.create "connectionString" "queueName" |> Handler.SERVICE_BUS)
+            App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+            |> App.setHandler (ServiceBusHandler.create "connectionString" "queueName" |> Handler.SERVICE_BUS)
 
         // Act
-        let newApp = Application.removeHandler app
+        let newApp = App.removeHandler app
 
         // Assert
         Assert.AreEqual<Handler option>(None, newApp.Handler)
@@ -235,10 +235,10 @@ type ApplicationTests () =
     [<TestMethod>]
     member _.``removeHandler - Changes nothing if application already has no handler`` () =
         // Arrange
-        let app = Application.create "id" "encryptedBotToken" _defaultPrivilegedIntents
+        let app = App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
 
         // Act
-        let newApp = Application.removeHandler app
+        let newApp = App.removeHandler app
 
         // Assert
         Assert.AreEqual<Handler option>(None, newApp.Handler)

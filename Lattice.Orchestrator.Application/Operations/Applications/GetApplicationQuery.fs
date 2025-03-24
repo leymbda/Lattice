@@ -4,7 +4,7 @@ open Lattice.Orchestrator.Domain
 
 type GetApplicationQueryProps = {
     UserId: string
-    ApplicationId: string
+    AppId: string
 }
 
 type GetApplicationQueryError =
@@ -15,18 +15,18 @@ type GetApplicationQueryError =
 module GetApplicationQuery =
     let run (env: #IPersistence & #ISecrets) (props: GetApplicationQueryProps) = task {
         // Fetch application from db
-        match! env.GetApplicationById props.ApplicationId with
+        match! env.GetApp props.AppId with
         | Error _ -> return Error GetApplicationQueryError.ApplicationNotFound
-        | Ok application ->
+        | Ok app ->
 
-        let decryptedBotToken = Aes.decrypt env.BotTokenEncryptionKey application.EncryptedBotToken
+        let decryptedBotToken = Aes.decrypt env.BotTokenEncryptionKey app.EncryptedBotToken
 
         // Ensure user has access to application
-        match! TeamAdapter.getTeam env application.Id decryptedBotToken with
+        match! TeamAdapter.getTeam env app.Id decryptedBotToken with
         | None -> return Error GetApplicationQueryError.TeamNotFound
         | Some team ->
 
         match team.Members.TryFind props.UserId with
         | None -> return Error GetApplicationQueryError.Forbidden
-        | Some _ -> return Ok application
+        | Some _ -> return Ok app
     }

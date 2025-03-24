@@ -5,7 +5,7 @@ open Lattice.Orchestrator.Domain
 
 type SyncApplicationPrivilegedIntentsCommandProps = {
     UserId: string
-    ApplicationId: string
+    AppId: string
 }
 
 type SyncApplicationPrivilegedIntentsCommandError =
@@ -19,7 +19,7 @@ type SyncApplicationPrivilegedIntentsCommandError =
 module SyncApplicationPrivilegedIntentsCommand =
     let run (env: #IDiscord & #IPersistence & #ISecrets) (props: SyncApplicationPrivilegedIntentsCommandProps) = task {
         // Get current application from db
-        match! env.GetApplicationById props.ApplicationId with
+        match! env.GetApp props.AppId with
         | Error _ -> return Error SyncApplicationPrivilegedIntentsCommandError.ApplicationNotFound
         | Ok app ->
 
@@ -37,8 +37,8 @@ module SyncApplicationPrivilegedIntentsCommand =
         // Get the current privileged intents
         match! env.GetApplicationInformation discordBotToken with
         | None -> return Error SyncApplicationPrivilegedIntentsCommandError.InvalidBotToken
-        | Some app when app.Id <> props.ApplicationId -> return Error SyncApplicationPrivilegedIntentsCommandError.DifferentBotToken
-        | Some discordApplication ->
+        | Some app when app.Id <> app.Id -> return Error SyncApplicationPrivilegedIntentsCommandError.DifferentBotToken
+        | Some application ->
 
         // Update privileged intents in db
         let hasFlag (flag: ApplicationFlag) (app: FSharp.Discord.Types.Application) =
@@ -46,19 +46,19 @@ module SyncApplicationPrivilegedIntentsCommand =
 
         let privilegedIntents =
             {
-                MessageContent = discordApplication |> hasFlag ApplicationFlag.GATEWAY_MESSAGE_CONTENT
-                MessageContentLimited = discordApplication |> hasFlag ApplicationFlag.GATEWAY_MESSAGE_CONTENT_LIMITED
-                GuildMembers = discordApplication |> hasFlag ApplicationFlag.GATEWAY_GUILD_MEMBERS
-                GuildMembersLimited = discordApplication |> hasFlag ApplicationFlag.GATEWAY_GUILD_MEMBERS_LIMITED
-                Presence = discordApplication |> hasFlag ApplicationFlag.GATEWAY_PRESENCE
-                PresenceLimited = discordApplication |> hasFlag ApplicationFlag.GATEWAY_PRESENCE_LIMITED
+                MessageContent = application |> hasFlag ApplicationFlag.GATEWAY_MESSAGE_CONTENT
+                MessageContentLimited = application |> hasFlag ApplicationFlag.GATEWAY_MESSAGE_CONTENT_LIMITED
+                GuildMembers = application |> hasFlag ApplicationFlag.GATEWAY_GUILD_MEMBERS
+                GuildMembersLimited = application |> hasFlag ApplicationFlag.GATEWAY_GUILD_MEMBERS_LIMITED
+                Presence = application |> hasFlag ApplicationFlag.GATEWAY_PRESENCE
+                PresenceLimited = application |> hasFlag ApplicationFlag.GATEWAY_PRESENCE_LIMITED
             }
 
         // TODO: Update `Application` object in FSharp.Discord to return a list of flags to check if contained rather than defining this custom function as above
 
-        let updatedApp = app |> Application.setPrivilegedIntents privilegedIntents
+        let updatedApp = app |> App.setPrivilegedIntents privilegedIntents
 
-        match! env.UpsertApplication updatedApp with
+        match! env.SetApp updatedApp with
         | Error _ -> return Error SyncApplicationPrivilegedIntentsCommandError.UpdateFailed
         | Ok app -> return Ok app.PrivilegedIntents
     }

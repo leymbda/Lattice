@@ -2,7 +2,7 @@
 
 type DeleteApplicationCommandProps = {
     UserId: string
-    ApplicationId: string
+    AppId: string
 }
 
 type DeleteApplicationCommandError =
@@ -12,14 +12,14 @@ type DeleteApplicationCommandError =
 
 module DeleteApplicationCommand =
     let run (env: #IPersistence & #ISecrets) (props: DeleteApplicationCommandProps) = task {
-        match! env.GetApplicationById props.ApplicationId with
+        match! env.GetApp props.AppId with
         | Error _ -> return Error DeleteApplicationCommandError.ApplicationNotFound
-        | Ok application ->
+        | Ok app ->
         
-        let decryptedBotToken = Aes.decrypt env.BotTokenEncryptionKey application.EncryptedBotToken
+        let decryptedBotToken = Aes.decrypt env.BotTokenEncryptionKey app.EncryptedBotToken
         
         // Ensure user has access to application
-        match! TeamAdapter.getTeam env application.Id decryptedBotToken with
+        match! TeamAdapter.getTeam env app.Id decryptedBotToken with
         | None -> return Error DeleteApplicationCommandError.TeamNotFound
         | Some team ->
 
@@ -28,7 +28,7 @@ module DeleteApplicationCommand =
         | Some _ -> 
 
         // Delete application
-        match! env.DeleteApplicationById props.ApplicationId with
+        match! env.RemoveApp props.AppId with
         | Error _ -> return Error DeleteApplicationCommandError.ApplicationNotFound
         | Ok () -> return Ok ()
     }

@@ -9,7 +9,7 @@
     <Compile Include="Users\User.fs" />
     <Compile Include="Applications\DisabledApplicationReason.fs" />
     <Compile Include="Applications\Handler.fs" />
-    <Compile Include="Applications\Application.fs" />
+    <Compile Include="Applications\App.fs" />
     <Compile Include="Applications\Team.fs" />
     <Compile Include="Nodes\Shard.fs" />
     <Compile Include="Nodes\ShardInstance.fs" />

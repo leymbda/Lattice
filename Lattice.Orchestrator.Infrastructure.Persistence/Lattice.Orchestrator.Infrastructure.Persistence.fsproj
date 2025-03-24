@@ -10,7 +10,7 @@
     <Compile Include="Models\UserModel.fs" />
     <Compile Include="Models\HandlerModel.fs" />
     <Compile Include="Models\PrivilegedIntentsModel.fs" />
-    <Compile Include="Models\ApplicationModel.fs" />
+    <Compile Include="Models\AppModel.fs" />
     <Compile Include="Models\TeamCacheModel.fs" />
     <Compile Include="Cosmos.fs" />
   </ItemGroup>

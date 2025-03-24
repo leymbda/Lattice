@@ -18,11 +18,11 @@ module RegisterApplicationCommand =
         // Validate application with Discord
         match! env.GetApplicationInformation props.DiscordBotToken with
         | None -> return Error RegisterApplicationCommandError.InvalidBotToken
-        | Some discordApplication ->
+        | Some application ->
 
         // Ensure user has access to application
         let members = Map.empty<string, TeamMemberRole> // TODO: Map app owner/team-members into here (requires new FSharp.Discord version)
-        let team = Team.create discordApplication.Id members // TODO: This is a duplicate of code in the Cache composite, this should all be refactored to be neat
+        let team = Team.create application.Id members // TODO: This is a duplicate of code in the Cache composite, this should all be refactored to be neat
 
         match team.Members.TryFind props.UserId with
         | None -> return Error RegisterApplicationCommandError.Forbidden
@@ -36,21 +36,21 @@ module RegisterApplicationCommand =
 
         let privilegedIntents =
             {
-                MessageContent = discordApplication |> hasFlag ApplicationFlag.GATEWAY_MESSAGE_CONTENT
-                MessageContentLimited = discordApplication |> hasFlag ApplicationFlag.GATEWAY_MESSAGE_CONTENT_LIMITED
-                GuildMembers = discordApplication |> hasFlag ApplicationFlag.GATEWAY_GUILD_MEMBERS
-                GuildMembersLimited = discordApplication |> hasFlag ApplicationFlag.GATEWAY_GUILD_MEMBERS_LIMITED
-                Presence = discordApplication |> hasFlag ApplicationFlag.GATEWAY_PRESENCE
-                PresenceLimited = discordApplication |> hasFlag ApplicationFlag.GATEWAY_PRESENCE_LIMITED
+                MessageContent = application |> hasFlag ApplicationFlag.GATEWAY_MESSAGE_CONTENT
+                MessageContentLimited = application |> hasFlag ApplicationFlag.GATEWAY_MESSAGE_CONTENT_LIMITED
+                GuildMembers = application |> hasFlag ApplicationFlag.GATEWAY_GUILD_MEMBERS
+                GuildMembersLimited = application |> hasFlag ApplicationFlag.GATEWAY_GUILD_MEMBERS_LIMITED
+                Presence = application |> hasFlag ApplicationFlag.GATEWAY_PRESENCE
+                PresenceLimited = application |> hasFlag ApplicationFlag.GATEWAY_PRESENCE_LIMITED
             }
 
         // TODO: Update `Application` object in FSharp.Discord to return a list of flags to check if contained rather than defining this custom function as above
 
-        let application = Application.create discordApplication.Id encryptedBotToken privilegedIntents
+        let app = App.create application.Id encryptedBotToken privilegedIntents
 
-        match! env.UpsertApplication application with
+        match! env.SetApp app with
         | Error _ -> return Error RegisterApplicationCommandError.RegistrationFailed
-        | Ok application -> return Ok application
+        | Ok app -> return Ok app
 
         // TODO: Update team cache here (does not matter if it succeeds or fails)
     }
