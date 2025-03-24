@@ -1,8 +1,6 @@
 ﻿open Azure.Messaging.ServiceBus
-open FSharp.Discord.Rest
 open Lattice.Orchestrator.AppHost
 open Lattice.Orchestrator.Application
-open Lattice.Orchestrator.Infrastructure.Discord
 open Lattice.Orchestrator.Presentation
 open Microsoft.Azure.Cosmos
 open Microsoft.Azure.Functions.Worker
@@ -30,7 +28,6 @@ HostBuilder()
         !services.AddApplicationInsightsTelemetryWorkerService()
         !services.ConfigureFunctionsApplicationInsights()
 
-        !services.AddSingleton<IDiscordClientFactory, DiscordClientFactory>()
         !services.AddSingleton<CosmosClient>(fun _ -> new CosmosClient(ctx.Configuration.GetValue<string>("CosmosDb")))
         !services.AddSingleton<ServiceBusClient>(fun _ -> new ServiceBusClient(ctx.Configuration.GetValue<string>("ServiceBus")))
         !services.AddDurableTaskClient(fun builder -> !builder.UseGrpc())

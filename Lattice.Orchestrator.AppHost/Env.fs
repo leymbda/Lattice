@@ -2,16 +2,17 @@
 
 open Azure.Messaging.ServiceBus
 open Lattice.Orchestrator.Application
-open Lattice.Orchestrator.Infrastructure.Discord
 open Lattice.Orchestrator.Infrastructure.Messaging
 open Lattice.Orchestrator.Infrastructure.Persistence
-open FSharp.Discord.Rest
+open FSharp.Discord.Rest.Old
 open Microsoft.Azure.Cosmos
 open Microsoft.Extensions.Configuration
+open System.Net.Http
+open System.Threading.Tasks
 
 type Env (
     configuration: IConfiguration,
-    discordClientFactory: IDiscordClientFactory,
+    httpClientFactory: IHttpClientFactory,
     cosmosClient: CosmosClient,
     serviceBusClient: ServiceBusClient
 ) =
@@ -23,8 +24,19 @@ type Env (
         member _.RemoveTeam applicationId = Cosmos.removeTeam cosmosClient applicationId
 
     interface IDiscord with
-        member _.GetApplicationInformation botToken = Discord.getApplicationInformation discordClientFactory botToken
-        member _.GetUserInformation accessToken = Discord.getUserInformation discordClientFactory accessToken
+        member _.GetApplicationInformation botToken =
+            httpClientFactory.CreateClient()
+            |> HttpClient.toBotClient botToken
+            |> Rest.getCurrentApplication
+            |> Task.map (Result.toOption >> (Option.map _.Data))
+
+        member _.GetUserInformation accessToken =
+            httpClientFactory.CreateClient()
+            |> HttpClient.toOAuthClient accessToken
+            |> Rest.getCurrentUser
+            |> Task.map (Result.toOption >> (Option.map _.Data))
+
+        // TODO: Replace with new rest functions once created (will make these neater/simpler in the process)
 
     interface IEvents with
         member _.NodeHeartbeat nodeId heartbeatTime = ServiceBus.nodeHeartbeat serviceBusClient nodeId heartbeatTime
