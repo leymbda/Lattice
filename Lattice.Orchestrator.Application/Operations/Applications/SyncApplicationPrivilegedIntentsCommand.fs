@@ -12,6 +12,7 @@ type SyncApplicationPrivilegedIntentsCommandError =
     | InvalidBotToken
     | Forbidden
     | ApplicationNotFound
+    | TeamNotFound
     | DifferentBotToken
     | UpdateFailed
 
@@ -25,9 +26,9 @@ module SyncApplicationPrivilegedIntentsCommand =
         let discordBotToken = app.EncryptedBotToken |> Aes.decrypt env.BotTokenEncryptionKey
 
         // Ensure user has access to application
-        match! Cache.getTeam env app with
-        | Error GetTeamError.InvalidBotToken -> return Error SyncApplicationPrivilegedIntentsCommandError.InvalidBotToken
-        | Ok team ->
+        match! TeamAdapter.getTeam env app.Id discordBotToken with
+        | None -> return Error SyncApplicationPrivilegedIntentsCommandError.TeamNotFound
+        | Some team ->
 
         match team.Members.TryFind props.UserId with
         | None -> return Error SyncApplicationPrivilegedIntentsCommandError.Forbidden

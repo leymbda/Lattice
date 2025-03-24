@@ -9,7 +9,4 @@ type IPersistence =
     abstract GetApplicationById: id: string -> Task<Result<Application, unit>>
     abstract UpsertApplication: application: Application -> Task<Result<Application, unit>>
     abstract DeleteApplicationById: id: string -> Task<Result<unit, unit>>
-
-    abstract GetCachedApplicationTeam: applicationId: string -> Task<Result<Team, unit>>
-    abstract UpsertCachedApplicationTeam: team: Team -> Task<Result<Team, unit>>
-    abstract DeleteCachedApplicationTeam: applicationId: string -> Task<Result<unit, unit>>
+    

@@ -17,9 +17,10 @@ type UpdateApplicationCommandProps = {
 }
 
 type UpdateApplicationCommandError =
-    | InvalidBotToken
     | Forbidden
     | ApplicationNotFound
+    | TeamNotFound
+    | InvalidBotToken
     | DifferentBotToken
     | UpdateFailed
 
@@ -29,11 +30,13 @@ module UpdateApplicationCommand =
         match! env.GetApplicationById props.ApplicationId with
         | Error _ -> return Error UpdateApplicationCommandError.ApplicationNotFound
         | Ok app ->
+        
+        let decryptedBotToken = Aes.decrypt env.BotTokenEncryptionKey app.EncryptedBotToken
 
         // Ensure user has access to application
-        match! Cache.getTeam env app with
-        | Error GetTeamError.InvalidBotToken -> return Error UpdateApplicationCommandError.InvalidBotToken
-        | Ok team ->
+        match! TeamAdapter.getTeam env app.Id decryptedBotToken with
+        | None -> return Error UpdateApplicationCommandError.TeamNotFound
+        | Some team ->
 
         match team.Members.TryFind props.UserId with
         | None -> return Error UpdateApplicationCommandError.Forbidden

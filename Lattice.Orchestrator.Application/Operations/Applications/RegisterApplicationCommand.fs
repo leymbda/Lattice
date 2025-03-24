@@ -51,4 +51,6 @@ module RegisterApplicationCommand =
         match! env.UpsertApplication application with
         | Error _ -> return Error RegisterApplicationCommandError.RegistrationFailed
         | Ok application -> return Ok application
+
+        // TODO: Update team cache here (does not matter if it succeeds or fails)
     }

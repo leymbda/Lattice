@@ -10,19 +10,21 @@ type GetApplicationQueryProps = {
 type GetApplicationQueryError =
     | Forbidden
     | ApplicationNotFound
-    | InvalidBotToken
+    | TeamNotFound
 
 module GetApplicationQuery =
-    let run (env: #IPersistence) (props: GetApplicationQueryProps) = task {
+    let run (env: #IPersistence & #ISecrets) (props: GetApplicationQueryProps) = task {
         // Fetch application from db
         match! env.GetApplicationById props.ApplicationId with
         | Error _ -> return Error GetApplicationQueryError.ApplicationNotFound
         | Ok application ->
 
+        let decryptedBotToken = Aes.decrypt env.BotTokenEncryptionKey application.EncryptedBotToken
+
         // Ensure user has access to application
-        match! Cache.getTeam env application with
-        | Error GetTeamError.InvalidBotToken -> return Error GetApplicationQueryError.InvalidBotToken
-        | Ok team ->
+        match! TeamAdapter.getTeam env application.Id decryptedBotToken with
+        | None -> return Error GetApplicationQueryError.TeamNotFound
+        | Some team ->
 
         match team.Members.TryFind props.UserId with
         | None -> return Error GetApplicationQueryError.Forbidden

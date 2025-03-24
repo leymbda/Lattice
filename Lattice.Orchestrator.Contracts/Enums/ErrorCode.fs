@@ -7,6 +7,7 @@ type ErrorCode =
     | APPLICATION_NOT_FOUND = 2000
     | APPLICATION_NOT_ACTIVATED = 2001
     | NODE_NOT_FOUND = 2002
+    | TEAM_NOT_FOUND = 2003
     | INVALID_TOKEN = 3000
     | DIFFERENT_BOT_TOKEN = 3001
 
@@ -19,6 +20,7 @@ module ErrorCode =
         | ErrorCode.APPLICATION_NOT_FOUND -> "Application not found"
         | ErrorCode.APPLICATION_NOT_ACTIVATED -> "Application not activated"
         | ErrorCode.NODE_NOT_FOUND -> "Node not found"
+        | ErrorCode.TEAM_NOT_FOUND -> "Team not found"
         | ErrorCode.INVALID_TOKEN -> "Invalid Discord bot token provided"
         | ErrorCode.DIFFERENT_BOT_TOKEN -> "Provided Discord bot token is for a different application"
         | _ -> "Unknown error"

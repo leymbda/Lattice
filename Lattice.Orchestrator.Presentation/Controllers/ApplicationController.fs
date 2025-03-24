@@ -63,11 +63,6 @@ type ApplicationController (env: IEnv) =
         }
 
         match! GetApplicationQuery.run env props with
-        | Error GetApplicationQueryError.InvalidBotToken ->
-            return!
-                req.CreateResponse HttpStatusCode.UnprocessableContent
-                |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
-
         | Error GetApplicationQueryError.Forbidden ->
             return!
                 req.CreateResponse HttpStatusCode.Forbidden
@@ -77,6 +72,11 @@ type ApplicationController (env: IEnv) =
             return!
                 req.CreateResponse HttpStatusCode.NotFound
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
+                
+        | Error GetApplicationQueryError.TeamNotFound ->
+            return!
+                req.CreateResponse HttpStatusCode.NotFound
+                |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.TEAM_NOT_FOUND)
 
         | Ok application ->
             return!
@@ -127,6 +127,11 @@ type ApplicationController (env: IEnv) =
                 return!
                     req.CreateResponse HttpStatusCode.NotFound
                     |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
+                    
+            | Error UpdateApplicationCommandError.TeamNotFound ->
+                return!
+                    req.CreateResponse HttpStatusCode.NotFound
+                    |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.TEAM_NOT_FOUND)
 
             | Error UpdateApplicationCommandError.DifferentBotToken ->
                 return!
@@ -157,11 +162,6 @@ type ApplicationController (env: IEnv) =
         }
 
         match! DeleteApplicationCommand.run env props with
-        | Error DeleteApplicationCommandError.InvalidBotToken ->
-            return!
-                req.CreateResponse HttpStatusCode.UnprocessableContent
-                |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
-
         | Error DeleteApplicationCommandError.Forbidden ->
             return!
                 req.CreateResponse HttpStatusCode.Forbidden
@@ -171,6 +171,11 @@ type ApplicationController (env: IEnv) =
             return!
                 req.CreateResponse HttpStatusCode.NotFound
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
+                
+        | Error DeleteApplicationCommandError.TeamNotFound ->
+            return!
+                req.CreateResponse HttpStatusCode.NotFound
+                |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.TEAM_NOT_FOUND)
 
         | Ok _ ->
             return req.CreateResponse HttpStatusCode.NoContent
@@ -203,6 +208,11 @@ type ApplicationController (env: IEnv) =
             return!
                 req.CreateResponse HttpStatusCode.NotFound
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APPLICATION_NOT_FOUND)
+                
+        | Error SyncApplicationPrivilegedIntentsCommandError.TeamNotFound ->
+            return!
+                req.CreateResponse HttpStatusCode.NotFound
+                |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.TEAM_NOT_FOUND)
 
         | Error SyncApplicationPrivilegedIntentsCommandError.DifferentBotToken ->
             return!

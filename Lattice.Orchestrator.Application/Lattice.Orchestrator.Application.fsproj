@@ -7,13 +7,14 @@
 
   <ItemGroup>
     <Compile Include="Common\Events.fs" />
+    <Compile Include="Abstractions\ICache.fs" />
     <Compile Include="Abstractions\IDiscord.fs" />
     <Compile Include="Abstractions\IEvents.fs" />
     <Compile Include="Abstractions\IPersistence.fs" />
     <Compile Include="Abstractions\ISecrets.fs" />
     <Compile Include="Abstractions\IEnv.fs" />
     <Compile Include="Modules\Crypto.fs" />
-    <Compile Include="Composites\Cache.fs" />
+    <Compile Include="Adapters\TeamAdapter.fs" />
     <Compile Include="Operations\Applications\RegisterApplicationCommand.fs" />
     <Compile Include="Operations\Applications\GetApplicationQuery.fs" />
     <Compile Include="Operations\Applications\UpdateApplicationCommand.fs" />
