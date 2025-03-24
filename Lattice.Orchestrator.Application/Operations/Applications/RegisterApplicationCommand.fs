@@ -2,6 +2,7 @@
 
 open FSharp.Discord.Types
 open Lattice.Orchestrator.Domain
+open System.Threading.Tasks
 
 type RegisterApplicationCommandProps = {
     UserId: string
@@ -14,7 +15,7 @@ type RegisterApplicationCommandError =
     | RegistrationFailed
 
 module RegisterApplicationCommand =
-    let run (env: #IDiscord & #IPersistence & #ISecrets) (props: RegisterApplicationCommandProps) = task {
+    let run (env: #ICache & #IDiscord & #IPersistence & #ISecrets) (props: RegisterApplicationCommandProps) = task {
         // Validate application with Discord
         match! env.GetApplicationInformation props.DiscordBotToken with
         | None -> return Error RegisterApplicationCommandError.InvalidBotToken
@@ -50,7 +51,9 @@ module RegisterApplicationCommand =
 
         match! env.SetApp app with
         | Error _ -> return Error RegisterApplicationCommandError.RegistrationFailed
-        | Ok app -> return Ok app
+        | Ok app ->
 
-        // TODO: Update team cache here (does not matter if it succeeds or fails)
+        // Update team in cache
+        do! env.SetTeam team :> Task
+        return Ok app
     }
