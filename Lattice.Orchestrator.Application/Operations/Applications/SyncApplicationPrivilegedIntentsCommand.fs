@@ -41,20 +41,15 @@ module SyncApplicationPrivilegedIntentsCommand =
         | Some application ->
 
         // Update privileged intents in db
-        let hasFlag (flag: ApplicationFlag) (app: FSharp.Discord.Types.Application) =
-            (Option.defaultValue 0 app.Flags &&& int flag) = int flag
-
         let privilegedIntents =
             {
-                MessageContent = application |> hasFlag ApplicationFlag.GATEWAY_MESSAGE_CONTENT
-                MessageContentLimited = application |> hasFlag ApplicationFlag.GATEWAY_MESSAGE_CONTENT_LIMITED
-                GuildMembers = application |> hasFlag ApplicationFlag.GATEWAY_GUILD_MEMBERS
-                GuildMembersLimited = application |> hasFlag ApplicationFlag.GATEWAY_GUILD_MEMBERS_LIMITED
-                Presence = application |> hasFlag ApplicationFlag.GATEWAY_PRESENCE
-                PresenceLimited = application |> hasFlag ApplicationFlag.GATEWAY_PRESENCE_LIMITED
+                MessageContent = application.Flags |> Option.defaultValue [] |> List.contains ApplicationFlag.GATEWAY_MESSAGE_CONTENT
+                MessageContentLimited = application.Flags |> Option.defaultValue [] |> List.contains ApplicationFlag.GATEWAY_MESSAGE_CONTENT_LIMITED
+                GuildMembers = application.Flags |> Option.defaultValue [] |> List.contains ApplicationFlag.GATEWAY_GUILD_MEMBERS
+                GuildMembersLimited = application.Flags |> Option.defaultValue [] |> List.contains ApplicationFlag.GATEWAY_GUILD_MEMBERS_LIMITED
+                Presence = application.Flags |> Option.defaultValue [] |> List.contains ApplicationFlag.GATEWAY_PRESENCE
+                PresenceLimited = application.Flags |> Option.defaultValue [] |> List.contains ApplicationFlag.GATEWAY_PRESENCE_LIMITED
             }
-
-        // TODO: Update `Application` object in FSharp.Discord to return a list of flags to check if contained rather than defining this custom function as above
 
         let updatedApp = app |> App.setPrivilegedIntents privilegedIntents
 
