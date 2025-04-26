@@ -30,12 +30,9 @@ type Env (
             |> Task.map (fst >> Result.toOption)
 
         member _.GetUserInformation accessToken =
-            httpClientFactory.CreateClient()
-            |> FSharp.Discord.Rest.Old.HttpClient.toOAuthClient accessToken
-            |> FSharp.Discord.Rest.Old.Rest.getCurrentUser
-            |> Task.map (Result.toOption >> (Option.map _.Data))
-
-            // TODO: Replace with new rest once implemented in FSharp.Discord
+            httpClientFactory.CreateOAuthClient accessToken
+            |> Rest.getCurrentUser
+            |> Task.map (fst >> Result.toOption)
 
     interface IEvents with
         member _.NodeHeartbeat nodeId heartbeatTime = ServiceBus.nodeHeartbeat serviceBusClient nodeId heartbeatTime
