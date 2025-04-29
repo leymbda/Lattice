@@ -14,6 +14,7 @@
     <Compile Include="Abstractions\ISecrets.fs" />
     <Compile Include="Abstractions\IEnv.fs" />
     <Compile Include="Modules\Crypto.fs" />
+    <Compile Include="Modules\Discord.fs" />
     <Compile Include="Adapters\TeamAdapter.fs" />
     <Compile Include="Operations\Applications\RegisterApplicationCommand.fs" />
     <Compile Include="Operations\Applications\GetApplicationQuery.fs" />
@@ -35,6 +36,7 @@
 	
   <ItemGroup>
     <PackageReference Include="FSharp.Discord" Version="0.0.36" />
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.18.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.3.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
   </ItemGroup>
