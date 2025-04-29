@@ -1,5 +1,6 @@
 ﻿namespace Lattice.Orchestrator.Application
 
+open FsToolkit.ErrorHandling
 open Lattice.Orchestrator.Domain
 
 type GetApplicationQueryProps = {
@@ -13,20 +14,24 @@ type GetApplicationQueryError =
     | TeamNotFound
 
 module GetApplicationQuery =
-    let run (env: #IPersistence & #ISecrets) (props: GetApplicationQueryProps) = task {
+    let run (env: #IPersistence & #ISecrets) props = asyncResult {
         // Fetch application from db
-        match! env.GetApp props.AppId with
-        | Error _ -> return Error GetApplicationQueryError.ApplicationNotFound
-        | Ok app ->
+        let! app =
+            env.GetApp props.AppId
+            |> Async.AwaitTask
+            |> AsyncResult.setError ApplicationNotFound
 
-        let decryptedBotToken = Aes.decrypt env.BotTokenEncryptionKey app.EncryptedBotToken
+        let decryptedBotToken =
+            Aes.decrypt env.BotTokenEncryptionKey app.EncryptedBotToken
 
         // Ensure user has access to application
-        match! TeamAdapter.getTeam env app.Id decryptedBotToken with
-        | None -> return Error GetApplicationQueryError.TeamNotFound
-        | Some team ->
+        do!
+            TeamAdapter.getTeam env app.Id decryptedBotToken
+            |> Async.AwaitTask
+            |> AsyncResult.requireSome TeamNotFound
+            |> AsyncResult.map (_.Members.ContainsKey(props.UserId))
+            |> AsyncResult.bindRequireTrue Forbidden
 
-        match team.Members.TryFind props.UserId with
-        | None -> return Error GetApplicationQueryError.Forbidden
-        | Some _ -> return Ok app
+        // Return app on success
+        return app
     }

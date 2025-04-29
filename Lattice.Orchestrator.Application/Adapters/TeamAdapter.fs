@@ -1,6 +1,5 @@
 ﻿namespace Lattice.Orchestrator.Application
 
-open Lattice.Orchestrator.Domain
 open System.Threading.Tasks
 
 module TeamAdapter =
@@ -15,10 +14,15 @@ module TeamAdapter =
         | None -> return None
         | Some application ->
 
-        let members = Map.empty<string, TeamMemberRole> // TODO: Map app owner/team-members into here (requires new FSharp.Discord version)
-        let team = Team.create appId members
+        match Team.fromApplication application with
+        | None -> return None
+        | Some team ->
 
-        // Save fetched team to cache
-        do! env.SetTeam team :> Task
+        // Save team to cache
+        do!
+            env.SetTeam team
+            |> Task.wait
+
+        // Return team on success
         return Some team
     }
