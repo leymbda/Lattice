@@ -1,5 +1,6 @@
 ﻿module Lattice.Orchestrator.Application.AddDisabledAppReason
 
+open FsToolkit.ErrorHandling
 open Lattice.Orchestrator.Domain
 
 type Props = {
@@ -8,19 +9,22 @@ type Props = {
 }
 
 type Failure =
-    | ApplicationNotFound
+    | AppNotFound
     | AddFailed
 
-let run (env: #IPersistence) props = task {
-    // Get current application from db
-    match! env.GetApp props.AppId with
-    | Error _ -> return Error ApplicationNotFound
-    | Ok app ->
-
-    // Remove handler from application
-    let updatedApp = app |> App.addDisabledReason props.DisabledReason
-
-    match! env.SetApp updatedApp with
-    | Ok app -> return Ok app.DisabledReasons
-    | _ -> return Error AddFailed
+let run (env: #IPersistence) props = asyncResult {
+    // Fetch app from db
+    let! app =
+        env.GetApp props.AppId
+        |> Async.AwaitTask
+        |> AsyncResult.setError AppNotFound
+        
+    // Add disabled reason to app
+    return!
+        app
+        |> App.addDisabledReason props.DisabledReason
+        |> env.SetApp
+        |> Async.AwaitTask
+        |> AsyncResult.setError AddFailed
+        |> AsyncResult.map _.DisabledReasons
 }

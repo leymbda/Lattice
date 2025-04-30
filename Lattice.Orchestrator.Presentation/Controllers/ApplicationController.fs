@@ -68,7 +68,7 @@ type ApplicationController (env: IEnv) =
                 req.CreateResponse HttpStatusCode.Forbidden
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.FORBIDDEN)
 
-        | Error GetApp.Failure.ApplicationNotFound ->
+        | Error GetApp.Failure.AppNotFound ->
             return!
                 req.CreateResponse HttpStatusCode.NotFound
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APP_NOT_FOUND)
@@ -123,7 +123,7 @@ type ApplicationController (env: IEnv) =
                     req.CreateResponse HttpStatusCode.Forbidden
                     |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.FORBIDDEN)
 
-            | Error UpdateApp.Failure.ApplicationNotFound ->
+            | Error UpdateApp.Failure.AppNotFound ->
                 return!
                     req.CreateResponse HttpStatusCode.NotFound
                     |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APP_NOT_FOUND)
@@ -167,7 +167,7 @@ type ApplicationController (env: IEnv) =
                 req.CreateResponse HttpStatusCode.Forbidden
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.FORBIDDEN)
 
-        | Error DeleteApp.Failure.ApplicationNotFound ->
+        | Error DeleteApp.Failure.AppNotFound ->
             return!
                 req.CreateResponse HttpStatusCode.NotFound
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APP_NOT_FOUND)
@@ -204,7 +204,7 @@ type ApplicationController (env: IEnv) =
                 req.CreateResponse HttpStatusCode.Forbidden
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.FORBIDDEN)
 
-        | Error SyncApplicationPrivilegedIntents.Failure.ApplicationNotFound ->
+        | Error SyncApplicationPrivilegedIntents.Failure.AppNotFound ->
             return!
                 req.CreateResponse HttpStatusCode.NotFound
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APP_NOT_FOUND)
@@ -242,7 +242,7 @@ type ApplicationController (env: IEnv) =
         }
 
         match! AddDisabledAppReason.run env props with
-        | Error AddDisabledAppReason.Failure.ApplicationNotFound ->
+        | Error AddDisabledAppReason.Failure.AppNotFound ->
             return!
                 req.CreateResponse HttpStatusCode.NotFound
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APP_NOT_FOUND)
@@ -270,7 +270,7 @@ type ApplicationController (env: IEnv) =
         }
         
         match! RemoveDisabledAppReason.run env props with
-        | Error RemoveDisabledAppReason.Failure.ApplicationNotFound ->
+        | Error RemoveDisabledAppReason.Failure.AppNotFound ->
             return!
                 req.CreateResponse HttpStatusCode.NotFound
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APP_NOT_FOUND)

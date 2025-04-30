@@ -1,5 +1,6 @@
 ﻿module Lattice.Orchestrator.Application.UpdateApp
 
+open FsToolkit.ErrorHandling
 open Lattice.Orchestrator.Domain
 open System.Threading.Tasks
 
@@ -18,44 +19,41 @@ type Props = {
 
 type Failure =
     | Forbidden
-    | ApplicationNotFound
+    | AppNotFound
     | TeamNotFound
     | InvalidBotToken
     | DifferentBotToken
     | UpdateFailed
 
-let run (env: #IDiscord & #IPersistence & #ISecrets) props = task {
-    // Get current application from db
-    match! env.GetApp props.AppId with
-    | Error _ -> return Error ApplicationNotFound
-    | Ok app ->
+let run (env: #IDiscord & #IPersistence & #ISecrets) props = asyncResult {
+    // Get current app from db
+    let! app =
+        env.GetApp props.AppId
+        |> Async.AwaitTask
+        |> AsyncResult.setError AppNotFound
+
+    let decryptedBotToken =
+        Aes.decrypt env.BotTokenEncryptionKey app.EncryptedBotToken
         
-    let decryptedBotToken = Aes.decrypt env.BotTokenEncryptionKey app.EncryptedBotToken
-
-    // Ensure user has access to application
-    match! TeamAdapter.getTeam env app.Id decryptedBotToken with
-    | None -> return Error TeamNotFound
-    | Some team ->
-
-    match team.Members.TryFind props.UserId with
-    | None -> return Error Forbidden
-    | Some _ -> 
+    // Ensure user has access to app
+    do!
+        TeamAdapter.getTeam env app.Id decryptedBotToken
+        |> Async.AwaitTask
+        |> AsyncResult.requireSome TeamNotFound
+        |> AsyncResult.map (_.Members.ContainsKey(props.UserId))
+        |> AsyncResult.bindRequireTrue Forbidden
 
     // Ensure the new bot token if valid if one is provided
-    let! error =
+    do!
         match props.DiscordBotToken with
-        | None -> Task.FromResult None
+        | None -> Task.FromResult (Ok ())
         | Some discordBotToken -> task {
             match! env.GetApplicationInformation discordBotToken with
-            | None -> return Some InvalidBotToken
-            | Some application when application.Id <> app.Id -> return Some DifferentBotToken
-            | Some _ -> return None
+            | None -> return Error InvalidBotToken
+            | Some application when application.Id <> app.Id -> return Error DifferentBotToken
+            | Some _ -> return Ok ()
         }
-
-    match error with
-    | Some err -> return Error err
-    | None ->
-
+    
     // Configure or remove handler based on prop
     let updateHandler handler app =
         match handler with
@@ -72,16 +70,17 @@ let run (env: #IDiscord & #IPersistence & #ISecrets) props = task {
             app |> App.removeHandler
 
     // Update provided properties
-    let encryptedBotToken = props.DiscordBotToken |> Option.map (Aes.encrypt env.BotTokenEncryptionKey)
+    let encryptedBotToken =
+        props.DiscordBotToken
+        |> Option.map (Aes.encrypt env.BotTokenEncryptionKey)
 
-    let updatedApp =
+    return!
         app
         |> Option.foldBack (fun encryptedBotToken app -> App.setEncryptedBotToken encryptedBotToken app) encryptedBotToken
         |> Option.foldBack (fun intents app -> App.setIntents intents app) props.Intents
         |> Option.foldBack (fun shardCount app -> App.setShardCount shardCount app) props.ShardCount
         |> Option.foldBack (fun handler app -> app |> updateHandler handler) props.Handler
-
-    match! env.SetApp updatedApp with
-    | Error _ -> return Error UpdateFailed
-    | Ok app -> return Ok app
+        |> env.SetApp
+        |> Async.AwaitTask
+        |> AsyncResult.setError UpdateFailed
 }

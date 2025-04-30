@@ -32,10 +32,12 @@ type ServiceBusHandler (env: IEnv) =
         // Handle valid request
         logger.LogDebug "Received heartbeat ack"
 
-        do! HeartbeatNode.run env {
-            NodeId = nodeId
-            HeartbeatTime = data.HeartbeatTime
-        }
+        do!
+            HeartbeatNode.run env {
+                NodeId = nodeId
+                HeartbeatTime = data.HeartbeatTime
+            }
+            |> Async.Ignore // TODO: Handle errors (?)
 
         scope.Dispose()
     }
@@ -54,9 +56,11 @@ type ServiceBusHandler (env: IEnv) =
         | true, nodeId ->
 
         // Handle valid request
-        do! ReleaseNode.run env {
-            NodeId = nodeId
-        }
+        do!
+            ReleaseNode.run env {
+                NodeId = nodeId
+            }
+            |> Async.Ignore // TODO: Handle errors (?)
 
         scope.Dispose()
     }
@@ -75,9 +79,11 @@ type ServiceBusHandler (env: IEnv) =
         | true, nodeId ->
         
         // Handle valid request
-        do! RedistributeNode.run env {
-            NodeId = nodeId
-        }
+        do!
+            RedistributeNode.run env {
+                NodeId = nodeId
+            }
+            |> Async.Ignore // TODO: Handle errors (?)
 
         scope.Dispose()
     }

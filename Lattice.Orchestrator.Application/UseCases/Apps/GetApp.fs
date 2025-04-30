@@ -10,20 +10,20 @@ type Props = {
 
 type Failure =
     | Forbidden
-    | ApplicationNotFound
+    | AppNotFound
     | TeamNotFound
 
 let run (env: #IPersistence & #ISecrets) props = asyncResult {
-    // Fetch application from db
+    // Fetch app from db
     let! app =
         env.GetApp props.AppId
         |> Async.AwaitTask
-        |> AsyncResult.setError ApplicationNotFound
+        |> AsyncResult.setError AppNotFound
 
     let decryptedBotToken =
         Aes.decrypt env.BotTokenEncryptionKey app.EncryptedBotToken
 
-    // Ensure user has access to application
+    // Ensure user has access to app
     do!
         TeamAdapter.getTeam env app.Id decryptedBotToken
         |> Async.AwaitTask

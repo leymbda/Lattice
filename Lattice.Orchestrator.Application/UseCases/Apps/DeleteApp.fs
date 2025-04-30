@@ -1,5 +1,7 @@
 ﻿module Lattice.Orchestrator.Application.DeleteApp
 
+open FsToolkit.ErrorHandling
+
 type Props = {
     UserId: string
     AppId: string
@@ -7,27 +9,30 @@ type Props = {
 
 type Failure =
     | Forbidden
-    | ApplicationNotFound
+    | AppNotFound
     | TeamNotFound
 
-let run (env: #IPersistence & #ISecrets) props = task {
-    match! env.GetApp props.AppId with
-    | Error _ -> return Error ApplicationNotFound
-    | Ok app ->
-        
-    let decryptedBotToken = Aes.decrypt env.BotTokenEncryptionKey app.EncryptedBotToken
-        
-    // Ensure user has access to application
-    match! TeamAdapter.getTeam env app.Id decryptedBotToken with
-    | None -> return Error TeamNotFound
-    | Some team ->
+let run (env: #IPersistence & #ISecrets) props = asyncResult {
+    // Fetch app from db
+    let! app =
+        env.GetApp props.AppId
+        |> Async.AwaitTask
+        |> AsyncResult.setError AppNotFound
 
-    match team.Members.TryFind props.UserId with
-    | None -> return Error Forbidden
-    | Some _ -> 
+    let decryptedBotToken =
+        Aes.decrypt env.BotTokenEncryptionKey app.EncryptedBotToken
+        
+    // Ensure user has access to app
+    do!
+        TeamAdapter.getTeam env app.Id decryptedBotToken
+        |> Async.AwaitTask
+        |> AsyncResult.requireSome TeamNotFound
+        |> AsyncResult.map (_.Members.ContainsKey(props.UserId))
+        |> AsyncResult.bindRequireTrue Forbidden
 
     // Delete application
-    match! env.RemoveApp props.AppId with
-    | Error _ -> return Error ApplicationNotFound
-    | Ok () -> return Ok ()
+    do!
+        env.RemoveApp props.AppId
+        |> Async.AwaitTask
+        |> AsyncResult.setError AppNotFound
 }

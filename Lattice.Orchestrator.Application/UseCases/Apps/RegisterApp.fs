@@ -16,13 +16,13 @@ type Failure =
     | RegistrationFailed
 
 let run (env: #ICache & #IDiscord & #IPersistence & #ISecrets) props = asyncResult {
-    // Validate application with Discord
+    // Validate app with Discord
     let! application =
         env.GetApplicationInformation props.DiscordBotToken
         |> Async.AwaitTask
         |> AsyncResult.requireSome InvalidBotToken
             
-    // Ensure user has access to application
+    // Ensure user has access to app
     let! team =
         Team.fromApplication application
         |> Result.requireSome RegistrationFailed
@@ -31,7 +31,7 @@ let run (env: #ICache & #IDiscord & #IPersistence & #ISecrets) props = asyncResu
         team.Members.ContainsKey props.UserId
         |> Result.requireTrue Forbidden
 
-    // Create application and save to db
+    // Create app and save to db
     let encryptedBotToken =
         props.DiscordBotToken
         |> Aes.encrypt env.BotTokenEncryptionKey
