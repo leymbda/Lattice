@@ -9,16 +9,20 @@ type UserResponse = {
 }
 
 module UserResponse =
+    module Property =
+        let [<Literal>] Id = "id"
+        let [<Literal>] Username = "username"
+
     let decoder: Decoder<UserResponse> =
         Decode.object (fun get -> {
-            Id = get.Required.Field "id" Decode.string
-            Username = get.Required.Field "username" Decode.string
+            Id = get.Required.Field Property.Id Decode.string
+            Username = get.Required.Field Property.Username Decode.string
         })
 
     let encoder (v: UserResponse) =
         Encode.object [
-            "id", Encode.string v.Id
-            "username", Encode.string v.Username
+            Property.Id, Encode.string v.Id
+            Property.Username, Encode.string v.Username
         ]
 
     let fromDomain (v: User) = {

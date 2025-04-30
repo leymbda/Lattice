@@ -75,39 +75,39 @@ type ApplicationTests () =
         let app = App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
 
         // Act
-        let newApp = App.addDisabledReason DisabledApplicationReason.BLACKLISTED app
+        let newApp = App.addDisabledReason DisabledAppReason.BLACKLISTED app
 
         // Assert
-        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
-        Assert.AreEqual<int>(1, newApp.DisabledReasons |> List.filter (fun r -> r = DisabledApplicationReason.BLACKLISTED) |> List.length)
+        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledAppReason.BLACKLISTED))
+        Assert.AreEqual<int>(1, newApp.DisabledReasons |> List.filter (fun r -> r = DisabledAppReason.BLACKLISTED) |> List.length)
 
     [<TestMethod>]
     member _.``addDisabledReason - Doesn't duplicate existing reason`` () =
         // Arrange
         let app =
             App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
-            |> App.addDisabledReason DisabledApplicationReason.BLACKLISTED
+            |> App.addDisabledReason DisabledAppReason.BLACKLISTED
 
         // Act
-        let newApp = App.addDisabledReason DisabledApplicationReason.BLACKLISTED app
+        let newApp = App.addDisabledReason DisabledAppReason.BLACKLISTED app
 
         // Assert
-        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
-        Assert.AreEqual<int>(1, newApp.DisabledReasons |> List.filter (fun r -> r = DisabledApplicationReason.BLACKLISTED) |> List.length)
+        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledAppReason.BLACKLISTED))
+        Assert.AreEqual<int>(1, newApp.DisabledReasons |> List.filter (fun r -> r = DisabledAppReason.BLACKLISTED) |> List.length)
         
     [<TestMethod>]
     member _.``addDisabledReason - Adds to existing set of reasons`` () =
         // Arrange
         let app =
             App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
-            |> App.addDisabledReason DisabledApplicationReason.NOT_ENOUGH_SHARDS
+            |> App.addDisabledReason DisabledAppReason.NOT_ENOUGH_SHARDS
 
         // Act
-        let newApp = App.addDisabledReason DisabledApplicationReason.BLACKLISTED app
+        let newApp = App.addDisabledReason DisabledAppReason.BLACKLISTED app
 
         // Assert
-        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
-        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.NOT_ENOUGH_SHARDS))
+        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledAppReason.BLACKLISTED))
+        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledAppReason.NOT_ENOUGH_SHARDS))
         Assert.AreEqual<int>(2, newApp.DisabledReasons |> List.length)
 
     [<TestMethod>]
@@ -115,13 +115,13 @@ type ApplicationTests () =
         // Arrange
         let app =
             App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
-            |> App.addDisabledReason DisabledApplicationReason.BLACKLISTED
+            |> App.addDisabledReason DisabledAppReason.BLACKLISTED
 
         // Act
-        let newApp = App.removeDisabledReason DisabledApplicationReason.BLACKLISTED app
+        let newApp = App.removeDisabledReason DisabledAppReason.BLACKLISTED app
 
         // Assert
-        Assert.IsFalse(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
+        Assert.IsFalse(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledAppReason.BLACKLISTED))
 
     [<TestMethod>]
     member _.``removeDisabledReason - Doesn't remove non-existing reason`` () =
@@ -129,25 +129,25 @@ type ApplicationTests () =
         let app = App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
 
         // Act
-        let newApp = App.removeDisabledReason DisabledApplicationReason.BLACKLISTED app
+        let newApp = App.removeDisabledReason DisabledAppReason.BLACKLISTED app
 
         // Assert
-        Assert.IsFalse(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
+        Assert.IsFalse(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledAppReason.BLACKLISTED))
 
     [<TestMethod>]
     member _.``removeDisabledReason - Removes one of several reasons`` () =
         // Arrange
         let app =
             App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
-            |> App.addDisabledReason DisabledApplicationReason.BLACKLISTED
-            |> App.addDisabledReason DisabledApplicationReason.NOT_ENOUGH_SHARDS
+            |> App.addDisabledReason DisabledAppReason.BLACKLISTED
+            |> App.addDisabledReason DisabledAppReason.NOT_ENOUGH_SHARDS
 
         // Act
-        let newApp = App.removeDisabledReason DisabledApplicationReason.BLACKLISTED app
+        let newApp = App.removeDisabledReason DisabledAppReason.BLACKLISTED app
 
         // Assert
-        Assert.IsFalse(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
-        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.NOT_ENOUGH_SHARDS))
+        Assert.IsFalse(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledAppReason.BLACKLISTED))
+        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledAppReason.NOT_ENOUGH_SHARDS))
         Assert.AreEqual<int>(1, newApp.DisabledReasons |> List.length)
 
     [<TestMethod>]
@@ -156,11 +156,11 @@ type ApplicationTests () =
         let app = App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
 
         // Act
-        let newApp = App.setDisabledReasons [DisabledApplicationReason.BLACKLISTED; DisabledApplicationReason.NOT_ENOUGH_SHARDS] app
+        let newApp = App.setDisabledReasons [DisabledAppReason.BLACKLISTED; DisabledAppReason.NOT_ENOUGH_SHARDS] app
 
         // Assert
-        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
-        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.NOT_ENOUGH_SHARDS))
+        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledAppReason.BLACKLISTED))
+        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledAppReason.NOT_ENOUGH_SHARDS))
         Assert.AreEqual<int>(2, newApp.DisabledReasons |> List.length)
 
     [<TestMethod>]
@@ -168,14 +168,14 @@ type ApplicationTests () =
         // Arrange
         let app =
             App.create "id" "encryptedBotToken" _defaultPrivilegedIntents
-            |> App.addDisabledReason DisabledApplicationReason.BLACKLISTED
+            |> App.addDisabledReason DisabledAppReason.BLACKLISTED
 
         // Act
-        let newApp = App.setDisabledReasons [DisabledApplicationReason.NOT_ENOUGH_SHARDS] app
+        let newApp = App.setDisabledReasons [DisabledAppReason.NOT_ENOUGH_SHARDS] app
 
         // Assert
-        Assert.IsFalse(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.BLACKLISTED))
-        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledApplicationReason.NOT_ENOUGH_SHARDS))
+        Assert.IsFalse(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledAppReason.BLACKLISTED))
+        Assert.IsTrue(newApp.DisabledReasons |> List.exists (fun r -> r = DisabledAppReason.NOT_ENOUGH_SHARDS))
         Assert.AreEqual<int>(1, newApp.DisabledReasons |> List.length)
 
     // TODO: Write tests for `addIntent`, `removeIntent`, and `setIntents` once properly implemented (probably don't just want bitfield stored)

@@ -92,12 +92,12 @@ module Api =
         |> Http.send
         |> Async.map (Http.decode PrivilegedIntentsResponse.decoder)
 
-    let addDisabledApplicationReason (appId: string) (disabledReason: DisabledApplicationReason) =
+    let addDisabledAppReason (appId: string) (disabledReason: DisabledAppReason) =
         Http.create PUT $"/api/applications/{appId}/disabled-reasons/{int disabledReason}"
         |> Http.send
-        |> Async.map (Http.decode DisabledApplicationReasonResponse.decoder)
+        |> Async.map (Http.decode DisabledAppReasonResponse.decoder)
 
-    let removeDisabledApplicationReason (appId: string) (disabledReason: DisabledApplicationReason) =
+    let removeDisabledAppReason (appId: string) (disabledReason: DisabledAppReason) =
         Http.create DELETE $"/api/applications/{appId}/disabled-reasons/{int disabledReason}"
         |> Http.send
-        |> Async.map (Http.decode DisabledApplicationReasonResponse.decoder)
+        |> Async.map (Http.decode DisabledAppReasonResponse.decoder)

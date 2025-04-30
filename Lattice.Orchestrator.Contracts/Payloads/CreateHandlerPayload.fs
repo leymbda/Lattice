@@ -7,14 +7,17 @@ type CreateWebhookHandlerPayload = {
 }
 
 module CreateWebhookHandlerPayload =
+    module Property =
+        let [<Literal>] Endpoint = "endpoint"
+
     let decoder: Decoder<CreateWebhookHandlerPayload> =
         Decode.object (fun get -> {
-            Endpoint = get.Required.Field "endpoint" Decode.string
+            Endpoint = get.Required.Field Property.Endpoint Decode.string
         })
 
     let encoder (v: CreateWebhookHandlerPayload) =
         Encode.object [
-            "endpoint", Encode.string v.Endpoint
+            Property.Endpoint, Encode.string v.Endpoint
         ]
 
 type CreateServiceBusHandlerPayload = {
@@ -23,16 +26,20 @@ type CreateServiceBusHandlerPayload = {
 }
 
 module CreateServiceBusHandlerPayload =
+    module Property =
+        let [<Literal>] ConnectionString = "connectionString"
+        let [<Literal>] QueueName = "queueName"
+
     let decoder: Decoder<CreateServiceBusHandlerPayload> =
         Decode.object (fun get -> {
-            ConnectionString = get.Required.Field "connectionString" Decode.string
-            QueueName = get.Required.Field "queueName" Decode.string
+            ConnectionString = get.Required.Field Property.ConnectionString Decode.string
+            QueueName = get.Required.Field Property.QueueName Decode.string
         })
 
     let encoder (v: CreateServiceBusHandlerPayload) =
         Encode.object [
-            "connectionString", Encode.string v.ConnectionString
-            "queueName", Encode.string v.QueueName
+            Property.ConnectionString, Encode.string v.ConnectionString
+            Property.QueueName, Encode.string v.QueueName
         ]
 
 type CreateHandlerPayload =

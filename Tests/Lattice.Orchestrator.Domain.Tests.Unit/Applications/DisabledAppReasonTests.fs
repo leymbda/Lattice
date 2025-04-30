@@ -4,7 +4,7 @@ open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 
 [<TestClass>]
-type DisabledApplicationReasonTests () =
+type DisabledAppReasonTests () =
     [<TestMethod>]
     [<DataRow(0)>]
     [<DataRow(1, 1)>]
@@ -15,10 +15,10 @@ type DisabledApplicationReasonTests () =
         [<ParamArray>] ints: int array
     ) =
         // Arrange
-        let reasons = ints |> Array.toList |> List.map enum<DisabledApplicationReason>
+        let reasons = ints |> Array.toList |> List.map enum<DisabledAppReason>
 
         // Act
-        let bitfield = DisabledApplicationReason.toBitfield reasons
+        let bitfield = DisabledAppReason.toBitfield reasons
 
         // Assert
         Assert.AreEqual<int>(expected, bitfield)
@@ -33,10 +33,10 @@ type DisabledApplicationReasonTests () =
         [<ParamArray>] ints: int array
     ) =
         // Arrange
-        let expected = ints |> Array.toList |> List.map enum<DisabledApplicationReason>
+        let expected = ints |> Array.toList |> List.map enum<DisabledAppReason>
 
         // Act
-        let reasons = DisabledApplicationReason.fromBitfield bitfield
+        let reasons = DisabledAppReason.fromBitfield bitfield
 
         // Assert
-        Assert.AreEqual<DisabledApplicationReason list>(expected, reasons)
+        Assert.AreEqual<DisabledAppReason list>(expected, reasons)

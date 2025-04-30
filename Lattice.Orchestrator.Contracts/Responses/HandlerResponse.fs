@@ -9,16 +9,20 @@ type WebhookHandlerResponse = {
 }
 
 module WebhookHandlerResponse =
+    module Property =
+        let [<Literal>] Endpoint = "endpoint"
+        let [<Literal>] Ed25519PublicKey = "ed25519PublicKey"
+
     let decoder: Decoder<WebhookHandlerResponse> =
         Decode.object (fun get -> {
-            Endpoint = get.Required.Field "endpoint" Decode.string
-            Ed25519PublicKey = get.Required.Field "ed25519PublicKey" Decode.string
+            Endpoint = get.Required.Field Property.Endpoint Decode.string
+            Ed25519PublicKey = get.Required.Field Property.Ed25519PublicKey Decode.string
         })
 
     let encoder (v: WebhookHandlerResponse) =
         Encode.object [
-            "endpoint", Encode.string v.Endpoint
-            "ed25519PublicKey", Encode.string v.Ed25519PublicKey
+            Property.Endpoint, Encode.string v.Endpoint
+            Property.Ed25519PublicKey, Encode.string v.Ed25519PublicKey
         ]
 
     let fromDomain (handler: WebhookHandler) = {
@@ -31,14 +35,17 @@ type ServiceBusHandlerResponse = {
 }
 
 module ServiceBusHandlerResponse =
+    module Property =
+        let [<Literal>] QueueName = "queueName"
+
     let decoder: Decoder<ServiceBusHandlerResponse> =
         Decode.object (fun get -> {
-            QueueName = get.Required.Field "queueName" Decode.string
+            QueueName = get.Required.Field Property.QueueName Decode.string
         })
 
     let encoder (v: ServiceBusHandlerResponse) =
         Encode.object [
-            "queueName", Encode.string v.QueueName
+            Property.QueueName, Encode.string v.QueueName
         ]
 
     let fromDomain (handler: ServiceBusHandler) = {

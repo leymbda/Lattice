@@ -8,16 +8,20 @@ type ErrorResponse = {
 }
 
 module ErrorResponse =
+    module Property =
+        let [<Literal>] Code = "code"
+        let [<Literal>] Message = "message"
+
     let decoder: Decoder<ErrorResponse> =
         Decode.object (fun get -> {
-            Code = get.Required.Field "code" Decode.Enum.int<ErrorCode>
-            Message = get.Required.Field "message" Decode.string
+            Code = get.Required.Field Property.Code Decode.Enum.int<ErrorCode>
+            Message = get.Required.Field Property.Message Decode.string
         })
 
     let encoder (v: ErrorResponse) =
         Encode.object [
-            "code", Encode.Enum.int<ErrorCode> v.Code
-            "message", Encode.string v.Message
+            Property.Code, Encode.Enum.int<ErrorCode> v.Code
+            Property.Message, Encode.string v.Message
         ]
 
     let fromCode code = {

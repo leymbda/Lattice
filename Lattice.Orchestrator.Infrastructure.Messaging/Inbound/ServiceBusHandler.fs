@@ -32,7 +32,7 @@ type ServiceBusHandler (env: IEnv) =
         // Handle valid request
         logger.LogDebug "Received heartbeat ack"
 
-        do! HeartbeatNodeCommand.run env {
+        do! HeartbeatNode.run env {
             NodeId = nodeId
             HeartbeatTime = data.HeartbeatTime
         }
@@ -54,7 +54,7 @@ type ServiceBusHandler (env: IEnv) =
         | true, nodeId ->
 
         // Handle valid request
-        do! ReleaseNodeCommand.run env {
+        do! ReleaseNode.run env {
             NodeId = nodeId
         }
 
@@ -75,7 +75,7 @@ type ServiceBusHandler (env: IEnv) =
         | true, nodeId ->
         
         // Handle valid request
-        do! RedistributeNodeCommand.run env {
+        do! RedistributeNode.run env {
             NodeId = nodeId
         }
 

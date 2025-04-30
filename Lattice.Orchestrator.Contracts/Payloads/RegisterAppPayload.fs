@@ -7,12 +7,15 @@ type RegisterAppPayload = {
 }
 
 module RegisterAppPayload =
+    module Property =
+        let [<Literal>] DiscordBotToken = "discordBotToken"
+
     let decoder: Decoder<RegisterAppPayload> =
         Decode.object (fun get -> {
-            DiscordBotToken = get.Required.Field "discordBotToken" Decode.string
+            DiscordBotToken = get.Required.Field Property.DiscordBotToken Decode.string
         })
 
     let encoder (v: RegisterAppPayload) =
         Encode.object [
-            "discordBotToken", Encode.string v.DiscordBotToken
+            Property.DiscordBotToken, Encode.string v.DiscordBotToken
         ]

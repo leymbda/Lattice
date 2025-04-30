@@ -7,10 +7,10 @@
 
   <ItemGroup>
     <Compile Include="Users\User.fs" />
-    <Compile Include="Applications\DisabledApplicationReason.fs" />
-    <Compile Include="Applications\Handler.fs" />
-    <Compile Include="Applications\App.fs" />
-    <Compile Include="Applications\Team.fs" />
+    <Compile Include="Apps\DisabledAppReason.fs" />
+    <Compile Include="Apps\Handler.fs" />
+    <Compile Include="Apps\App.fs" />
+    <Compile Include="Apps\Team.fs" />
     <Compile Include="Nodes\Shard.fs" />
     <Compile Include="Nodes\ShardInstance.fs" />
     <Compile Include="Nodes\Node.fs" />

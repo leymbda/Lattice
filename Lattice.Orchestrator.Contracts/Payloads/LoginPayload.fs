@@ -8,14 +8,18 @@ type LoginPayload = {
 }
 
 module LoginPayload =
+    module Property =
+        let [<Literal>] Code = "code"
+        let [<Literal>] RedirectUri = "redirectUri"
+
     let decoder: Decoder<LoginPayload> =
         Decode.object (fun get -> {
-            Code = get.Required.Field "code" Decode.string
-            RedirectUri = get.Required.Field "redirectUri" Decode.string
+            Code = get.Required.Field Property.Code Decode.string
+            RedirectUri = get.Required.Field Property.RedirectUri Decode.string
         })
 
     let encoder (v: LoginPayload) =
         Encode.object [
-            "code", Encode.string v.Code
-            "redirectUri", Encode.string v.RedirectUri
+            Property.Code, Encode.string v.Code
+            Property.RedirectUri, Encode.string v.RedirectUri
         ]

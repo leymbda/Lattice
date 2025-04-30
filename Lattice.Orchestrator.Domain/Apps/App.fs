@@ -13,7 +13,7 @@ type App = {
     Id:                string
     EncryptedBotToken: string
     PrivilegedIntents: PrivilegedIntents
-    DisabledReasons:   DisabledApplicationReason list
+    DisabledReasons:   DisabledAppReason list
     Intents:           int
     ShardCount:        int
     Handler:           Handler option

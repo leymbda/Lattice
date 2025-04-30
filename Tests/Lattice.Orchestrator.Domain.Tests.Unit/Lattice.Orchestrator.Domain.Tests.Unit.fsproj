@@ -10,7 +10,7 @@
 
 	<ItemGroup>
 		<Compile Include="Users\UserTests.fs" />
-		<Compile Include="Applications\DisabledApplicationReasonTests.fs" />
+		<Compile Include="Applications\DisabledAppReasonTests.fs" />
 		<Compile Include="Applications\HandlerTests.fs" />
 		<Compile Include="Applications\ApplicationTests.fs" />
 		<Compile Include="Nodes\ShardTests.fs" />

@@ -11,7 +11,7 @@
     <Compile Include="Payloads\LoginPayload.fs" />
     <Compile Include="Payloads\RegisterAppPayload.fs" />
     <Compile Include="Payloads\UpdateAppPayload.fs" />
-    <Compile Include="Responses\DisabledApplicationReasonResponse.fs" />
+    <Compile Include="Responses\DisabledAppReasonResponse.fs" />
     <Compile Include="Responses\ErrorResponse.fs" />
     <Compile Include="Responses\HandlerResponse.fs" />
     <Compile Include="Responses\PrivilegedIntentsResponse.fs" />
