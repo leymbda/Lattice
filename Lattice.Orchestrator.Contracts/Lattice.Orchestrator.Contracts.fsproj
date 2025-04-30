@@ -8,7 +8,6 @@
   <ItemGroup>
     <Compile Include="Enums\ErrorCode.fs" />
     <Compile Include="Payloads\CreateHandlerPayload.fs" />
-    <Compile Include="Payloads\LoginPayload.fs" />
     <Compile Include="Payloads\RegisterAppPayload.fs" />
     <Compile Include="Payloads\UpdateAppPayload.fs" />
     <Compile Include="Responses\DisabledAppReasonResponse.fs" />

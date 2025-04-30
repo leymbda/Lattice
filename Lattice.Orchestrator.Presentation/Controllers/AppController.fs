@@ -181,8 +181,8 @@ type ApplicationController (env: IEnv) =
             return req.CreateResponse HttpStatusCode.NoContent
     }
     
-    [<Function "SyncApplicationPrivilegedIntents">]
-    member _.SyncApplicationPrivilegedIntents (
+    [<Function "SyncAppPrivilegedIntents">]
+    member _.SyncAppPrivilegedIntents (
         [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "apps/{appId:long}/sync-privileged-intents")>] req: HttpRequestData,
         appId: int64
     ) = task {

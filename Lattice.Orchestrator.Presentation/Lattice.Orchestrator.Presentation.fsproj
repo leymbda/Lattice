@@ -9,7 +9,7 @@
   <ItemGroup>
     <Compile Include="Modules\HttpResponseData.fs" />
     <Compile Include="Middleware\ExceptionMiddleware.fs" />
-    <Compile Include="Controllers\ApplicationController.fs" />
+    <Compile Include="Controllers\AppController.fs" />
   </ItemGroup>
 
   <ItemGroup>
