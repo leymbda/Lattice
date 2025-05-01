@@ -26,14 +26,13 @@ type ShardInstanceOrchestrator () =
             let events = {
                 Start = ctx.WaitForExternalEvent<DateTime>(ShardInstanceEvent.Events.START, ct)
                 Shutdown = ctx.WaitForExternalEvent<DateTime>(ShardInstanceEvent.Events.SHUTDOWN, ct)
-                SendEvent = ctx.WaitForExternalEvent(ShardInstanceEvent.Events.SEND_EVENT, ct)
             }
 
             match! ShardInstanceEvent.awaitAny events with
             | ShardInstanceEvent.START startAt ->
                 match state with
                 | ShardInstanceState.NotStarted ->
-                    ctx.SendEvent(NodeEvent.orchestratorId shardInstance.NodeId, NodeEvent.Events.START_INSTANCE, (shardInstance.ShardId, startAt))
+                    // TODO: Send message to node to start given instance
                     ctx.ContinueAsNew (shardInstance |> ShardInstance.start startAt)
 
                 | _ -> ctx.ContinueAsNew shardInstance
@@ -47,17 +46,9 @@ type ShardInstanceOrchestrator () =
 
                 | ShardInstanceState.Starting _
                 | ShardInstanceState.Active ->
-                    ctx.SendEvent(NodeEvent.orchestratorId shardInstance.NodeId, NodeEvent.Events.SHUTDOWN_INSTANCE, (shardInstance.ShardId, shutdownAt))
+                    // TODO: Send message to node to shutdown given instance
                     ctx.ContinueAsNew newShardInstance
 
-                | _ -> ctx.ContinueAsNew shardInstance
-
-            | ShardInstanceEvent.SEND_EVENT ->
-                match state with
-                | ShardInstanceState.Active ->
-                    ctx.SendEvent(NodeEvent.orchestratorId shardInstance.NodeId, NodeEvent.Events.SEND_INSTANCE_EVENT, (shardInstance.ShardId))
-                    ctx.ContinueAsNew shardInstance
-                
                 | _ -> ctx.ContinueAsNew shardInstance
 
             | ShardInstanceEvent.UNKNOWN_EVENT -> ()

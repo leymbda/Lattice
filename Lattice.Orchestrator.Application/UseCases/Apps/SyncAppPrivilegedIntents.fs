@@ -1,4 +1,4 @@
-﻿module Lattice.Orchestrator.Application.SyncApplicationPrivilegedIntents
+﻿module Lattice.Orchestrator.Application.SyncAppPrivilegedIntents
 
 open FsToolkit.ErrorHandling
 open FSharp.Discord.Types

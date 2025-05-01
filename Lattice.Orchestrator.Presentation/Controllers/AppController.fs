@@ -188,38 +188,38 @@ type ApplicationController (env: IEnv) =
     ) = task {
         let userId = "" // TODO: Get user ID from request header (TBD by swa auth stuff)
 
-        let props: SyncApplicationPrivilegedIntents.Props = {
+        let props: SyncAppPrivilegedIntents.Props = {
             UserId = userId
             AppId = string appId
         }
 
-        match! SyncApplicationPrivilegedIntents.run env props with
-        | Error SyncApplicationPrivilegedIntents.Failure.InvalidBotToken ->
+        match! SyncAppPrivilegedIntents.run env props with
+        | Error SyncAppPrivilegedIntents.Failure.InvalidBotToken ->
             return!
                 req.CreateResponse HttpStatusCode.UnprocessableContent
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INVALID_TOKEN)
 
-        | Error SyncApplicationPrivilegedIntents.Failure.Forbidden ->
+        | Error SyncAppPrivilegedIntents.Failure.Forbidden ->
             return!
                 req.CreateResponse HttpStatusCode.Forbidden
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.FORBIDDEN)
 
-        | Error SyncApplicationPrivilegedIntents.Failure.AppNotFound ->
+        | Error SyncAppPrivilegedIntents.Failure.AppNotFound ->
             return!
                 req.CreateResponse HttpStatusCode.NotFound
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.APP_NOT_FOUND)
                 
-        | Error SyncApplicationPrivilegedIntents.Failure.TeamNotFound ->
+        | Error SyncAppPrivilegedIntents.Failure.TeamNotFound ->
             return!
                 req.CreateResponse HttpStatusCode.NotFound
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.TEAM_NOT_FOUND)
 
-        | Error SyncApplicationPrivilegedIntents.Failure.DifferentBotToken ->
+        | Error SyncAppPrivilegedIntents.Failure.DifferentBotToken ->
             return!
                 req.CreateResponse HttpStatusCode.UnprocessableContent
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.DIFFERENT_BOT_TOKEN)
 
-        | Error SyncApplicationPrivilegedIntents.Failure.UpdateFailed ->
+        | Error SyncAppPrivilegedIntents.Failure.UpdateFailed ->
             return!
                 req.CreateResponse HttpStatusCode.InternalServerError
                 |> HttpResponseData.withErrorResponse (ErrorResponse.fromCode ErrorCode.INTERNAL_SERVER_ERROR)

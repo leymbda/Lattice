@@ -20,7 +20,7 @@
     <Compile Include="UseCases\Apps\GetApp.fs" />
     <Compile Include="UseCases\Apps\UpdateApp.fs" />
     <Compile Include="UseCases\Apps\DeleteApp.fs" />
-    <Compile Include="UseCases\Apps\SyncApplicationPrivilegedIntents.fs" />
+    <Compile Include="UseCases\Apps\SyncAppPrivilegedIntents.fs" />
     <Compile Include="UseCases\Apps\AddDisabledAppReason.fs" />
     <Compile Include="UseCases\Apps\RemoveDisabledAppReason.fs" />
     <Compile Include="UseCases\Nodes\HeartbeatNode.fs" />
