@@ -7,12 +7,13 @@ open Lattice.Orchestrator.Domain
 open System
 open Thoth.Json.Net
 
-let shardInstanceScheduleStart (client: ServiceBusClient) (nodeId: Guid) (shardId: ShardId) (token: string) (intents: int) (startAt: DateTime) =
+let shardInstanceScheduleStart (client: ServiceBusClient) (nodeId: Guid) (shardId: ShardId) (token: string) (intents: int) (handler: Handler) (startAt: DateTime) =
     {
         NodeId = nodeId
         ShardId = shardId
         Token = token
         Intents = intents
+        Handler = handler
         StartAt = startAt
     }
     |> ShardInstanceSendScheduleStartMessage.encoder

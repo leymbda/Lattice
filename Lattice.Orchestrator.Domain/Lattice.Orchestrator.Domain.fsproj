@@ -14,8 +14,6 @@
     <Compile Include="Nodes\Shard.fs" />
     <Compile Include="Nodes\ShardInstance.fs" />
     <Compile Include="Nodes\Node.fs" />
-    <Compile Include="Nodes\Bid.fs" />
-    <Compile Include="Nodes\OldShard.fs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,6 +2,7 @@
 
 open Azure.Messaging.ServiceBus
 open FSharp.Discord.Gateway
+open Lattice.Orchestrator.Domain
 open System.Net.Http
 open System.Net.Http.Headers
 open System.Threading
@@ -11,16 +12,16 @@ type Node (
     httpClientFactory: IHttpClientFactory,
     gatewayClientFactory: IGatewayClientFactory
 ) =
-    member val private _shards: Shard list = [] with get, set
+    member val private _shards: WorkerShard list = [] with get, set
 
-    member this.AddShard gatewayUrl clientId identify handlerData = task {
+    member this.AddShard gatewayUrl clientId identify handler = task {
         let handler =
-            match handlerData with
-            | GatewayEventHandler.Http (endpoint, privateKey) ->
+            match handler with
+            | Handler.WEBHOOK handler ->
                 let client = httpClientFactory.CreateClient()
 
                 fun (json: string) -> task {
-                    let req = new HttpRequestMessage(HttpMethod.Post, endpoint)
+                    let req = new HttpRequestMessage(HttpMethod.Post, handler.Endpoint)
                     req.Content <- new StringContent(json, MediaTypeHeaderValue("application/json"))
                         
                     // TODO: Create ed25519 signature like Discord to ensure only valid events are accepted downstream
@@ -32,9 +33,9 @@ type Node (
                     return ()
                 }
 
-            | GatewayEventHandler.ServiceBus (queueName, connectionString) ->
-                let client = serviceBusClientFactory.CreateClient connectionString
-                let sender = client.CreateSender queueName
+            | Handler.SERVICE_BUS handler ->
+                let client = serviceBusClientFactory.CreateClient handler.ConnectionString
+                let sender = client.CreateSender handler.QueueName
 
                 fun (json: string) -> task {
                     do! sender.SendMessageAsync <| ServiceBusMessage json

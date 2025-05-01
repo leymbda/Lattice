@@ -5,19 +5,21 @@ open FSharp.Discord.Types
 open System.Threading
 open System.Threading.Tasks
 
-type ShardMetadata = {
+type WorkerShardMetadata = {
     ClientId: string
 }
 
-type Shard = {
-    Metadata: ShardMetadata
+type WorkerShard = {
+    Metadata: WorkerShardMetadata
     Client: IGatewayClient
     Process: Task<GatewayCloseEventCode option>
     CancellationToken: CancellationToken
 }
 
-module Shard =
-    let requestStop (shard: Shard) =
+module WorkerShard =
+    let requestStop (shard: WorkerShard) =
         task {
             do! shard.Client.DisposeAsync()
         }
+
+// TODO: Refactor basically this whole project once FSharp.Discord.Gateway is functional and use it

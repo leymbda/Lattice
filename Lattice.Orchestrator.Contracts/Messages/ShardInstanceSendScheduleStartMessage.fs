@@ -9,6 +9,7 @@ type ShardInstanceSendScheduleStartMessage = {
     ShardId: ShardId
     Token: string
     Intents: int
+    Handler: Handler
     StartAt: DateTime
 }
 
@@ -18,6 +19,7 @@ module ShardInstanceSendScheduleStartMessage =
         let [<Literal>] ShardId = "shardId"
         let [<Literal>] Token = "token"
         let [<Literal>] Intents = "intents"
+        let [<Literal>] Handler = "handler"
         let [<Literal>] StartAt = "startAt"
 
     let decoder: Decoder<ShardInstanceSendScheduleStartMessage> =
@@ -26,6 +28,7 @@ module ShardInstanceSendScheduleStartMessage =
             ShardId = get.Required.Field Property.ShardId ShardId.decoder
             Token = get.Required.Field Property.Token Decode.string
             Intents = get.Required.Field Property.Intents Decode.int
+            Handler = get.Required.Field Property.Handler Handler.decoder
             StartAt = get.Required.Field Property.StartAt Decode.datetimeUtc
         })
 
@@ -35,6 +38,7 @@ module ShardInstanceSendScheduleStartMessage =
             Property.ShardId, ShardId.encoder v.ShardId
             Property.Token, Encode.string v.Token
             Property.Intents, Encode.int v.Intents
+            Property.Handler, Handler.encoder v.Handler
             Property.StartAt, Encode.datetime v.StartAt
         ]
     

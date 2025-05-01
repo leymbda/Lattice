@@ -7,8 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Types\GatewayEventHandler.fs" />
-    <Compile Include="Modules\Shard.fs" />
+    <Compile Include="Modules\WorkerShard.fs" />
     <Compile Include="Factories\ServiceBusFactory.fs" />
     <Compile Include="Node.fs" />
     <Compile Include="Program.fs" />
@@ -20,6 +19,10 @@
 	<PackageReference Include="FSharp.Discord" Version="0.0.15" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\Lattice.Orchestrator.Domain\Lattice.Orchestrator.Domain.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

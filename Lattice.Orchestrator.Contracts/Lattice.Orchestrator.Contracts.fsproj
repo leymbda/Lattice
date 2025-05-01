@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <Compile Include="Serializers\ShardIdSerializer.fs" />
+    <Compile Include="Serializers\HandlerSerializer.fs" />
     <Compile Include="Enums\ErrorCode.fs" />
     <Compile Include="Payloads\CreateHandlerPayload.fs" />
     <Compile Include="Payloads\RegisterAppPayload.fs" />

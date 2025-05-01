@@ -16,7 +16,6 @@
 		<Compile Include="Nodes\ShardTests.fs" />
 		<Compile Include="Nodes\ShardInstanceTests.fs" />
 		<Compile Include="Nodes\NodeTests.fs" />
-		<Compile Include="Nodes\BidTests.fs" />
 		<Compile Include="Program.fs" />
 	</ItemGroup>
 
@@ -29,7 +28,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Update="MSTest.TestAdapter" Version="3.8.3" />
-		<PackageReference Update="MSTest.TestFramework" Version="3.8.3" />
+		<PackageReference Update="MSTest.TestFramework" Version="3.6.2" />
 	</ItemGroup>
 
 	<ItemGroup>
