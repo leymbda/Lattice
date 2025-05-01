@@ -28,7 +28,8 @@ let run (env: #ICache & #IDiscord & #IPersistence & #ISecrets) props = asyncResu
         |> Result.requireSome RegistrationFailed
 
     do!
-        team.Members.ContainsKey props.UserId
+        team
+        |> Team.checkPermission props.UserId TeamMemberRolePermission.MODIFY
         |> Result.requireTrue Forbidden
 
     // Create app and save to db

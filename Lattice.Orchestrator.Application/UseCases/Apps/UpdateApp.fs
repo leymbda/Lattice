@@ -40,10 +40,10 @@ let run (env: #IDiscord & #IPersistence & #ISecrets) props = asyncResult {
         TeamAdapter.getTeam env app.Id decryptedBotToken
         |> Async.AwaitTask
         |> AsyncResult.requireSome TeamNotFound
-        |> AsyncResult.map (_.Members.ContainsKey(props.UserId))
+        |> AsyncResult.map (Team.checkPermission props.UserId TeamMemberRolePermission.MODIFY)
         |> AsyncResult.bindRequireTrue Forbidden
 
-    // Ensure the new bot token if valid if one is provided
+    // Ensure the new bot token is valid if one is provided
     do!
         match props.DiscordBotToken with
         | None -> Task.FromResult (Ok ())

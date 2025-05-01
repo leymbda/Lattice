@@ -33,7 +33,7 @@ let run (env: #IDiscord & #IPersistence & #ISecrets) props = asyncResult {
         TeamAdapter.getTeam env app.Id decryptedBotToken
         |> Async.AwaitTask
         |> AsyncResult.requireSome TeamNotFound
-        |> AsyncResult.map (_.Members.ContainsKey(props.UserId))
+        |> AsyncResult.map (Team.checkPermission props.UserId TeamMemberRolePermission.MODIFY)
         |> AsyncResult.bindRequireTrue Forbidden
         
     // Get the current privileged intents

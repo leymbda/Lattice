@@ -28,7 +28,7 @@ let run (env: #IPersistence & #ISecrets) props = asyncResult {
         TeamAdapter.getTeam env app.Id decryptedBotToken
         |> Async.AwaitTask
         |> AsyncResult.requireSome TeamNotFound
-        |> AsyncResult.map (_.Members.ContainsKey(props.UserId))
+        |> AsyncResult.map (Team.checkPermission props.UserId TeamMemberRolePermission.VIEW)
         |> AsyncResult.bindRequireTrue Forbidden
 
     // Return app on success

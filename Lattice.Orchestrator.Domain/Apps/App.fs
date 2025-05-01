@@ -63,3 +63,15 @@ module App =
 
     let removeHandler (app: App) =
         { app with Handler = None }
+
+    let isDisabled (app: App) =
+        let hasDisabledReason =
+            app.DisabledReasons
+            |> List.isEmpty
+            |> not
+
+        let missingHandler =
+            app.Handler
+            |> Option.isNone
+
+        hasDisabledReason || missingHandler
