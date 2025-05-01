@@ -1,13 +1,13 @@
-﻿open Azure.Messaging.ServiceBus
+﻿open Azure.Messaging.WebPubSub
 open Lattice.Orchestrator.AppHost
 open Lattice.Orchestrator.Application
+open Lattice.Orchestrator.Infrastructure.Messaging
 open Lattice.Orchestrator.Presentation
 open Microsoft.Azure.Cosmos
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
-open System.IO
 open Microsoft.DurableTask.Client
 
 let (!) f = f |> ignore
@@ -16,12 +16,6 @@ HostBuilder()
     .ConfigureFunctionsWorkerDefaults(fun (builder: IFunctionsWorkerApplicationBuilder) ->
         !builder.UseMiddleware<ExceptionMiddleware>()
     )
-    .ConfigureAppConfiguration(fun builder ->
-        !builder
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("local.settings.json", optional = true)
-            .AddEnvironmentVariables()
-    )
     .ConfigureServices(fun ctx services ->
         !services.AddHttpClient()
         !services.AddLogging()
@@ -29,7 +23,7 @@ HostBuilder()
         !services.ConfigureFunctionsApplicationInsights()
 
         !services.AddSingleton<CosmosClient>(fun _ -> new CosmosClient(ctx.Configuration.GetValue<string>("CosmosDb")))
-        !services.AddSingleton<ServiceBusClient>(fun _ -> new ServiceBusClient(ctx.Configuration.GetValue<string>("ServiceBus")))
+        !services.AddSingleton<WebPubSubServiceClient>(fun _ -> new WebPubSubServiceClient(ctx.Configuration.GetValue<string>("WebPubSub"), WebPubSubHandler.HUB_NAME))
         !services.AddDurableTaskClient(fun builder -> !builder.UseGrpc())
 
         !services.AddSingleton<IEnv, Env>()

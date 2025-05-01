@@ -1,6 +1,6 @@
 ﻿namespace Lattice.Orchestrator.AppHost
 
-open Azure.Messaging.ServiceBus
+open Azure.Messaging.WebPubSub
 open Lattice.Orchestrator.Application
 open Lattice.Orchestrator.Infrastructure.Messaging
 open Lattice.Orchestrator.Infrastructure.Persistence
@@ -14,7 +14,7 @@ type Env (
     configuration: IConfiguration,
     httpClientFactory: IHttpClientFactory,
     cosmosClient: CosmosClient,
-    serviceBusClient: ServiceBusClient
+    webPubSubClient: WebPubSubServiceClient
 ) =
     interface IEnv
     
@@ -35,9 +35,9 @@ type Env (
             |> Task.map (fst >> Result.toOption)
 
     interface IEvents with
-        member _.ShardInstanceScheduleStart (nodeId, shardId, token, intents, handler, startAt) = ServiceBus.shardInstanceScheduleStart serviceBusClient nodeId shardId token intents handler startAt
-        member _.ShardInstanceScheduleClose (nodeId, shardId, closeAt) = ServiceBus.shardInstanceScheduleClose serviceBusClient nodeId shardId closeAt
-        member _.ShardInstanceGatewayEvent (nodeId, shardId, event) = ServiceBus.shardInstanceGatewayEvent serviceBusClient nodeId shardId event
+        member _.ShardInstanceScheduleStart (nodeId, shardId, token, intents, handler, startAt) = WebPubSub.shardInstanceScheduleStart webPubSubClient nodeId shardId token intents handler startAt
+        member _.ShardInstanceScheduleClose (nodeId, shardId, closeAt) = WebPubSub.shardInstanceScheduleClose webPubSubClient nodeId shardId closeAt
+        member _.ShardInstanceGatewayEvent (nodeId, shardId, event) = WebPubSub.shardInstanceGatewayEvent webPubSubClient nodeId shardId event
     
     interface IPersistence with
         member _.SetUser user = Cosmos.setUser cosmosClient user
