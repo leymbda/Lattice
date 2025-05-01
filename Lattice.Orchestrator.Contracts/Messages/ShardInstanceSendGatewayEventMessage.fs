@@ -28,6 +28,6 @@ module ShardInstanceSendGatewayEventMessage =
         Encode.object [
             Property.NodeId, Encode.guid v.NodeId
             Property.ShardId, ShardId.encoder v.ShardId
-            //Property.Event, GatewaySendEvent.encoder v.Event // TODO: Implement in FSharp.Discord
+            Property.Event, GatewaySendEvent.encoder v.Event
         ]
     
