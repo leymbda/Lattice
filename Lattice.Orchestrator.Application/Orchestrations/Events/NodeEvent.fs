@@ -1,7 +1,5 @@
 ﻿namespace Lattice.Orchestrator.Application
 
-open FSharp.Discord.Gateway
-open Lattice.Orchestrator.Domain
 open System
 open System.Threading.Tasks
 

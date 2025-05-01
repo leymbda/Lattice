@@ -1,26 +1,43 @@
 ﻿module Lattice.Orchestrator.Infrastructure.Messaging.ServiceBus
 
 open Azure.Messaging.ServiceBus
-open Lattice.Orchestrator.Application
+open FSharp.Discord.Gateway
+open Lattice.Orchestrator.Contracts
+open Lattice.Orchestrator.Domain
 open System
+open Thoth.Json.Net
 
-let nodeHeartbeat (client: ServiceBusClient) (nodeId: Guid) (heartbeatTime: DateTime) = task {
-    let sender = client.CreateSender("")
+let shardInstanceScheduleStart (client: ServiceBusClient) (nodeId: Guid) (shardId: ShardId) (token: string) (intents: int) (startAt: DateTime) =
+    {
+        NodeId = nodeId
+        ShardId = shardId
+        Token = token
+        Intents = intents
+        StartAt = startAt
+    }
+    |> ShardInstanceSendScheduleStartMessage.encoder
+    |> Encode.toString 0
+    |> ServiceBusMessage
+    |> client.CreateSender("shard-instance-schedule-starts").SendMessageAsync
 
-    let message = new ServiceBusMessage(Events.NODE_HEARTBEAT)
-    do! sender.SendMessageAsync(message)
-}
+let shardInstanceScheduleClose (client: ServiceBusClient) (nodeId: Guid) (shardId: ShardId) (closeAt: DateTime) =
+    {
+        NodeId = nodeId
+        ShardId = shardId
+        CloseAt = closeAt
+    }
+    |> ShardInstanceSendScheduleCloseMessage.encoder
+    |> Encode.toString 0
+    |> ServiceBusMessage
+    |> client.CreateSender("shard-instance-schedule-closes").SendMessageAsync
 
-let nodeRelease (client: ServiceBusClient) (nodeId: Guid) = task {
-    let sender = client.CreateSender("")
-
-    let message = new ServiceBusMessage(Events.NODE_RELEASE)
-    do! sender.SendMessageAsync(message)
-}
-
-let nodeRedistribute (client: ServiceBusClient) (nodeId: Guid) = task {
-    let sender = client.CreateSender("")
-
-    let message = new ServiceBusMessage(Events.NODE_REDISTRIBUTE)
-    do! sender.SendMessageAsync(message)
-}
+let shardInstanceGatewayEvent (client: ServiceBusClient) (nodeId: Guid) (shardId: ShardId) (event: GatewaySendEvent) =
+    {
+        NodeId = nodeId
+        ShardId = shardId
+        Event = event
+    }
+    |> ShardInstanceSendGatewayEventMessage.encoder
+    |> Encode.toString 0
+    |> ServiceBusMessage
+    |> client.CreateSender("shard-instance-gateway-events").SendMessageAsync

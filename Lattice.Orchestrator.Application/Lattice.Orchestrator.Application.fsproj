@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Common\Events.fs" />
     <Compile Include="Abstractions\ICache.fs" />
     <Compile Include="Abstractions\IDiscord.fs" />
     <Compile Include="Abstractions\IEvents.fs" />
@@ -23,9 +22,6 @@
     <Compile Include="UseCases\Apps\SyncAppPrivilegedIntents.fs" />
     <Compile Include="UseCases\Apps\AddDisabledAppReason.fs" />
     <Compile Include="UseCases\Apps\RemoveDisabledAppReason.fs" />
-    <Compile Include="UseCases\Nodes\HeartbeatNode.fs" />
-    <Compile Include="UseCases\Nodes\ReleaseNode.fs" />
-    <Compile Include="UseCases\Nodes\RedistributeNode.fs" />
     <Compile Include="Orchestrations\Events\ShardEvent.fs" />
     <Compile Include="Orchestrations\Events\ShardInstanceEvent.fs" />
     <Compile Include="Orchestrations\Events\NodeEvent.fs" />

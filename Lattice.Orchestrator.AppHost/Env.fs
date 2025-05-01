@@ -35,9 +35,9 @@ type Env (
             |> Task.map (fst >> Result.toOption)
 
     interface IEvents with
-        member _.NodeHeartbeat nodeId heartbeatTime = ServiceBus.nodeHeartbeat serviceBusClient nodeId heartbeatTime
-        member _.NodeRelease nodeId = ServiceBus.nodeRelease serviceBusClient nodeId
-        member _.NodeRedistribute nodeId = ServiceBus.nodeRedistribute serviceBusClient nodeId
+        member _.ShardInstanceScheduleStart (nodeId, shardId, token, intents, startAt) = ServiceBus.shardInstanceScheduleStart serviceBusClient nodeId shardId token intents startAt
+        member _.ShardInstanceScheduleClose (nodeId, shardId, closeAt) = ServiceBus.shardInstanceScheduleClose serviceBusClient nodeId shardId closeAt
+        member _.ShardInstanceGatewayEvent (nodeId, shardId, event) = ServiceBus.shardInstanceGatewayEvent serviceBusClient nodeId shardId event
     
     interface IPersistence with
         member _.SetUser user = Cosmos.setUser cosmosClient user
