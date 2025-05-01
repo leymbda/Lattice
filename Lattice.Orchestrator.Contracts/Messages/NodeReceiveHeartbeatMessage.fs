@@ -1,27 +1,28 @@
 ﻿namespace Lattice.Orchestrator.Contracts
 
+open Lattice.Orchestrator.Domain
 open System
 open Thoth.Json.Net
 
 type NodeReceiveHeartbeatMessage = {
     NodeId: Guid
-    Shards: string list
+    ShardIds: ShardId list
 }
 
 module NodeReceiveHeartbeatMessage =
     module Property =
         let [<Literal>] NodeId = "nodeId"
-        let [<Literal>] Shards = "shards"
+        let [<Literal>] ShardIds = "shardIds"
 
     let decoder: Decoder<NodeReceiveHeartbeatMessage> =
         Decode.object (fun get -> {
             NodeId = get.Required.Field Property.NodeId Decode.guid
-            Shards = get.Required.Field Property.Shards (Decode.list Decode.string)
+            ShardIds = get.Required.Field Property.ShardIds (Decode.list ShardId.decoder)
         })
 
     let encoder (v: NodeReceiveHeartbeatMessage) =
         Encode.object [
             Property.NodeId, Encode.guid v.NodeId
-            Property.Shards, (List.map Encode.string >> Encode.list) v.Shards
+            Property.ShardIds, (List.map ShardId.encoder >> Encode.list) v.ShardIds
         ]
     

@@ -20,6 +20,7 @@
     <Compile Include="Messages\ShardInstanceSendScheduleStartMessage.fs" />
     <Compile Include="Messages\ShardInstanceSendScheduleCloseMessage.fs" />
     <Compile Include="Messages\ShardInstanceSendGatewayEventMessage.fs" />
+    <Compile Include="Messages\ShardReceiveIrrecoverableClosureMessage.fs" />
     <Compile Include="Messages\NodeReceiveHeartbeatMessage.fs" />
     <Compile Include="Messages\NodeReceiveScheduleShutdownMessage.fs" />
   </ItemGroup>
