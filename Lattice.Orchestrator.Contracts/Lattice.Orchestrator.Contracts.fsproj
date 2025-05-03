@@ -9,6 +9,8 @@
     <Compile Include="Serializers\ShardIdSerializer.fs" />
     <Compile Include="Serializers\HandlerSerializer.fs" />
     <Compile Include="Enums\ErrorCode.fs" />
+    <Compile Include="Enums\ShardStatus.fs" />
+    <Compile Include="Enums\ShardInstanceStatus.fs" />
     <Compile Include="Payloads\CreateHandlerPayload.fs" />
     <Compile Include="Payloads\RegisterAppPayload.fs" />
     <Compile Include="Payloads\UpdateAppPayload.fs" />
@@ -17,6 +19,8 @@
     <Compile Include="Responses\HandlerResponse.fs" />
     <Compile Include="Responses\PrivilegedIntentsResponse.fs" />
     <Compile Include="Responses\AppResponse.fs" />
+    <Compile Include="Responses\ShardResponse.fs" />
+    <Compile Include="Responses\ShardInstanceResponse.fs" />
     <Compile Include="Responses\UserResponse.fs" />
     <Compile Include="Messages\ShardInstanceSendScheduleStartMessage.fs" />
     <Compile Include="Messages\ShardInstanceSendScheduleCloseMessage.fs" />

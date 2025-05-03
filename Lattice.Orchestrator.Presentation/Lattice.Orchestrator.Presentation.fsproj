@@ -10,6 +10,7 @@
     <Compile Include="Modules\HttpResponseData.fs" />
     <Compile Include="Middleware\ExceptionMiddleware.fs" />
     <Compile Include="Controllers\AppController.fs" />
+    <Compile Include="Controllers\ShardController.fs" />
   </ItemGroup>
 
   <ItemGroup>

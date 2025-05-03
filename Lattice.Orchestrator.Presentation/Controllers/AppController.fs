@@ -238,7 +238,7 @@ type ApplicationController (env: IEnv) =
     ) = task {
         let props: AddDisabledAppReason.Props = {
             AppId = string appId
-            DisabledReason = enum<DisabledAppReason> reasonId
+            DisabledReason = enum<DisabledAppReason> reasonId // TODO: Validate this to ensure it's a valid enum value
         }
 
         match! AddDisabledAppReason.run env props with
