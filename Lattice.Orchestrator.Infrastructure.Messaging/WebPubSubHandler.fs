@@ -8,7 +8,7 @@ open System.Net
 open Thoth.Json.Net
 
 module WebPubSubHandler =
-    let [<Literal>] HUB_NAME = "lattice-hub"
+    let [<Literal>] HUB_NAME = "latticehub"
 
 type WebPubSubHandler (env: IEnv) =
     [<Function "Negotiate">]
@@ -25,69 +25,64 @@ type WebPubSubHandler (env: IEnv) =
 
     [<Function "OnConnect">]
     member _.OnConnect (
-        [<WebPubSubTrigger(WebPubSubHandler.HUB_NAME, WebPubSubEventType.System, "connect")>] req: ConnectEventRequest,
-        ctx: FunctionContext
+        [<WebPubSubTrigger(WebPubSubHandler.HUB_NAME, WebPubSubEventType.System, "connect")>] req: ConnectEventRequest
     ) = task {
         return ()
     }
 
     [<Function "OnConnected">]
     member _.OnConnected (
-        [<WebPubSubTrigger(WebPubSubHandler.HUB_NAME, WebPubSubEventType.System, "connected")>] req: ConnectedEventRequest,
-        ctx: FunctionContext
+        [<WebPubSubTrigger(WebPubSubHandler.HUB_NAME, WebPubSubEventType.System, "connected")>] req: ConnectedEventRequest
     ) = task {
         return ()
     }
 
-    [<Function "OnDisconnect">]
-    member _.OnDisconnect (
-        [<WebPubSubTrigger(WebPubSubHandler.HUB_NAME, WebPubSubEventType.System, "disconnect")>] req: DisconnectedEventRequest,
-        ctx: FunctionContext
+    [<Function "OnDisconnected">]
+    member _.OnDisconnected (
+        [<WebPubSubTrigger(WebPubSubHandler.HUB_NAME, WebPubSubEventType.System, "disconnected")>] req: DisconnectedEventRequest
     ) = task {
         // TODO: Handle
         return ()
     }
 
-    [<Function "OnShardIrrecoverableClosure">]
-    member _.OnShardIrrecoverableClosure (
-        [<WebPubSubTrigger(WebPubSubHandler.HUB_NAME, WebPubSubEventType.User, "shard-irrecoverable-closures")>] req: UserEventRequest,
-        ctx: FunctionContext
+    [<Function "OnShardIrrecoverable">]
+    member _.OnShardIrrecoverable (
+        [<WebPubSubTrigger(WebPubSubHandler.HUB_NAME, WebPubSubEventType.User, "shardIrrecoverable")>] req: UserEventRequest
     ) = task {
-        match req.Data.ToString() |> Decode.fromString ShardReceiveIrrecoverableClosureMessage.decoder with
-        | Error _ ->
-            return ()
+        return ()
+        //match req.Data.ToString() |> Decode.fromString ShardReceiveIrrecoverableClosureMessage.decoder with
+        //| Error _ ->
+        //    return ()
 
-        | Ok message ->
-            // TODO: Handle
-            return ()
+        //| Ok message ->
+        //    // TODO: Handle
+        //    return ()
     }
 
-    [<Function "OnNodeHeartbeatPubSub">]
-    member _.OnNodeHeartbeat (
-        [<WebPubSubTrigger(WebPubSubHandler.HUB_NAME, WebPubSubEventType.User, "node-heartbeats")>] req: UserEventRequest,
-        ctx: FunctionContext
+    [<Function "OnHeartbeat">]
+    member _.OnHeartbeat (
+        [<WebPubSubTrigger(WebPubSubHandler.HUB_NAME, WebPubSubEventType.User, "heartbeat")>] req: UserEventRequest
     ) = task {
-        match req.Data.ToString() |> Decode.fromString NodeReceiveHeartbeatMessage.decoder with
-        | Error _ ->
-            return ()
+        return ()
+        //match req.Data.ToString() |> Decode.fromString NodeReceiveHeartbeatMessage.decoder with
+        //| Error _ ->
+        //    return ()
 
-        | Ok message ->
-            // TODO: Handle
-            return ()
+        //| Ok message ->
+        //    // TODO: Handle
+        //    return ()
     }
 
-    [<Function "OnNodeScheduleShutdownPubSub">]
-    member _.OnNodeScheduleShutdown (
-        [<WebPubSubTrigger(WebPubSubHandler.HUB_NAME, WebPubSubEventType.User, "node-schedule-shutdowns")>] req: UserEventRequest,
-        ctx: FunctionContext
+    [<Function "OnShutdownScheduled">]
+    member _.OnShutdownScheduled (
+        [<WebPubSubTrigger(WebPubSubHandler.HUB_NAME, WebPubSubEventType.User, "shutdownScheduled")>] req: UserEventRequest
     ) = task {
-        match req.Data.ToString() |> Decode.fromString NodeReceiveScheduleShutdownMessage.decoder with
-        | Error _ ->
-            return ()
+        return ()
+        //match req.Data.ToString() |> Decode.fromString NodeReceiveScheduleShutdownMessage.decoder with
+        //| Error _ ->
+        //    return ()
 
-        | Ok message ->
-            // TODO: Handle
-            return ()
+        //| Ok message ->
+        //    // TODO: Handle
+        //    return ()
     }
-
-// TODO: Rename events
