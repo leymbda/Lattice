@@ -1,0 +1,52 @@
+{
+    "routes": [
+        {
+            "route": "/login",
+            "redirect": "/.auth/login/discord"
+        },
+        {
+            "route": "/logout",
+            "redirect": "/.auth/logout"
+        },
+        {
+            "route": "/applications*",
+            "allowedRoles": [ "authenticated" ]
+        },
+        {
+            "route": "/api/applications*",
+            "allowedRoles": [ "authenticated" ]
+        }
+    ],
+    "responseOverrides": {
+        "401": {
+            "redirect": "/.auth/login/discord?post_login_redirect_uri=.referrer",
+            "statusCode": 302
+        }
+    },
+    "auth": {
+        "identityProviders": {
+            "customOpenIdConnectProviders": {
+                "discord": {
+                    "registration": {
+                        "clientIdSettingName": "CLIENT_ID_GOES_HERE",
+                        "clientCredential": {
+                            "clientSecretSettingName": "CLIENT_SECRET"
+                        },
+                        "openIdConnectConfiguration": {
+                            "wellKnownOpenIdConfiguration": "https://discord.com/.well-known/openid-configuration"
+                        }
+                    },
+                    "login": {
+                        "nameClaimType": "username",
+                        "scopes": [
+                            "identify",
+                            "email",
+                            "openid"
+                        ],
+                        "loginParameterNames": []
+                    }
+                }
+            }
+        }
+    }
+}

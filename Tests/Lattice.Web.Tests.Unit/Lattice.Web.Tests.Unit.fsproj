@@ -1,0 +1,36 @@
+<Project Sdk="MSTest.Sdk/3.6.1">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
+		<NuGetAuditMode>direct</NuGetAuditMode>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="Temp.fs" />
+		<Compile Include="Program.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+		<PackageReference Update="Microsoft.Testing.Extensions.CodeCoverage" Version="17.14.2" />
+		<PackageReference Update="Microsoft.Testing.Extensions.TrxReport" Version="1.6.3" />
+		<PackageReference Update="MSTest.Analyzers" Version="3.8.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Update="MSTest.TestAdapter" Version="3.8.3" />
+		<PackageReference Update="MSTest.TestFramework" Version="3.8.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Lattice.Web\Lattice.Web.fsproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Update="FSharp.Core" Version="9.0.202" />
+	</ItemGroup>
+
+</Project>

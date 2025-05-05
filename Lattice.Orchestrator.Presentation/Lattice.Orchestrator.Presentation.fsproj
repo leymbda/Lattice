@@ -1,45 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <AzureFunctionsVersion>v4</AzureFunctionsVersion>
-    <OutputType>Exe</OutputType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Lattice.Orchestrator.Presentation</RootNamespace>
   </PropertyGroup>
-	
+
   <ItemGroup>
-    <Content Include="local.settings.json" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="host.json" CopyToOutputDirectory="PreserveNewest" />
-    <Compile Include="Modules\NameValueCollection.fs" />
-    <Compile Include="Payloads\RegisterApplicationPayload.fs" />
-    <Compile Include="Payloads\UpdateApplicationPayload.fs" />
-    <Compile Include="Payloads\SetApplicationHandlerPayload.fs" />
-    <Compile Include="Responses\ErrorResponse.fs" />
-    <Compile Include="Responses\PaginatedResponse.fs" />
-    <Compile Include="Responses\HandlerResponse.fs" />
-    <Compile Include="Responses\ApplicationResponse.fs" />
-    <Compile Include="Controllers\ApplicationController.fs" />
-    <Compile Include="Program.fs" />
-  </ItemGroup>
-	
-  <ItemGroup>
-	<PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.CosmosDB" Version="4.11.0" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.2.2" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.2.0" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.OpenApi" Version="1.5.1" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.22.0" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.0" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
-  </ItemGroup>
-	
-  <ItemGroup>
-    <ProjectReference Include="..\Lattice.Orchestrator.Application\Lattice.Orchestrator.Application.fsproj" />
-    <ProjectReference Include="..\Lattice.Orchestrator.Infrastructure.Discord\Lattice.Orchestrator.Infrastructure.Discord.fsproj" />
-    <ProjectReference Include="..\Lattice.Orchestrator.Infrastructure.Persistence\Lattice.Orchestrator.Infrastructure.Persistence.fsproj" />
+    <Compile Include="Modules\HttpResponseData.fs" />
+    <Compile Include="Middleware\ExceptionMiddleware.fs" />
+    <Compile Include="Controllers\AppController.fs" />
+    <Compile Include="Controllers\ShardController.fs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="8.0.403" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lattice.Orchestrator.Application\Lattice.Orchestrator.Application.fsproj" />
+    <ProjectReference Include="..\Lattice.Orchestrator.Contracts\Lattice.Orchestrator.Contracts.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="9.0.202" />
+  </ItemGroup>
+
 </Project>

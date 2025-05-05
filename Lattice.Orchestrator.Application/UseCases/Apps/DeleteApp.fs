@@ -1,0 +1,39 @@
+﻿module Lattice.Orchestrator.Application.DeleteApp
+
+open FsToolkit.ErrorHandling
+open Lattice.Orchestrator.Domain
+
+type Props = {
+    UserId: string
+    AppId: string
+}
+
+type Failure =
+    | Forbidden
+    | AppNotFound
+    | TeamNotFound
+
+let run (env: #IPersistence & #ISecrets) props = asyncResult {
+    // Fetch app from db
+    let! app =
+        env.GetApp props.AppId
+        |> Async.AwaitTask
+        |> AsyncResult.setError AppNotFound
+
+    let decryptedBotToken =
+        Aes.decrypt env.BotTokenEncryptionKey app.EncryptedBotToken
+        
+    // Ensure user has access to app
+    do!
+        TeamAdapter.getTeam env app.Id decryptedBotToken
+        |> Async.AwaitTask
+        |> AsyncResult.requireSome TeamNotFound
+        |> AsyncResult.map (Team.checkPermission props.UserId TeamMemberRolePermission.ADMINISTRATE)
+        |> AsyncResult.bindRequireTrue Forbidden
+
+    // Delete application
+    do!
+        env.RemoveApp props.AppId
+        |> Async.AwaitTask
+        |> AsyncResult.setError AppNotFound
+}

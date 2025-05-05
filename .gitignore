@@ -6,3 +6,6 @@
 !bin/*
 obj
 TestResults
+
+*.fs.js
+*.fs.js.map

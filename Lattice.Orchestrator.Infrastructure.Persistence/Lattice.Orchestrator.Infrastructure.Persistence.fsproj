@@ -7,17 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Models\UserModel.fs" />
     <Compile Include="Models\HandlerModel.fs" />
-    <Compile Include="Models\ApplicationModel.fs" />
-    <Compile Include="Models\ShardModel.fs" />
-    <Compile Include="Mappers\HandlerMapper.fs" />
-    <Compile Include="Mappers\ApplicationMapper.fs" />
-    <Compile Include="Mappers\ShardMapper.fs" />
-    <Compile Include="CosmosDatabase.fs" />
+    <Compile Include="Models\PrivilegedIntentsModel.fs" />
+    <Compile Include="Models\AppModel.fs" />
+    <Compile Include="Models\TeamCacheModel.fs" />
+    <Compile Include="Cosmos.fs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.46.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.49.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="8.0.403" />
+    <PackageReference Update="FSharp.Core" Version="9.0.202" />
   </ItemGroup>
 
 </Project>

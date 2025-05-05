@@ -6,23 +6,35 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Common\Constants.fs" />
-    <Compile Include="Abstractions\Discord.fs" />
-    <Compile Include="Abstractions\Persistence.fs" />
-    <Compile Include="Modules\Application.fs" />
-    <Compile Include="Modules\Shard.fs" />
-    <Compile Include="CQRS\Applications\RegisterApplicationCommand.fs" />
-    <Compile Include="CQRS\Applications\GetApplicationsQuery.fs" />
-    <Compile Include="CQRS\Applications\GetApplicationQuery.fs" />
-    <Compile Include="CQRS\Applications\UpdateApplicationCommand.fs" />
-    <Compile Include="CQRS\Applications\DeleteApplicationCommand.fs" />
-    <Compile Include="CQRS\Applications\SetWebhookApplicationHandlerCommand.fs" />
-    <Compile Include="CQRS\Applications\SetServiceBusApplicationHandlerCommand.fs" />
-    <Compile Include="CQRS\Applications\RemoveApplicationHandlerCommand.fs" />
+    <Compile Include="Abstractions\ICache.fs" />
+    <Compile Include="Abstractions\IDiscord.fs" />
+    <Compile Include="Abstractions\IEvents.fs" />
+    <Compile Include="Abstractions\IPersistence.fs" />
+    <Compile Include="Abstractions\ISecrets.fs" />
+    <Compile Include="Abstractions\IEnv.fs" />
+    <Compile Include="Modules\Crypto.fs" />
+    <Compile Include="Modules\Discord.fs" />
+    <Compile Include="Adapters\TeamAdapter.fs" />
+    <Compile Include="UseCases\Apps\RegisterApp.fs" />
+    <Compile Include="UseCases\Apps\GetApp.fs" />
+    <Compile Include="UseCases\Apps\UpdateApp.fs" />
+    <Compile Include="UseCases\Apps\DeleteApp.fs" />
+    <Compile Include="UseCases\Apps\SyncAppPrivilegedIntents.fs" />
+    <Compile Include="UseCases\Apps\AddDisabledAppReason.fs" />
+    <Compile Include="UseCases\Apps\RemoveDisabledAppReason.fs" />
+    <Compile Include="Orchestrations\Events\ShardEvent.fs" />
+    <Compile Include="Orchestrations\Events\ShardInstanceEvent.fs" />
+    <Compile Include="Orchestrations\Events\NodeEvent.fs" />
+    <Compile Include="Orchestrations\Orchestrators\ShardOrchestrator.fs" />
+    <Compile Include="Orchestrations\Orchestrators\ShardInstanceOrchestrator.fs" />
+    <Compile Include="Orchestrations\Orchestrators\NodeOrchestrator.fs" />
   </ItemGroup>
-
+	
   <ItemGroup>
-    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="FSharp.Discord" Version="0.0.37" />
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.18.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.3.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,7 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="8.0.403" />
+    <PackageReference Update="FSharp.Core" Version="9.0.202" />
   </ItemGroup>
 
 </Project>

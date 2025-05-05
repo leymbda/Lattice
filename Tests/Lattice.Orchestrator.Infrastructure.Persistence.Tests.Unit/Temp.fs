@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Infrastructure
+﻿namespace Lattice.Orchestrator.Infrastructure.Persistence
 
 open Microsoft.VisualStudio.TestTools.UnitTesting
 

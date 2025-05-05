@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Modules\Api.fs" />
+    <Compile Include="Pages\Index.fs" />
+    <Compile Include="Pages\ApplicationList.fs" />
+    <Compile Include="Pages\ApplicationRegistration.fs" />
+    <Compile Include="Pages\ApplicationOverview.fs" />
+    <Compile Include="Pages\ApplicationSettings.fs" />
+    <Compile Include="Pages\Fallback.fs" />
+    <Compile Include="App.fs" />
+    <None Include="index.html" CopyToOutputDirectory="Always" />
+    <None Include="staticwebapp.config.json" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fable.Browser.Dom" Version="2.18.1" />
+    <PackageReference Include="Fable.Core" Version="4.5.0" />
+    <PackageReference Include="Fable.SimpleHttp" Version="3.6.0" />
+    <PackageReference Include="Feliz" Version="2.9.0" />
+    <PackageReference Include="Feliz.Router" Version="4.0.0" />
+    <PackageReference Include="Feliz.UseElmish" Version="2.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lattice.Orchestrator.Contracts\Lattice.Orchestrator.Contracts.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="9.0.202" />
+  </ItemGroup>
+
+</Project>

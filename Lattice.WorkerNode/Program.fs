@@ -1,10 +1,12 @@
 ﻿open Lattice.WorkerNode
-open Lattice.WorkerNode.Factories
+open FSharp.Discord.Gateway
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
 open System
 open System.IO
+
+let (!) f = f |> ignore
 
 Host
     .CreateDefaultBuilder(Environment.GetCommandLineArgs())
@@ -19,7 +21,8 @@ Host
         // Register services
         !services.AddHttpClient()
         !services.AddTransient<IServiceBusClientFactory, ServiceBusClientFactory>()
-        !services.AddTransient<IShardFactory, ShardFactory>()
+        !services.AddTransient<IWebsocketFactory, WebsocketFactory>()
+        !services.AddTransient<IGatewayClientFactory, GatewayClientFactory>()
     )
     .Build()
     .Services.GetRequiredService<Node>()
