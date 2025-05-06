@@ -1,4 +1,4 @@
-﻿namespace Lattice.Orchestrator.Infrastructure.Messaging
+﻿namespace Lattice.Orchestrator.Infrastructure.Pool
 
 open Microsoft.VisualStudio.TestTools.UnitTesting
 

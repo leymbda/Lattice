@@ -25,9 +25,13 @@
     <Compile Include="Messages\ShardInstanceSendScheduleStartMessage.fs" />
     <Compile Include="Messages\ShardInstanceSendScheduleCloseMessage.fs" />
     <Compile Include="Messages\ShardInstanceSendGatewayEventMessage.fs" />
+    <Compile Include="Messages\NodeConnectedMessage.fs" />
+    <Compile Include="Messages\NodeDisconnectedMessage.fs" />
     <Compile Include="Messages\ShardReceiveIrrecoverableClosureMessage.fs" />
     <Compile Include="Messages\NodeReceiveHeartbeatMessage.fs" />
     <Compile Include="Messages\NodeReceiveScheduleShutdownMessage.fs" />
+    <Compile Include="Queues\PoolInboundMessage.fs" />
+    <Compile Include="Queues\PoolOutboundMessage.fs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -3,6 +3,6 @@
 type IEnv =
     inherit ICache
     inherit IDiscord
-    inherit IEvents
+    inherit IPool
     inherit IPersistence
     inherit ISecrets

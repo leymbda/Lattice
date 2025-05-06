@@ -22,8 +22,8 @@
   </ItemGroup>
 	
   <ItemGroup>
-    <ProjectReference Include="..\Lattice.Orchestrator.Infrastructure.Messaging\Lattice.Orchestrator.Infrastructure.Messaging.fsproj" />
     <ProjectReference Include="..\Lattice.Orchestrator.Infrastructure.Persistence\Lattice.Orchestrator.Infrastructure.Persistence.fsproj" />
+    <ProjectReference Include="..\Lattice.Orchestrator.Infrastructure.Pool\Lattice.Orchestrator.Infrastructure.Pool.fsproj" />
     <ProjectReference Include="..\Lattice.Orchestrator.Presentation\Lattice.Orchestrator.Presentation.fsproj" />
   </ItemGroup>
 

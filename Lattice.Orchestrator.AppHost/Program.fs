@@ -1,7 +1,6 @@
-﻿open Azure.Messaging.WebPubSub
+﻿open Azure.Messaging.ServiceBus
 open Lattice.Orchestrator.AppHost
 open Lattice.Orchestrator.Application
-open Lattice.Orchestrator.Infrastructure.Messaging
 open Lattice.Orchestrator.Presentation
 open Microsoft.Azure.Cosmos
 open Microsoft.Azure.Functions.Worker
@@ -23,12 +22,12 @@ HostBuilder()
         !services.ConfigureFunctionsApplicationInsights()
 
         !services.AddSingleton<CosmosClient>(fun _ -> new CosmosClient(ctx.Configuration.GetValue<string>("CosmosDb")))
-        !services.AddSingleton<WebPubSubServiceClient>(fun _ -> new WebPubSubServiceClient(ctx.Configuration.GetValue<string>("WebPubSub"), WebPubSubHandler.HUB_NAME))
+        !services.AddSingleton<ServiceBusClient>(fun _ -> new ServiceBusClient(ctx.Configuration.GetValue<string>("ServiceBus")))
         !services.AddDurableTaskClient(fun builder -> !builder.UseGrpc())
 
         !services.AddSingleton<IEnv, Env>()
         !services.AddSingleton<IDiscord>(fun sp -> sp.GetRequiredService<IEnv>() :> IDiscord)
-        !services.AddSingleton<IEvents>(fun sp -> sp.GetRequiredService<IEnv>() :> IEvents)
+        !services.AddSingleton<IPool>(fun sp -> sp.GetRequiredService<IEnv>() :> IPool)
         !services.AddSingleton<IPersistence>(fun sp -> sp.GetRequiredService<IEnv>() :> IPersistence)
         !services.AddSingleton<ISecrets>(fun sp -> sp.GetRequiredService<IEnv>() :> ISecrets)
     )

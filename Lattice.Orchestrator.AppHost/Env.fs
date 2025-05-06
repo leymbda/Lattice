@@ -1,9 +1,9 @@
 ﻿namespace Lattice.Orchestrator.AppHost
 
-open Azure.Messaging.WebPubSub
+open Azure.Messaging.ServiceBus
 open Lattice.Orchestrator.Application
-open Lattice.Orchestrator.Infrastructure.Messaging
 open Lattice.Orchestrator.Infrastructure.Persistence
+open Lattice.Orchestrator.Infrastructure.Pool
 open FSharp.Discord.Rest
 open Microsoft.Azure.Cosmos
 open Microsoft.Extensions.Configuration
@@ -14,7 +14,7 @@ type Env (
     configuration: IConfiguration,
     httpClientFactory: IHttpClientFactory,
     cosmosClient: CosmosClient,
-    webPubSubClient: WebPubSubServiceClient
+    serviceBusClient: ServiceBusClient
 ) =
     interface IEnv
     
@@ -34,10 +34,30 @@ type Env (
             |> Rest.getCurrentUser
             |> Task.map (fst >> Result.toOption)
 
-    interface IEvents with
-        member _.ShardInstanceScheduleStart (nodeId, shardId, token, intents, handler, startAt) = WebPubSub.shardInstanceScheduleStart webPubSubClient nodeId shardId token intents handler startAt
-        member _.ShardInstanceScheduleClose (nodeId, shardId, closeAt) = WebPubSub.shardInstanceScheduleClose webPubSubClient nodeId shardId closeAt
-        member _.ShardInstanceGatewayEvent (nodeId, shardId, event) = WebPubSub.shardInstanceGatewayEvent webPubSubClient nodeId shardId event
+    interface IPool with
+        member _.ShardInstanceScheduleStart nodeId shardId token intents handler startAt =
+            Pool.shardInstanceScheduleStart serviceBusClient {
+                NodeId = nodeId
+                ShardId = shardId
+                Token = token
+                Intents = intents
+                Handler = handler
+                StartAt = startAt
+            }
+
+        member _.ShardInstanceScheduleClose nodeId shardId closeAt =
+            Pool.shardInstanceScheduleClose serviceBusClient {
+                NodeId = nodeId
+                ShardId = shardId
+                CloseAt = closeAt
+            }
+
+        member _.ShardInstanceGatewayEvent nodeId shardId event =
+            Pool.shardInstanceGatewayEvent serviceBusClient {
+                NodeId = nodeId
+                ShardId = shardId
+                Event = event
+            }
     
     interface IPersistence with
         member _.SetUser user = Cosmos.setUser cosmosClient user
