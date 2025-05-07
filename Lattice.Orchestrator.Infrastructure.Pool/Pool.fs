@@ -1,26 +1,29 @@
 ﻿module Lattice.Orchestrator.Infrastructure.Pool.Pool
 
-open Azure.Messaging.ServiceBus
+open Azure.Messaging.WebPubSub
 open Lattice.Orchestrator.Contracts
 open Thoth.Json.Net
 
-let shardInstanceScheduleStart (client: ServiceBusClient) (message: ShardInstanceSendScheduleStartMessage) =
-    message
-    |> ShardInstanceSendScheduleStartMessage.encoder
-    |> Encode.toString 0
-    |> ServiceBusMessage
-    |> client.CreateSender(PoolInboundMessage.queueName).SendMessageAsync
+let shardInstanceScheduleStart (client: WebPubSubServiceClient) (message: ShardInstanceSendScheduleStartMessage) =
+    let content =
+        message
+        |> ShardInstanceSendScheduleStartMessage.encoder
+        |> Encode.toString 0
 
-let shardInstanceScheduleClose (client: ServiceBusClient) (message: ShardInstanceSendScheduleCloseMessage) =
-    message
-    |> ShardInstanceSendScheduleCloseMessage.encoder
-    |> Encode.toString 0
-    |> ServiceBusMessage
-    |> client.CreateSender(PoolInboundMessage.queueName).SendMessageAsync
+    client.SendToUserAsync(message.NodeId.ToString(), content)
 
-let shardInstanceGatewayEvent (client: ServiceBusClient) (message: ShardInstanceSendGatewayEventMessage) =
-    message
-    |> ShardInstanceSendGatewayEventMessage.encoder
-    |> Encode.toString 0
-    |> ServiceBusMessage
-    |> client.CreateSender(PoolInboundMessage.queueName).SendMessageAsync
+let shardInstanceScheduleClose (client: WebPubSubServiceClient) (message: ShardInstanceSendScheduleCloseMessage) =
+    let content =
+        message
+        |> ShardInstanceSendScheduleCloseMessage.encoder
+        |> Encode.toString 0
+
+    client.SendToUserAsync(message.NodeId.ToString(), content)
+
+let shardInstanceGatewayEvent (client: WebPubSubServiceClient) (message: ShardInstanceSendGatewayEventMessage) =
+    let content =
+        message
+        |> ShardInstanceSendGatewayEventMessage.encoder
+        |> Encode.toString 0
+
+    client.SendToUserAsync(message.NodeId.ToString(), content)

@@ -30,8 +30,6 @@
     <Compile Include="Messages\ShardReceiveIrrecoverableClosureMessage.fs" />
     <Compile Include="Messages\NodeReceiveHeartbeatMessage.fs" />
     <Compile Include="Messages\NodeReceiveScheduleShutdownMessage.fs" />
-    <Compile Include="Queues\PoolInboundMessage.fs" />
-    <Compile Include="Queues\PoolOutboundMessage.fs" />
   </ItemGroup>
 
   <ItemGroup>

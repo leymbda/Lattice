@@ -1,6 +1,6 @@
 ﻿namespace Lattice.Orchestrator.AppHost
 
-open Azure.Messaging.ServiceBus
+open Azure.Messaging.WebPubSub
 open Lattice.Orchestrator.Application
 open Lattice.Orchestrator.Infrastructure.Persistence
 open Lattice.Orchestrator.Infrastructure.Pool
@@ -14,7 +14,7 @@ type Env (
     configuration: IConfiguration,
     httpClientFactory: IHttpClientFactory,
     cosmosClient: CosmosClient,
-    serviceBusClient: ServiceBusClient
+    webPubSubClient: WebPubSubServiceClient
 ) =
     interface IEnv
     
@@ -36,7 +36,7 @@ type Env (
 
     interface IPool with
         member _.ShardInstanceScheduleStart nodeId shardId token intents handler startAt =
-            Pool.shardInstanceScheduleStart serviceBusClient {
+            Pool.shardInstanceScheduleStart webPubSubClient {
                 NodeId = nodeId
                 ShardId = shardId
                 Token = token
@@ -46,14 +46,14 @@ type Env (
             }
 
         member _.ShardInstanceScheduleClose nodeId shardId closeAt =
-            Pool.shardInstanceScheduleClose serviceBusClient {
+            Pool.shardInstanceScheduleClose webPubSubClient {
                 NodeId = nodeId
                 ShardId = shardId
                 CloseAt = closeAt
             }
 
         member _.ShardInstanceGatewayEvent nodeId shardId event =
-            Pool.shardInstanceGatewayEvent serviceBusClient {
+            Pool.shardInstanceGatewayEvent webPubSubClient {
                 NodeId = nodeId
                 ShardId = shardId
                 Event = event

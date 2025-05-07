@@ -1,6 +1,5 @@
 ﻿module Lattice.Orchestrator.Infrastructure.Pool.PoolHandler
 
-open Azure.Messaging.ServiceBus
 open FsToolkit.ErrorHandling
 open Lattice.Orchestrator.Contracts
 open Microsoft.Azure.Functions.Worker
@@ -11,110 +10,70 @@ open Thoth.Json.Net
 
 let [<Literal>] HUB_NAME = "latticehub"
 
-[<Function "ReceivePoolInboundMessage">]
-[<WebPubSubOutput(Hub = HUB_NAME)>]
-let receivePoolInboundMessage (
-    [<ServiceBusTrigger(PoolInboundMessage.queueName)>] message: ServiceBusReceivedMessage
-) =
-    match Decode.fromString PoolInboundMessage.decoder (message.Body.ToString()) with
-    | Ok (PoolInboundMessage.ShardInstanceScheduleStart m) ->
-        WebPubSubAction.sendToUser
-            (m.NodeId.ToString())
-            (m |> ShardInstanceSendScheduleStartMessage.encoder |> Encode.toString 0)
-
-    | Ok (PoolInboundMessage.ShardInstanceScheduleClose m) ->
-        WebPubSubAction.sendToUser
-            (m.NodeId.ToString())
-            (m |> ShardInstanceSendScheduleCloseMessage.encoder |> Encode.toString 0)
-
-    | Ok (PoolInboundMessage.ShardInstanceGatewayEvent m) ->
-        WebPubSubAction.sendToUser
-            (m.NodeId.ToString())
-            (m |> ShardInstanceSendGatewayEventMessage.encoder |> Encode.toString 0)
-
-    | _ -> failwith $"Invalid {nameof PoolInboundMessage} received"
-
-[<Function "ReceivePoolOutboundMessage">]
-let receivePoolOutboundMessage (
-    [<ServiceBusTrigger(PoolOutboundMessage.queueName)>] message: ServiceBusReceivedMessage
-) =
-    match Decode.fromString PoolOutboundMessage.decoder (message.Body.ToString()) with
-    | Ok (PoolOutboundMessage.ShardIrrecoverableClosure m) ->
-        raise (NotImplementedException())
-        ()
-
-    | Ok (PoolOutboundMessage.NodeHeartbeat m) ->
-        raise (NotImplementedException())
-        ()
-
-    | Ok (PoolOutboundMessage.NodeScheduleShutdown m) ->
-        raise (NotImplementedException())
-        ()
-
-    | _ -> failwith $"Invalid {nameof PoolOutboundMessage} received"
-
-    // TODO: Call application use cases for these events above
-    // TODO: Is this service bus necessary? Extra layer of abstraction on pubsub events below
-
 [<Function "OnShardIrrecoverable">]
-[<ServiceBusOutput(PoolOutboundMessage.queueName)>]
 let onShardIrrecoverable (
     [<WebPubSubTrigger(HUB_NAME, WebPubSubEventType.User, "shardIrrecoverable")>] req: UserEventRequest
 ) =
-    req.Data.ToString()
-    |> Decode.fromString ShardReceiveIrrecoverableClosureMessage.decoder
-    |> Result.map (fun v -> { v with NodeId = Guid req.ConnectionContext.UserId })
-    |> Result.defaultWith (failwith $"Invalid {nameof ShardReceiveIrrecoverableClosureMessage} received")
-    |> ShardReceiveIrrecoverableClosureMessage.encoder
-    |> Encode.toString 0
+    let message =
+        req.Data.ToString()
+        |> Decode.fromString ShardReceiveIrrecoverableClosureMessage.decoder
+        |> Result.map (fun v -> { v with NodeId = Guid req.ConnectionContext.UserId })
+        |> Result.defaultWith (failwith $"Invalid {nameof ShardReceiveIrrecoverableClosureMessage} received")
+
+    raise (NotImplementedException()) // TODO: Call use case
+    ()
 
 [<Function "OnHeartbeat">]
-[<ServiceBusOutput(PoolOutboundMessage.queueName)>]
 let onHeartbeat (
     [<WebPubSubTrigger(HUB_NAME, WebPubSubEventType.User, "heartbeat")>] req: UserEventRequest
 ) =
-    req.Data.ToString()
-    |> Decode.fromString NodeReceiveHeartbeatMessage.decoder
-    |> Result.map (fun v -> { v with NodeId = Guid req.ConnectionContext.UserId })
-    |> Result.defaultWith (failwith $"Invalid {nameof NodeReceiveHeartbeatMessage} received")
-    |> NodeReceiveHeartbeatMessage.encoder
-    |> Encode.toString 0
+    let message =
+        req.Data.ToString()
+        |> Decode.fromString NodeReceiveHeartbeatMessage.decoder
+        |> Result.map (fun v -> { v with NodeId = Guid req.ConnectionContext.UserId })
+        |> Result.defaultWith (failwith $"Invalid {nameof NodeReceiveHeartbeatMessage} received")
+
+    raise (NotImplementedException()) // TODO: Call use case
+    ()
 
 [<Function "OnShutdownScheduled">]
-[<ServiceBusOutput(PoolOutboundMessage.queueName)>]
 let onShutdownScheduled (
     [<WebPubSubTrigger(HUB_NAME, WebPubSubEventType.User, "shutdownScheduled")>] req: UserEventRequest
 ) =
-    req.Data.ToString()
-    |> Decode.fromString NodeReceiveScheduleShutdownMessage.decoder
-    |> Result.map (fun v -> { v with NodeId = Guid req.ConnectionContext.UserId })
-    |> Result.defaultWith (failwith $"Invalid {nameof NodeReceiveScheduleShutdownMessage} received")
-    |> NodeReceiveScheduleShutdownMessage.encoder
-    |> Encode.toString 0
+    let message =
+        req.Data.ToString()
+        |> Decode.fromString NodeReceiveScheduleShutdownMessage.decoder
+        |> Result.map (fun v -> { v with NodeId = Guid req.ConnectionContext.UserId })
+        |> Result.defaultWith (failwith $"Invalid {nameof NodeReceiveScheduleShutdownMessage} received")
+
+    raise (NotImplementedException()) // TODO: Call use case
+    ()
     
 [<Function "OnConnected">]
-[<ServiceBusOutput(PoolOutboundMessage.queueName)>]
 let onConnected (
     [<WebPubSubTrigger(HUB_NAME, WebPubSubEventType.System, "connected")>] req: ConnectedEventRequest
 ) =
-    {
-        NodeId = Guid req.ConnectionContext.UserId
-        ConnectedAt = DateTime.UtcNow
-    }
-    |> NodeConnectedMessage.encoder
-    |> Encode.toString 0
+    let message =
+        {
+            NodeId = Guid req.ConnectionContext.UserId
+            ConnectedAt = DateTime.UtcNow
+        }
+
+    raise (NotImplementedException()) // TODO: Call use case
+    ()
     
 [<Function "OnDisconnected">]
-[<ServiceBusOutput(PoolOutboundMessage.queueName)>]
 let onDisconnected (
     [<WebPubSubTrigger(HUB_NAME, WebPubSubEventType.System, "disconnected")>] req: DisconnectedEventRequest
 ) =
-    {
-        NodeId = Guid req.ConnectionContext.UserId
-        DisconnectedAt = DateTime.UtcNow
-    }
-    |> NodeDisconnectedMessage.encoder
-    |> Encode.toString 0
+    let message =
+        {
+            NodeId = Guid req.ConnectionContext.UserId
+            DisconnectedAt = DateTime.UtcNow
+        }
+
+    raise (NotImplementedException()) // TODO: Call use case
+    ()
     
 [<Function "Negotiate">]
 let negotiate (

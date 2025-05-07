@@ -1,6 +1,7 @@
-﻿open Azure.Messaging.ServiceBus
+﻿open Azure.Messaging.WebPubSub
 open Lattice.Orchestrator.AppHost
 open Lattice.Orchestrator.Application
+open Lattice.Orchestrator.Infrastructure.Pool
 open Lattice.Orchestrator.Presentation
 open Microsoft.Azure.Cosmos
 open Microsoft.Azure.Functions.Worker
@@ -22,7 +23,7 @@ HostBuilder()
         !services.ConfigureFunctionsApplicationInsights()
 
         !services.AddSingleton<CosmosClient>(fun _ -> new CosmosClient(ctx.Configuration.GetValue<string>("CosmosDb")))
-        !services.AddSingleton<ServiceBusClient>(fun _ -> new ServiceBusClient(ctx.Configuration.GetValue<string>("ServiceBus")))
+        !services.AddSingleton<WebPubSubServiceClient>(fun _ -> new WebPubSubServiceClient(ctx.Configuration.GetValue<string>("WebPubSub"), PoolHandler.HUB_NAME))
         !services.AddDurableTaskClient(fun builder -> !builder.UseGrpc())
 
         !services.AddSingleton<IEnv, Env>()
