@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="WebPubSubAction.fs" />
     <Compile Include="PoolHandler.fs" />
     <Compile Include="Pool.fs" />
   </ItemGroup>

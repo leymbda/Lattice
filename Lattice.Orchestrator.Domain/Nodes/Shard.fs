@@ -35,9 +35,9 @@ type Shard = {
 }
 
 module Shard =
-    let create appId formulaId numShards =
+    let create shardId =
         {
-            Id = ShardId.create appId formulaId numShards
+            Id = shardId
             Instances = []
         }
 

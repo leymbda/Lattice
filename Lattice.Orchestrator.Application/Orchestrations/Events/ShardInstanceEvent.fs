@@ -1,37 +1,26 @@
 ﻿namespace Lattice.Orchestrator.Application
 
 open Lattice.Orchestrator.Domain
+open Microsoft.DurableTask.Entities
 open System
-open System.Threading.Tasks
-
-type ShardInstanceEvents = {
-    Start: Task<DateTime>
-    Shutdown: Task<DateTime>
-}
 
 type ShardInstanceEvent =
     | START of startAt: DateTime
     | SHUTDOWN of shutdownAt: DateTime
-    | UNKNOWN_EVENT
     
 module ShardInstanceEvent =
-    module Events =
-        let [<Literal>] START = nameof START
-        let [<Literal>] SHUTDOWN = nameof SHUTDOWN
+    let [<Literal>] ENTITY_ID_SEPARATOR = "|"
 
-    let [<Literal>] orchestratorName = "ShardInstanceOrchestrator"
+    let [<Literal>] entityName = "ShardInstanceEntity"
 
-    let orchestratorId (shardId: ShardId) (nodeId: Guid) =
-        $"{orchestratorName}:{ShardId.toString shardId}:{nodeId}"
-        
-    let awaitAny (events: ShardInstanceEvents) = task {
-        let list: Task array = [|
-            events.Start
-            events.Shutdown
-        |]
+    let parseEntityId (id: EntityInstanceId) =
+        match id.Name, id.Key.Split ENTITY_ID_SEPARATOR with
+        | name, [| shardId; nodeId |] when name = entityName ->
+            match Guid.TryParse nodeId, ShardId.fromString shardId with
+            | (true, nodeId), Some shardId -> Some (shardId, nodeId)
+            | _ -> None
 
-        match! Task.WhenAny list with
-        | event when event = events.Start -> return START events.Start.Result
-        | event when event = events.Shutdown -> return SHUTDOWN events.Shutdown.Result
-        | _ -> return UNKNOWN_EVENT
-    }
+        | _ -> None
+
+    let entityId (shardId: ShardId) (nodeId: Guid) =
+        EntityInstanceId(entityName, nodeId.ToString() + ENTITY_ID_SEPARATOR + ShardId.toString shardId)

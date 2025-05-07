@@ -77,7 +77,7 @@ type ShardTests () =
         let numShards = 1
 
         // Act
-        let shard = Shard.create applicationId formulaId numShards
+        let shard = Shard.create (ShardId.create applicationId formulaId numShards)
 
         // Assert
         Assert.AreEqual<ShardId>(ShardId (applicationId, formulaId, numShards), shard.Id)
@@ -86,7 +86,7 @@ type ShardTests () =
     [<TestMethod>]
     member _.``addInstance - Adds node to start of empty list`` () =
         // Arrange
-        let shard = Shard.create "applicationId" 0 1
+        let shard = Shard.create (ShardId.create "applicationId" 0 1)
 
         let nodeId = Guid.NewGuid()
         let createAt = DateTime.UtcNow
@@ -102,7 +102,7 @@ type ShardTests () =
     member _.``addInstance - Adds node to start of list with existing instances`` () =
         // Arrange
         let shard =
-            Shard.create "applicationId" 0 1
+            Shard.create (ShardId.create "applicationId" 0 1)
             |> Shard.addInstance (Guid.NewGuid()) DateTime.UtcNow
             |> Shard.addInstance (Guid.NewGuid()) DateTime.UtcNow
 
@@ -120,7 +120,7 @@ type ShardTests () =
     member _.``shutdown - Sets empty node to start of instances list to indicate shutdown`` () =
         // Arrange
         let shard =
-            Shard.create "applicationId" 0 1
+            Shard.create (ShardId.create "applicationId" 0 1)
             |> Shard.addInstance (Guid.NewGuid()) DateTime.UtcNow
             |> Shard.addInstance (Guid.NewGuid()) DateTime.UtcNow
             
@@ -138,7 +138,7 @@ type ShardTests () =
         // Arrange
         let currentTime = DateTime.UtcNow
 
-        let shard = Shard.create "applicationId" 0 1
+        let shard = Shard.create (ShardId.create "applicationId" 0 1)
 
         // Act
         let state = Shard.getState currentTime shard
@@ -157,7 +157,7 @@ type ShardTests () =
         let createAt = currentTime.AddSeconds -30
 
         let shard =
-            Shard.create "applicationId" 0 1
+            Shard.create (ShardId.create "applicationId" 0 1)
             |> Shard.addInstance nodeId createAt
 
         // Act
@@ -179,7 +179,7 @@ type ShardTests () =
         let nextCreateAt = currentTime.AddSeconds 30
 
         let shard =
-            Shard.create "applicationId" 0 1
+            Shard.create (ShardId.create "applicationId" 0 1)
             |> Shard.addInstance currentNodeId currentCreateAt
             |> Shard.addInstance nextNodeId nextCreateAt
 
@@ -203,7 +203,7 @@ type ShardTests () =
         let createAt = currentTime.AddSeconds 30
 
         let shard =
-            Shard.create "applicationId" 0 1
+            Shard.create (ShardId.create "applicationId" 0 1)
             |> Shard.addInstance nodeId createAt
 
         // Act
@@ -226,7 +226,7 @@ type ShardTests () =
         let shutdownAtTime = currentTime.AddSeconds 30
 
         let shard =
-            Shard.create "applicationId" 0 1
+            Shard.create (ShardId.create "applicationId" 0 1)
             |> Shard.addInstance nodeId createAt
             |> Shard.shutdown shutdownAtTime
 
@@ -250,7 +250,7 @@ type ShardTests () =
         let shutdownAtTime = currentTime.AddSeconds -30
 
         let shard =
-            Shard.create "applicationId" 0 1
+            Shard.create (ShardId.create "applicationId" 0 1)
             |> Shard.addInstance nodeId createAt
             |> Shard.shutdown shutdownAtTime
 
