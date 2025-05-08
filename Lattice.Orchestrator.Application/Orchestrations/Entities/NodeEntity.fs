@@ -119,6 +119,8 @@ type NodeEntity (env: IEnv) =
 
                 | _ -> return state
             }
-            |> Task.map op.State.SetState // TODO: Figure out how to handle race conditions
+            |> Task.map op.State.SetState
             |> ValueTask<obj>
         )
+        
+    // TODO: Handle deleting entity by setting state to null (how to handle async through shutdown orchestrations?)

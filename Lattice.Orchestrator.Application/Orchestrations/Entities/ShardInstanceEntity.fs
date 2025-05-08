@@ -57,7 +57,6 @@ type ShardInstanceEntity (env: IEnv) =
     [<Function(ShardInstanceEntity.createOrchestratorName)>]
     member _.Create (
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
-        fctx: FunctionContext,
         input: ShardInstanceCreateInput
     ) = task {
         // - Await startup
@@ -72,7 +71,6 @@ type ShardInstanceEntity (env: IEnv) =
     [<Function(ShardInstanceEntity.shutdownOrchestratorName)>]
     member _.Shutdown (
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
-        fctx: FunctionContext,
         input: ShardInstanceShutdownInput
     ) = task {
         // - Await shutdown
@@ -114,6 +112,8 @@ type ShardInstanceEntity (env: IEnv) =
 
                 | _ -> return state
             }
-            |> Task.map op.State.SetState // TODO: Figure out how to handle race conditions
+            |> Task.map op.State.SetState
             |> ValueTask<obj>
         )
+        
+    // TODO: Handle deleting entity by setting state to null (how to handle async through shutdown orchestrations?)

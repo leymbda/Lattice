@@ -57,7 +57,6 @@ type ShardEntity (env: IEnv) =
     [<Function(ShardEntity.createOrchestratorName)>]
     member _.Create (
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
-        fctx: FunctionContext,
         input: ShardCreateInput
     ) = task {
         // - Pick available node
@@ -72,7 +71,6 @@ type ShardEntity (env: IEnv) =
     [<Function(ShardEntity.transferOrchestratorName)>]
     member _.Transfer (
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
-        fctx: FunctionContext,
         input: ShardTransferInput
     ) = task {
         // Shut down currently active or soon to be active instance
@@ -97,7 +95,7 @@ type ShardEntity (env: IEnv) =
             StartAt = input.TransferAt
         }
 
-        return! ctx.CallSubOrchestratorAsync(ShardEntity.createOrchestratorName, input)
+        return! ctx.CallSubOrchestratorAsync(ShardEntity.createOrchestratorName, createInput)
     }
 
     [<Function(ShardEntity.shutdownOrchestratorName)>]
@@ -160,6 +158,8 @@ type ShardEntity (env: IEnv) =
 
                 | _ -> return state
             }
-            |> Task.map op.State.SetState // TODO: Figure out how to handle race conditions
+            |> Task.map op.State.SetState
             |> ValueTask<obj>
         )
+        
+    // TODO: Handle deleting entity by setting state to null (how to handle async through shutdown orchestrations?)
