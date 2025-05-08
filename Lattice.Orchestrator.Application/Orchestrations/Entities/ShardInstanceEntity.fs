@@ -13,12 +13,14 @@ type ShardInstanceEvent =
     | SHUTDOWN of shutdownAt: DateTime
 
 type ShardInstanceCreateInput = {
-    ShardInstance: ShardInstance
+    NodeId: Guid
+    ShardId: ShardId
     StartAt: DateTime
 }
 
 type ShardInstanceShutdownInput = {
-    ShardInstance: ShardInstance
+    NodeId: Guid
+    ShardId: ShardId
     ShutdownAt: DateTime
 }
 
@@ -94,7 +96,8 @@ type ShardInstanceEntity (env: IEnv) =
                 match op.Name with
                 | nameof ShardInstanceEvent.CREATE ->
                     let input: ShardInstanceCreateInput = {
-                        ShardInstance = state
+                        NodeId = state.NodeId
+                        ShardId = state.ShardId
                         StartAt = op.GetInput<DateTime>()
                     }
 
@@ -103,7 +106,8 @@ type ShardInstanceEntity (env: IEnv) =
 
                 | nameof ShardInstanceEvent.SHUTDOWN ->
                     let input: ShardInstanceShutdownInput = {
-                        ShardInstance = state
+                        NodeId = state.NodeId
+                        ShardId = state.ShardId
                         ShutdownAt = op.GetInput<DateTime>()
                     }
 
@@ -112,7 +116,7 @@ type ShardInstanceEntity (env: IEnv) =
 
                 | _ -> return state
             }
-            |> Task.map op.State.SetState
+            |> Task.map (fun s -> op.State.SetState s; s)
             |> ValueTask<obj>
         )
         

@@ -9,22 +9,23 @@ open System
 open System.Threading.Tasks
 
 type ShardEvent =
+    | GET
     | CREATE of startAt: DateTime
     | TRANSFER of transferAt: DateTime
     | SHUTDOWN of shutdownAt: DateTime
 
 type ShardCreateInput = {
-    Shard: Shard
+    ShardId: ShardId
     StartAt: DateTime
 }
 
 type ShardTransferInput = {
-    Shard: Shard
+    ShardId: ShardId
     TransferAt: DateTime
 }
 
 type ShardShutdownInput = {
-    Shard: Shard
+    ShardId: ShardId
     ShutdownAt: DateTime
 }
 
@@ -73,9 +74,12 @@ type ShardEntity (env: IEnv) =
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
         input: ShardTransferInput
     ) = task {
+        // Get current entity state
+        let! shard = ctx.Entities.CallEntityAsync<Shard>(ShardEntity.entityId input.ShardId, nameof ShardEvent.GET)
+
         // Shut down currently active or soon to be active instance
         let currentNode =
-            match Shard.getState ctx.CurrentUtcDateTime input.Shard with
+            match Shard.getState ctx.CurrentUtcDateTime shard with
             | ShardState.Starting (next, _) -> Some next
             | ShardState.Active current -> Some current
             | ShardState.Transferring (_, next, _) -> Some next
@@ -85,13 +89,13 @@ type ShardEntity (env: IEnv) =
         | None -> ()
         | Some currentNode ->
             do! ctx.Entities.CallEntityAsync(
-                ShardInstanceEntity.entityId input.Shard.Id currentNode,
+                ShardInstanceEntity.entityId shard.Id currentNode,
                 nameof ShardInstanceEvent.SHUTDOWN,
                 input.TransferAt)
 
         // Create new instance
         let createInput: ShardCreateInput = {
-            Shard = input.Shard
+            ShardId = shard.Id
             StartAt = input.TransferAt
         }
 
@@ -102,21 +106,26 @@ type ShardEntity (env: IEnv) =
     member _.Shutdown (
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
         input: ShardShutdownInput
-    ) =
+    ) = task {
+        // Get current entity state
+        let! shard = ctx.Entities.CallEntityAsync<Shard>(ShardEntity.entityId input.ShardId, nameof ShardEvent.GET)
+
         // Notify all active or soon to be active instances of shutdown
         let nodes =
-            match Shard.getState ctx.CurrentUtcDateTime input.Shard with
+            match Shard.getState ctx.CurrentUtcDateTime shard with
             | ShardState.Starting (next, _) -> [next]
             | ShardState.Active current -> [current]
             | ShardState.Transferring (current, next, _) -> [current; next]
             | _ -> []
 
-        nodes
-        |> List.map (fun id -> ctx.Entities.CallEntityAsync(
-            ShardInstanceEntity.entityId input.Shard.Id id,
-            nameof ShardInstanceEvent.SHUTDOWN,
-            input.ShutdownAt))
-        |> Task.WhenAll
+        return!
+            nodes
+            |> List.map (fun id -> ctx.Entities.CallEntityAsync(
+                ShardInstanceEntity.entityId shard.Id id,
+                nameof ShardInstanceEvent.SHUTDOWN,
+                input.ShutdownAt))
+            |> Task.WhenAll
+    }
 
     [<Function(ShardEntity.entityName)>]
     member _.DispatchAsync ([<EntityTrigger>] dispatcher: TaskEntityDispatcher) =
@@ -131,7 +140,7 @@ type ShardEntity (env: IEnv) =
                 match op.Name with
                 | nameof ShardEvent.CREATE ->
                     let input: ShardCreateInput = {
-                        Shard = state
+                        ShardId = state.Id
                         StartAt = op.GetInput<DateTime>()
                     }
 
@@ -140,7 +149,7 @@ type ShardEntity (env: IEnv) =
                     
                 | nameof ShardEvent.TRANSFER ->
                     let input: ShardTransferInput = {
-                        Shard = state
+                        ShardId = state.Id
                         TransferAt = op.GetInput<DateTime>()
                     }
 
@@ -149,7 +158,7 @@ type ShardEntity (env: IEnv) =
 
                 | nameof ShardEvent.SHUTDOWN ->
                     let input: ShardShutdownInput = {
-                        Shard = state
+                        ShardId = state.Id
                         ShutdownAt = op.GetInput<DateTime>()
                     }
 
@@ -158,7 +167,7 @@ type ShardEntity (env: IEnv) =
 
                 | _ -> return state
             }
-            |> Task.map op.State.SetState
+            |> Task.map (fun s -> op.State.SetState s; s)
             |> ValueTask<obj>
         )
         

@@ -9,17 +9,18 @@ open System
 open System.Threading.Tasks
 
 type NodeEvent =
+    | GET
     | CONNECT
     | DISCONNECT
     | HEARTBEAT of shardIds: ShardId list
     | TRANSFER of transferAt: DateTime
     
 type NodeDisconnectInput = {
-    Node: Node
+    NodeId: Guid
 }
 
 type NodeTransferInput = {
-    Node: Node
+    NodeId: Guid
     TransferAt: DateTime
 }
 
@@ -54,14 +55,19 @@ type NodeEntity (env: IEnv) =
     member _.Disconnect (
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
         input: NodeDisconnectInput
-    ) =
+    ) = task {
+        // Get current entity state
+        let! node = ctx.Entities.CallEntityAsync<Node>(NodeEntity.entityId input.NodeId, nameof NodeEvent.GET)
+
         // Notify any remaining shards to immediately transfer if present
-        input.Node.Shards
-        |> List.map (fun id -> ctx.Entities.CallEntityAsync(
-            ShardEntity.entityId id,
-            nameof ShardEvent.TRANSFER,
-            ctx.CurrentUtcDateTime))
-        |> Task.WhenAll
+        return!
+            node.Shards
+            |> List.map (fun id -> ctx.Entities.CallEntityAsync(
+                ShardEntity.entityId id,
+                nameof ShardEvent.TRANSFER,
+                ctx.CurrentUtcDateTime))
+            |> Task.WhenAll
+    }
 
     member _.Heartbeat shardIds node =
         node
@@ -74,14 +80,19 @@ type NodeEntity (env: IEnv) =
     member _.Transfer (
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
         input: NodeTransferInput
-    ) =
+    ) = task {
+        // Get current entity state
+        let! node = ctx.Entities.CallEntityAsync<Node>(NodeEntity.entityId input.NodeId, nameof NodeEvent.GET)
+
         // Notify all shards to organise a transfer
-        input.Node.Shards
-        |> List.map (fun id -> ctx.Entities.CallEntityAsync(
-            ShardEntity.entityId id,
-            nameof ShardEvent.TRANSFER,
-            input.TransferAt))
-        |> Task.WhenAll
+        return!
+            node.Shards
+            |> List.map (fun id -> ctx.Entities.CallEntityAsync(
+                ShardEntity.entityId id,
+                nameof ShardEvent.TRANSFER,
+                input.TransferAt))
+            |> Task.WhenAll
+    }
 
     // TODO: Figure out way to detect zombied nodes - where the websocket doesnt disconnect but heartbeat stops
 
@@ -93,12 +104,15 @@ type NodeEntity (env: IEnv) =
                 let state = op.State.GetState<Node>(Node.create id DateTime.UtcNow)
 
                 match op.Name with
+                | nameof NodeEvent.GET ->
+                    return state
+
                 | nameof NodeEvent.CONNECT ->
                     return state
 
                 | nameof NodeEvent.DISCONNECT ->
                     let input: NodeDisconnectInput = {
-                        Node = state
+                        NodeId = state.Id
                     }
 
                     op.Context.ScheduleNewOrchestration(NodeEntity.disconnectOrchestratorName, input) |> ignore
@@ -110,7 +124,7 @@ type NodeEntity (env: IEnv) =
 
                 | nameof NodeEvent.TRANSFER ->
                     let input: NodeTransferInput = {
-                        Node = state
+                        NodeId = state.Id
                         TransferAt = op.GetInput<DateTime>()
                     }
 
@@ -119,7 +133,7 @@ type NodeEntity (env: IEnv) =
 
                 | _ -> return state
             }
-            |> Task.map op.State.SetState
+            |> Task.map (fun s -> op.State.SetState s; s)
             |> ValueTask<obj>
         )
         
