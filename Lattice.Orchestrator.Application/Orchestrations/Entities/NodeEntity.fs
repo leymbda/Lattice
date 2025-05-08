@@ -3,31 +3,54 @@
 open Lattice.Orchestrator.Domain
 open Microsoft.Azure.Functions.Worker
 open Microsoft.DurableTask
-open Microsoft.DurableTask.Client
+//open Microsoft.DurableTask.Client
+open Microsoft.DurableTask.Entities
 open System
 open System.Threading.Tasks
 
+type NodeEvent =
+    | CONNECT
+    | DISCONNECT
+    | HEARTBEAT of shardIds: ShardId list
+    | TRANSFER of transferAt: DateTime
+    
+type NodeDisconnectInput = {
+    Node: Node
+}
+
+type NodeTransferInput = {
+    Node: Node
+    TransferAt: DateTime
+}
+
 module NodeEntity =
-    let send id event (client: DurableTaskClient) =
-        match event with
-        | NodeEvent.CONNECT ->
-            client.Entities.SignalEntityAsync(NodeEvent.entityId id, nameof NodeEvent.CONNECT)
+    let [<Literal>] entityName = "NodeEntity"
+    let [<Literal>] disconnectOrchestratorName = "NodeDisconnectOrchestrator"
+    let [<Literal>] transferOrchestratorName = "NodeTransferOrchestrator"
 
-        | NodeEvent.DISCONNECT ->
-            client.Entities.SignalEntityAsync(NodeEvent.entityId id, nameof NodeEvent.DISCONNECT)
+    let entityId (id: Guid) =
+        EntityInstanceId(entityName, id.ToString())
 
-        | NodeEvent.HEARTBEAT shardIds ->
-            client.Entities.SignalEntityAsync(NodeEvent.entityId id, nameof NodeEvent.HEARTBEAT, shardIds)
+    //let send id event (client: DurableTaskClient) =
+    //    match event with
+    //    | NodeEvent.CONNECT ->
+    //        client.Entities.SignalEntityAsync(entityId id, nameof NodeEvent.CONNECT)
 
-        | NodeEvent.TRANSFER transferAt ->
-            client.Entities.SignalEntityAsync(NodeEvent.entityId id, nameof NodeEvent.TRANSFER, transferAt)
+    //    | NodeEvent.DISCONNECT ->
+    //        client.Entities.SignalEntityAsync(entityId id, nameof NodeEvent.DISCONNECT)
 
-    let getState id (client: DurableTaskClient) =
-        client.Entities.GetEntityAsync<Node>(NodeEvent.entityId id, true)
-        |> Task.map (fun e -> e.IncludesState |> function | true -> Some e.State | false -> None)
+    //    | NodeEvent.HEARTBEAT shardIds ->
+    //        client.Entities.SignalEntityAsync(entityId id, nameof NodeEvent.HEARTBEAT, shardIds)
+
+    //    | NodeEvent.TRANSFER transferAt ->
+    //        client.Entities.SignalEntityAsync(entityId id, nameof NodeEvent.TRANSFER, transferAt)
+
+    //let getState id (client: DurableTaskClient) =
+    //    client.Entities.GetEntityAsync<Node>(entityId id, true)
+    //    |> Task.map (fun e -> e.IncludesState |> function | true -> Some e.State | false -> None)
 
 type NodeEntity (env: IEnv) =
-    [<Function(NodeEvent.orchestratorDisconnectName)>]
+    [<Function(NodeEntity.disconnectOrchestratorName)>]
     member _.Disconnect (
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
         input: NodeDisconnectInput
@@ -35,7 +58,7 @@ type NodeEntity (env: IEnv) =
         // Notify any remaining shards to immediately transfer if present
         input.Node.Shards
         |> List.map (fun id -> ctx.Entities.CallEntityAsync(
-            ShardEvent.entityId id,
+            ShardEntity.entityId id,
             nameof ShardEvent.TRANSFER,
             ctx.CurrentUtcDateTime))
         |> Task.WhenAll
@@ -47,7 +70,7 @@ type NodeEntity (env: IEnv) =
 
         // TODO: Validate shards and handle disputes?
 
-    [<Function(NodeEvent.orchestratorTransferName)>]
+    [<Function(NodeEntity.transferOrchestratorName)>]
     member _.Transfer (
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
         input: NodeTransferInput
@@ -55,14 +78,14 @@ type NodeEntity (env: IEnv) =
         // Notify all shards to organise a transfer
         input.Node.Shards
         |> List.map (fun id -> ctx.Entities.CallEntityAsync(
-            ShardEvent.entityId id,
+            ShardEntity.entityId id,
             nameof ShardEvent.TRANSFER,
             input.TransferAt))
         |> Task.WhenAll
 
     // TODO: Figure out way to detect zombied nodes - where the websocket doesnt disconnect but heartbeat stops
 
-    [<Function(NodeEvent.entityName)>]
+    [<Function(NodeEntity.entityName)>]
     member this.DispatchAsync ([<EntityTrigger>] dispatcher: TaskEntityDispatcher) =
         dispatcher.DispatchAsync(fun op ->
             task {
@@ -78,7 +101,7 @@ type NodeEntity (env: IEnv) =
                         Node = state
                     }
 
-                    op.Context.ScheduleNewOrchestration(NodeEvent.orchestratorDisconnectName, input) |> ignore
+                    op.Context.ScheduleNewOrchestration(NodeEntity.disconnectOrchestratorName, input) |> ignore
                     return state
 
                 | nameof NodeEvent.HEARTBEAT ->
@@ -91,7 +114,7 @@ type NodeEntity (env: IEnv) =
                         TransferAt = op.GetInput<DateTime>()
                     }
 
-                    op.Context.ScheduleNewOrchestration(NodeEvent.orchestratorTransferName, input) |> ignore
+                    op.Context.ScheduleNewOrchestration(NodeEntity.transferOrchestratorName, input) |> ignore
                     return state
 
                 | _ -> return state

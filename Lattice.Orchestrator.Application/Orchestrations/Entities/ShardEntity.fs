@@ -3,28 +3,58 @@
 open Lattice.Orchestrator.Domain
 open Microsoft.Azure.Functions.Worker
 open Microsoft.DurableTask
-open Microsoft.DurableTask.Client
+//open Microsoft.DurableTask.Client
+open Microsoft.DurableTask.Entities
 open System
 open System.Threading.Tasks
 
+type ShardEvent =
+    | CREATE of startAt: DateTime
+    | TRANSFER of transferAt: DateTime
+    | SHUTDOWN of shutdownAt: DateTime
+
+type ShardCreateInput = {
+    Shard: Shard
+    StartAt: DateTime
+}
+
+type ShardTransferInput = {
+    Shard: Shard
+    TransferAt: DateTime
+}
+
+type ShardShutdownInput = {
+    Shard: Shard
+    ShutdownAt: DateTime
+}
+
+
 module ShardEntity =
-    let send shardId event (client: DurableTaskClient) =
-        match event with
-        | ShardEvent.CREATE startAt ->
-            client.Entities.SignalEntityAsync(ShardEvent.entityId shardId, nameof ShardEvent.CREATE, startAt)
+    let [<Literal>] entityName = "ShardEntity"
+    let [<Literal>] createOrchestratorName = "ShardCreateOrchestrator"
+    let [<Literal>] transferOrchestratorName = "ShardTransferOrchestrator"
+    let [<Literal>] shutdownOrchestratorName = "ShardShutdownOrchestrator"
 
-        | ShardEvent.TRANSFER transferAt ->
-            client.Entities.SignalEntityAsync(ShardEvent.entityId shardId, nameof ShardEvent.TRANSFER, transferAt)
+    let entityId (shardId: ShardId) =
+        EntityInstanceId(entityName, ShardId.toString shardId)
 
-        | ShardEvent.SHUTDOWN shutdownAt ->
-            client.Entities.SignalEntityAsync(ShardEvent.entityId shardId, nameof ShardEvent.SHUTDOWN, shutdownAt)
+    //let send shardId event (client: DurableTaskClient) =
+    //    match event with
+    //    | ShardEvent.CREATE startAt ->
+    //        client.Entities.SignalEntityAsync(entityId shardId, nameof ShardEvent.CREATE, startAt)
 
-    let getState shardId (client: DurableTaskClient) =
-        client.Entities.GetEntityAsync<Shard>(ShardEvent.entityId shardId, true)
-        |> Task.map (fun e -> e.IncludesState |> function | true -> Some e.State | false -> None)
+    //    | ShardEvent.TRANSFER transferAt ->
+    //        client.Entities.SignalEntityAsync(entityId shardId, nameof ShardEvent.TRANSFER, transferAt)
+
+    //    | ShardEvent.SHUTDOWN shutdownAt ->
+    //        client.Entities.SignalEntityAsync(entityId shardId, nameof ShardEvent.SHUTDOWN, shutdownAt)
+
+    //let getState shardId (client: DurableTaskClient) =
+    //    client.Entities.GetEntityAsync<Shard>(entityId shardId, true)
+    //    |> Task.map (fun e -> e.IncludesState |> function | true -> Some e.State | false -> None)
 
 type ShardEntity (env: IEnv) =
-    [<Function(ShardEvent.orchestratorCreateName)>]
+    [<Function(ShardEntity.createOrchestratorName)>]
     member _.Create (
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
         fctx: FunctionContext,
@@ -39,7 +69,7 @@ type ShardEntity (env: IEnv) =
         return ()
     }
 
-    [<Function(ShardEvent.orchestratorTransferName)>]
+    [<Function(ShardEntity.transferOrchestratorName)>]
     member _.Transfer (
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
         fctx: FunctionContext,
@@ -57,7 +87,7 @@ type ShardEntity (env: IEnv) =
         | None -> ()
         | Some currentNode ->
             do! ctx.Entities.CallEntityAsync(
-                ShardInstanceEvent.entityId input.Shard.Id currentNode,
+                ShardInstanceEntity.entityId input.Shard.Id currentNode,
                 nameof ShardInstanceEvent.SHUTDOWN,
                 input.TransferAt)
 
@@ -67,10 +97,10 @@ type ShardEntity (env: IEnv) =
             StartAt = input.TransferAt
         }
 
-        return! ctx.CallSubOrchestratorAsync(ShardEvent.orchestratorCreateName, input)
+        return! ctx.CallSubOrchestratorAsync(ShardEntity.createOrchestratorName, input)
     }
 
-    [<Function(ShardEvent.orchestratorShutdownName)>]
+    [<Function(ShardEntity.shutdownOrchestratorName)>]
     member _.Shutdown (
         [<OrchestrationTrigger>] ctx: TaskOrchestrationContext,
         input: ShardShutdownInput
@@ -85,12 +115,12 @@ type ShardEntity (env: IEnv) =
 
         nodes
         |> List.map (fun id -> ctx.Entities.CallEntityAsync(
-            ShardInstanceEvent.entityId input.Shard.Id id,
+            ShardInstanceEntity.entityId input.Shard.Id id,
             nameof ShardInstanceEvent.SHUTDOWN,
             input.ShutdownAt))
         |> Task.WhenAll
 
-    [<Function(ShardEvent.entityName)>]
+    [<Function(ShardEntity.entityName)>]
     member _.DispatchAsync ([<EntityTrigger>] dispatcher: TaskEntityDispatcher) =
         dispatcher.DispatchAsync(fun op ->
             task {
@@ -107,7 +137,7 @@ type ShardEntity (env: IEnv) =
                         StartAt = op.GetInput<DateTime>()
                     }
 
-                    op.Context.ScheduleNewOrchestration(ShardEvent.orchestratorCreateName, input) |> ignore
+                    op.Context.ScheduleNewOrchestration(ShardEntity.createOrchestratorName, input) |> ignore
                     return state
                     
                 | nameof ShardEvent.TRANSFER ->
@@ -116,7 +146,7 @@ type ShardEntity (env: IEnv) =
                         TransferAt = op.GetInput<DateTime>()
                     }
 
-                    op.Context.ScheduleNewOrchestration(ShardEvent.orchestratorCreateName, input) |> ignore
+                    op.Context.ScheduleNewOrchestration(ShardEntity.transferOrchestratorName, input) |> ignore
                     return state
 
                 | nameof ShardEvent.SHUTDOWN ->
@@ -125,7 +155,7 @@ type ShardEntity (env: IEnv) =
                         ShutdownAt = op.GetInput<DateTime>()
                     }
 
-                    op.Context.ScheduleNewOrchestration(ShardEvent.orchestratorShutdownName, input) |> ignore
+                    op.Context.ScheduleNewOrchestration(ShardEntity.shutdownOrchestratorName, input) |> ignore
                     return state
 
                 | _ -> return state
