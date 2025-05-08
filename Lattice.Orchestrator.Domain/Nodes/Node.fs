@@ -31,7 +31,8 @@ module Node =
     let removeShard shardId node =
         { node with Shards = node.Shards |> List.filter ((<>) shardId) }
 
-    // TODO: How to handle graceful (delayed) addition and removal of shards in the context of the domain?
+    let setShards shardIds node =
+        { node with Shards = shardIds }
         
     let getState (currentTime: DateTime) node =
         match node with

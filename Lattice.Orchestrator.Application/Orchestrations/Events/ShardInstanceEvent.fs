@@ -5,13 +5,15 @@ open Microsoft.DurableTask.Entities
 open System
 
 type ShardInstanceEvent =
-    | START of startAt: DateTime
+    | CREATE of startAt: DateTime
     | SHUTDOWN of shutdownAt: DateTime
     
 module ShardInstanceEvent =
     let [<Literal>] ENTITY_ID_SEPARATOR = "|"
 
     let [<Literal>] entityName = "ShardInstanceEntity"
+    let [<Literal>] orchestratorCreateName = "ShardInstanceCreateOrchestrator"
+    let [<Literal>] orchestratorShutdownName = "ShardInstanceShutdownOrchestrator"
 
     let parseEntityId (id: EntityInstanceId) =
         match id.Name, id.Key.Split ENTITY_ID_SEPARATOR with
@@ -24,3 +26,13 @@ module ShardInstanceEvent =
 
     let entityId (shardId: ShardId) (nodeId: Guid) =
         EntityInstanceId(entityName, nodeId.ToString() + ENTITY_ID_SEPARATOR + ShardId.toString shardId)
+        
+type ShardInstanceCreateInput = {
+    ShardInstance: ShardInstance
+    StartAt: DateTime
+}
+
+type ShardInstanceShutdownInput = {
+    ShardInstance: ShardInstance
+    ShutdownAt: DateTime
+}

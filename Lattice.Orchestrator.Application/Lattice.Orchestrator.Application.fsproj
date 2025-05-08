@@ -22,12 +22,12 @@
     <Compile Include="UseCases\Apps\SyncAppPrivilegedIntents.fs" />
     <Compile Include="UseCases\Apps\AddDisabledAppReason.fs" />
     <Compile Include="UseCases\Apps\RemoveDisabledAppReason.fs" />
+    <Compile Include="Orchestrations\Events\NodeEvent.fs" />
     <Compile Include="Orchestrations\Events\ShardEvent.fs" />
     <Compile Include="Orchestrations\Events\ShardInstanceEvent.fs" />
-    <Compile Include="Orchestrations\Events\NodeEvent.fs" />
+    <Compile Include="Orchestrations\Entities\NodeEntity.fs" />
     <Compile Include="Orchestrations\Entities\ShardEntity.fs" />
     <Compile Include="Orchestrations\Entities\ShardInstanceEntity.fs" />
-    <Compile Include="Orchestrations\Entities\NodeEntity.fs" />
   </ItemGroup>
 	
   <ItemGroup>

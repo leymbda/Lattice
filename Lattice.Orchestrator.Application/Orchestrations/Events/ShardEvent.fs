@@ -5,11 +5,30 @@ open Microsoft.DurableTask.Entities
 open System
 
 type ShardEvent =
-    | CREATE_OR_TRANSFER of transferAt: DateTime
+    | CREATE of startAt: DateTime
+    | TRANSFER of transferAt: DateTime
     | SHUTDOWN of shutdownAt: DateTime
 
 module ShardEvent =
     let [<Literal>] entityName = "ShardEntity"
+    let [<Literal>] orchestratorCreateName = "ShardCreateOrchestrator"
+    let [<Literal>] orchestratorTransferName = "ShardTransferOrchestrator"
+    let [<Literal>] orchestratorShutdownName = "ShardShutdownOrchestrator"
 
     let entityId (shardId: ShardId) =
         EntityInstanceId(entityName, ShardId.toString shardId)
+
+type ShardCreateInput = {
+    Shard: Shard
+    StartAt: DateTime
+}
+
+type ShardTransferInput = {
+    Shard: Shard
+    TransferAt: DateTime
+}
+
+type ShardShutdownInput = {
+    Shard: Shard
+    ShutdownAt: DateTime
+}
