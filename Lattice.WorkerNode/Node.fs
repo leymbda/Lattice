@@ -15,20 +15,30 @@ type Msg =
     | Shard of ShardId * Shard.Msg
 
     | Connect
-    | OnConnectSuccess of unit
+    | OnConnectSuccess
     | OnConnectError of exn
+
+    | Disconnect // TODO: Add optional DateTime to schedule shutdown
+    | OnDisconnect
 
     // TODO: Shard instance schedule start/close
     // TODO: Shard irrecoverable closure bubble up (how? subscription maybe?)
-    // TODO: Node schedule shutdown
     // TODO: Node heartbeat
-    // TODO: Node disconnect
 
     | SendGatewayEvent of ShardId * GatewaySendEvent
 
 /// Initiate connection to the orchestrator gateway
 let private connect model () = async {
     return () // TODO: Implement
+}
+
+let private disconnect model () = async {
+    return () // TODO: Implement
+
+    // This probably needs to be changed to instead send a batch command to all shards to disconnect with some state
+    // indicating the shutdown was requested. Once all shards removed and shutdown IS requested, trigger disconnect.
+    // Seems like a bit of a rewrite to what's currently implemented for disconnecting behaviour but will keep this in
+    // for now as a reference.
 }
 
 /// Handle elevated child cmd for shards
@@ -40,7 +50,20 @@ let private shard model id msg =
     | Some shard ->
         let res, cmd = Shard.update msg shard
 
-        { model with Shards = model.Shards |> Map.add id res },
+        let shards =
+            match msg with
+            | Shard.Msg.OnDisconnect Shard.DisconnectType.Requested ->
+                model.Shards |> Map.remove id
+
+            | Shard.Msg.OnDisconnect Shard.DisconnectType.Irrecoverable ->
+                model.Shards |> Map.remove id
+
+                // TODO: Notify orchestrator of irrecoverable closure (new cmd msg)
+
+            | _ ->
+                model.Shards |> Map.add id res
+
+        { model with Shards = shards },
         Cmd.map (fun msg -> Msg.Shard (id, msg)) cmd
 
 /// Trigger the given shard to send the event
@@ -61,18 +84,28 @@ let init id =
 
 let update msg (model: Model) =
     match msg with
-    | Msg.Connect ->
-        model, Cmd.OfAsync.either (connect model) () Msg.OnConnectSuccess Msg.OnConnectError
+    | Msg.Shard (id, msg) ->
+        shard model id msg
 
-    | Msg.OnConnectSuccess _ ->
+    | Msg.Connect ->
+        model, Cmd.OfAsync.either (connect model) () (fun _ -> Msg.OnConnectSuccess) Msg.OnConnectError
+
+    | Msg.OnConnectSuccess ->
+        printfn "Successfully connected node %A" model.Id
         model, Cmd.none
 
     | Msg.OnConnectError exn ->
         eprintfn "%A" exn
         model, Cmd.none
 
-    | Msg.Shard (id, msg) ->
-        shard model id msg
+    | Msg.Disconnect ->
+        model, Cmd.OfAsync.perform (disconnect model) () (fun _ -> Msg.OnDisconnect) // TODO: Should this handle potential error too?
+
+        // TODO: This should probably batch trigger Disconnect msg on all shards
+
+    | Msg.OnDisconnect ->
+        printfn "Disconnected node %A" model.Id
+        model, Cmd.none
 
     | Msg.SendGatewayEvent (id, event) ->
         sendGatewayEvent model id event
@@ -81,8 +114,12 @@ let subscribe model =
     let shards =
         model.Shards
         |> Map.toSeq
-        |> Seq.map (fun (id, model) -> "shard:" + ShardId.toString id, Shard.subscribe model)
-        |> Seq.map (fun (id, sub) -> Sub.map id Msg.Shard sub)
+        |> Seq.map (fun (id, model) ->
+            let idPrefix = "shard:" + ShardId.toString id // TODO: Does this need to contain all this?
+            let mapper = fun msg -> Msg.Shard (id, msg)
+            let sub = Shard.subscribe model
+            Sub.map idPrefix mapper sub
+        )
         |> Sub.batch
 
     Sub.batch [

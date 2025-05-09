@@ -8,11 +8,19 @@ type Model = {
     Id: ShardId
 }
 
+type DisconnectType =
+    | Requested
+    | Unexpected
+    | Irrecoverable
+
 [<RequireQualifiedAccess>]
 type Msg =
     | Connect
-    | OnConnectSuccess of unit
+    | OnConnectSuccess
     | OnConnectError of exn
+
+    | Disconnect of type': DisconnectType // TODO: Add optional DateTime to schedule disconnect
+    | OnDisconnect of type': DisconnectType
 
     | SendGatewayEvent of GatewaySendEvent
     | OnSendGatewayEventError of exn
@@ -20,11 +28,14 @@ type Msg =
     | ReceiveGatewayEvent of GatewayReceiveEvent
     | OnReceiveGatewayEventError of exn
 
-    // TODO: Shard irrecoverable disconnect
-
 /// Initiate connection to the gateway
 let private connect model () = async {
     return () // TODO: Implement
+}
+
+/// Gracefully disconenct from the gateway
+let private disconnect model type' = async {
+    return type' // TODO: Implement
 }
 
 /// Send a gateway event to the gateway
@@ -43,13 +54,21 @@ let init id =
 let update msg (model: Model) =
     match msg with
     | Msg.Connect ->
-        model, Cmd.OfAsync.either (connect model) () Msg.OnConnectSuccess Msg.OnConnectError
+        model, Cmd.OfAsync.either (connect model) () (fun _ -> Msg.OnConnectSuccess) Msg.OnConnectError
 
-    | Msg.OnConnectSuccess _ ->
+    | Msg.OnConnectSuccess ->
+        printfn "Successfully connected shard %s to the gateway" (ShardId.toString model.Id)
         model, Cmd.none
 
     | Msg.OnConnectError exn ->
         eprintfn "%A" exn
+        model, Cmd.none
+
+    | Msg.Disconnect type' ->
+        model, Cmd.OfAsync.perform (disconnect model) type' Msg.OnDisconnect
+
+    | Msg.OnDisconnect type' ->
+        printfn "Disconnected shard %s from the gateway" (ShardId.toString model.Id)
         model, Cmd.none
 
     | Msg.SendGatewayEvent event ->
