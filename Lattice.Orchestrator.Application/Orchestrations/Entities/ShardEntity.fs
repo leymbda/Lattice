@@ -138,6 +138,9 @@ type ShardEntity (env: IEnv) =
                 let state = op.State.GetState<Shard>(Shard.create shardId)
 
                 match op.Name with
+                | nameof ShardEvent.GET ->
+                    return state
+
                 | nameof ShardEvent.CREATE ->
                     let input: ShardCreateInput = {
                         ShardId = state.Id

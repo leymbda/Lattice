@@ -9,6 +9,7 @@ open System
 open System.Threading.Tasks
 
 type ShardInstanceEvent =
+    | GET
     | CREATE of startAt: DateTime
     | SHUTDOWN of shutdownAt: DateTime
 
@@ -94,6 +95,9 @@ type ShardInstanceEntity (env: IEnv) =
                 let state = op.State.GetState<ShardInstance>(ShardInstance.create shardId nodeId)
 
                 match op.Name with
+                | nameof ShardInstanceEvent.GET ->
+                    return state
+
                 | nameof ShardInstanceEvent.CREATE ->
                     let input: ShardInstanceCreateInput = {
                         NodeId = state.NodeId
