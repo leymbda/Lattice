@@ -7,18 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Modules\WorkerShard.fs" />
-    <Compile Include="Factories\ServiceBusFactory.fs" />
+    <Compile Include="Shard.fs" />
     <Compile Include="Node.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 	
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.13.2" />
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.19.0" />
-	<PackageReference Include="FSharp.Discord" Version="0.0.15" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4" />
+    <PackageReference Include="Azure.Messaging.WebPubSub.Client" Version="1.0.0" />
+    <PackageReference Include="Elmish" Version="4.3.0" />
+    <PackageReference Include="FSharp.Discord" Version="0.0.37" />
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.18.0" />
   </ItemGroup>
 	
   <ItemGroup>

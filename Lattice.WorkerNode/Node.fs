@@ -1,78 +1,90 @@
-﻿namespace Lattice.WorkerNode
+﻿module Lattice.WorkerNode.Node
 
-open Azure.Messaging.ServiceBus
+open Elmish
 open FSharp.Discord.Gateway
 open Lattice.Orchestrator.Domain
-open System.Net.Http
-open System.Net.Http.Headers
-open System.Threading
+open System
 
-type Node (
-    serviceBusClientFactory: IServiceBusClientFactory,
-    httpClientFactory: IHttpClientFactory,
-    gatewayClientFactory: IGatewayClientFactory
-) =
-    member val private _shards: WorkerShard list = [] with get, set
+type Model = {
+    Id: Guid
+    Shards: Map<ShardId, Shard.Model>
+}
 
-    member this.AddShard gatewayUrl clientId identify handler = task {
-        let handler =
-            match handler with
-            | Handler.WEBHOOK handler ->
-                let client = httpClientFactory.CreateClient()
+[<RequireQualifiedAccess>]
+type Msg =
+    | Shard of ShardId * Shard.Msg
 
-                fun (json: string) -> task {
-                    let req = new HttpRequestMessage(HttpMethod.Post, handler.Endpoint)
-                    req.Content <- new StringContent(json, MediaTypeHeaderValue("application/json"))
-                        
-                    // TODO: Create ed25519 signature like Discord to ensure only valid events are accepted downstream
+    | Connect
+    | OnConnectSuccess of unit
+    | OnConnectError of exn
 
-                    let! res = client.SendAsync req
+    // TODO: Shard instance schedule start/close
+    // TODO: Shard irrecoverable closure bubble up (how? subscription maybe?)
+    // TODO: Node schedule shutdown
+    // TODO: Node heartbeat
+    // TODO: Node disconnect
 
-                    // TODO: Handle status code
+    | SendGatewayEvent of ShardId * GatewaySendEvent
 
-                    return ()
-                }
+/// Initiate connection to the orchestrator gateway
+let private connect model () = async {
+    return () // TODO: Implement
+}
 
-            | Handler.SERVICE_BUS handler ->
-                let client = serviceBusClientFactory.CreateClient handler.ConnectionString
-                let sender = client.CreateSender handler.QueueName
+/// Handle elevated child cmd for shards
+let private shard model id msg =
+    match model.Shards |> Map.tryFind id with
+    | None ->
+        model, Cmd.none
 
-                fun (json: string) -> task {
-                    do! sender.SendMessageAsync <| ServiceBusMessage json
+    | Some shard ->
+        let res, cmd = Shard.update msg shard
 
-                    // TODO: Handle exceptions for if sending fails
-                }
+        { model with Shards = model.Shards |> Map.add id res },
+        Cmd.map (fun msg -> Msg.Shard (id, msg)) cmd
 
-        use cts = new CancellationTokenSource()
-        let ct = cts.Token
+/// Trigger the given shard to send the event
+let private sendGatewayEvent model id event =
+    match model.Shards |> Map.tryFind id with
+    | None ->
+        model, Cmd.none
 
-        let metadata = { ClientId = clientId }
-        let client = gatewayClientFactory.CreateClient()
-        let proc = client.Connect gatewayUrl identify handler ct
+    | Some shard ->
+        model, Cmd.ofMsg (Msg.Shard (id, Shard.Msg.SendGatewayEvent event))
 
-        let shard = {
-            Metadata = metadata
-            Client = client
-            Process = proc
-            CancellationToken = ct
-        }
+let init id =
+    {
+        Id = id
+        Shards = Map.empty
+    },
+    Cmd.ofMsg Msg.Connect
 
-        this._shards <- shard :: this._shards
-        return shard
-    }
+let update msg (model: Model) =
+    match msg with
+    | Msg.Connect ->
+        model, Cmd.OfAsync.either (connect model) () Msg.OnConnectSuccess Msg.OnConnectError
 
-    // TODO: Does setting up the node this way even make sense?
+    | Msg.OnConnectSuccess _ ->
+        model, Cmd.none
 
-    member _.StartAsync () = task {
-        // TODO: Connect to orchestrator service bus to await shards to bid on and instantiate
+    | Msg.OnConnectError exn ->
+        eprintfn "%A" exn
+        model, Cmd.none
 
-        // TODO: Connect to gateway request bus to await requests to process gateway send events
+    | Msg.Shard (id, msg) ->
+        shard model id msg
 
-        // TODO: Figure out how to determine which specific shard has access to make gateway send event requests (is this even necessary?)
+    | Msg.SendGatewayEvent (id, event) ->
+        sendGatewayEvent model id event
 
-        // TODO: Start shard and store in list
+let subscribe model =
+    let shards =
+        model.Shards
+        |> Map.toSeq
+        |> Seq.map (fun (id, model) -> "shard:" + ShardId.toString id, Shard.subscribe model)
+        |> Seq.map (fun (id, sub) -> Sub.map id Msg.Shard sub)
+        |> Sub.batch
 
-        // TODO: Figure out appropriate way to handle notifying orchestrator when shards released
-
-        return ()
-    }
+    Sub.batch [
+        shards
+    ]

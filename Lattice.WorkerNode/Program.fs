@@ -1,31 +1,28 @@
-﻿open Lattice.WorkerNode
-open FSharp.Discord.Gateway
-open Microsoft.Extensions.Configuration
-open Microsoft.Extensions.DependencyInjection
-open Microsoft.Extensions.Hosting
+﻿module Lattice.WorkerNode.Program
+
+open Elmish
+open FsToolkit.ErrorHandling
 open System
-open System.IO
 
-let (!) f = f |> ignore
+[<RequireQualifiedAccess>]
+type ExitCode =
+    | Success = 0
 
-Host
-    .CreateDefaultBuilder(Environment.GetCommandLineArgs())
-    .ConfigureAppConfiguration(fun builder ->
-        // Add environment variables to configuration
-        !builder
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", false)
-            .AddEnvironmentVariables()
-    )
-    .ConfigureServices(fun services ->
-        // Register services
-        !services.AddHttpClient()
-        !services.AddTransient<IServiceBusClientFactory, ServiceBusClientFactory>()
-        !services.AddTransient<IWebsocketFactory, WebsocketFactory>()
-        !services.AddTransient<IGatewayClientFactory, GatewayClientFactory>()
-    )
-    .Build()
-    .Services.GetRequiredService<Node>()
-    .StartAsync()
-|> Async.AwaitTask
-|> Async.RunSynchronously
+[<EntryPoint>]
+let run args =
+    let nodeId =
+        args
+        |> Array.tryExactlyOne
+        |> Option.bind (fun v -> Guid.TryParse v |> function | true, id -> Some id | _ -> None)
+        |> Option.teeNone (fun _ -> printfn "No ID provided or provided ID not a valid Guid, generating random...")
+        |> Option.defaultValue (Guid.NewGuid())
+
+    printfn "Starting node %A..." nodeId
+
+    Program.mkProgram Node.init Node.update (fun _ _ -> ())
+    |> Program.withSubscription Node.subscribe
+    |> Program.runWith nodeId
+
+    printfn "Program finished."
+    int ExitCode.Success
+    
