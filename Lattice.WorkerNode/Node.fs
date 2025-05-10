@@ -1,22 +1,28 @@
 ﻿module Lattice.WorkerNode.Node
 
+open Azure.Messaging.WebPubSub.Clients
 open Elmish
 open FSharp.Discord.Gateway
 open Lattice.Orchestrator.Domain
 open System
+open System.Threading.Tasks
 
 type Model = {
     Id: Guid
+    Uri: Uri
+    Client: WebPubSubClient option
     Shards: Map<ShardId, Shard.Model>
     Disconnect: DateTime option option
 }
+
+// TODO: Should this be a DU to handle different states a node can be in?
 
 [<RequireQualifiedAccess>]
 type Msg =
     | Shard of ShardId * Shard.Msg
 
     | Connect
-    | OnConnectSuccess
+    | OnConnectSuccess of WebPubSubClient
     | OnConnectError of exn
 
     | Disconnect of DateTime option
@@ -30,16 +36,9 @@ type Msg =
 
 /// Initiate connection to the orchestrator gateway
 let private connect model () = async {
-    return () // TODO: Implement
-}
-
-let private disconnect model () = async {
-    return () // TODO: Implement
-
-    // This probably needs to be changed to instead send a batch command to all shards to disconnect with some state
-    // indicating the shutdown was requested. Once all shards removed and shutdown IS requested, trigger disconnect.
-    // Seems like a bit of a rewrite to what's currently implemented for disconnecting behaviour but will keep this in
-    // for now as a reference.
+    let client = new WebPubSubClient(model.Uri)
+    do! client.StartAsync() |> Async.AwaitTask
+    return client
 }
 
 /// Handle elevated child cmd for shards
@@ -71,9 +70,11 @@ let private shard model id msg =
 let private sendGatewayEvent model id event =
     model, Cmd.ofMsg (Msg.Shard (id, Shard.Msg.SendGatewayEvent event))
 
-let init id =
+let init (id, uri) =
     {
         Id = id
+        Uri = uri
+        Client = None
         Shards = Map.empty
         Disconnect = None
     },
@@ -85,11 +86,11 @@ let update msg (model: Model) =
         shard model id msg
 
     | Msg.Connect ->
-        model, Cmd.OfAsync.either (connect model) () (fun _ -> Msg.OnConnectSuccess) Msg.OnConnectError
+        model, Cmd.OfAsync.either (connect model) () Msg.OnConnectSuccess Msg.OnConnectError
 
-    | Msg.OnConnectSuccess ->
+    | Msg.OnConnectSuccess client ->
         printfn "Successfully connected node %A" model.Id
-        model, Cmd.none
+        { model with Client = Some client }, Cmd.none
 
     | Msg.OnConnectError exn ->
         eprintfn "%A" exn
@@ -106,7 +107,7 @@ let update msg (model: Model) =
 
     | Msg.OnDisconnect ->
         printfn "Disconnected node %A" model.Id
-        model, Cmd.none
+        { model with Client = None }, Cmd.none
 
     | Msg.SendGatewayEvent (id, event) ->
         sendGatewayEvent model id event
@@ -125,7 +126,6 @@ let subscribe model =
 
     let shutdown =
         match model.Disconnect with
-        | None -> []
         | Some shutdownAt ->
             let timespan =
                 shutdownAt
@@ -133,10 +133,19 @@ let subscribe model =
                 |> Option.defaultValue (TimeSpan.FromSeconds 0)
 
             let onShutdown dispatch () =
-                // TODO: Disconnect orchestrator websocket once implemented
+                model.Client
+                |> Option.map (_.StopAsync())
+                |> Option.defaultValue Task.CompletedTask
+                |> Async.AwaitTask
+                |> Async.RunSynchronously
+                
+                // TODO: Make this an async function itself
+
                 dispatch Msg.OnDisconnect
 
             [["shutdown"], fun dispatch -> Sub.delay timespan (onShutdown dispatch)]
+
+        | _ -> []
 
     List.empty
     |> List.append shards

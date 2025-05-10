@@ -78,7 +78,7 @@ let onDisconnected (
 [<Function "Negotiate">]
 let negotiate (
     [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "negotiate")>] req: HttpRequestData,
-    [<WebPubSubConnectionInput>] connectionInfo: WebPubSubConnection
+    [<WebPubSubConnectionInput(Hub = HUB_NAME)>] connectionInfo: WebPubSubConnection
 ) = task {
     // TODO: Handle worker authentication
     // TODO: Should this trigger be in this project or orchestrator?

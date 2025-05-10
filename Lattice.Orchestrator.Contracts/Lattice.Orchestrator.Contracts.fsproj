@@ -22,6 +22,7 @@
     <Compile Include="Responses\ShardResponse.fs" />
     <Compile Include="Responses\ShardInstanceResponse.fs" />
     <Compile Include="Responses\UserResponse.fs" />
+    <Compile Include="Responses\NegotiateResponse.fs" />
     <Compile Include="Messages\ShardInstanceSendScheduleStartMessage.fs" />
     <Compile Include="Messages\ShardInstanceSendScheduleCloseMessage.fs" />
     <Compile Include="Messages\ShardInstanceSendGatewayEventMessage.fs" />

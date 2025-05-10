@@ -11,6 +11,7 @@
     <Compile Include="Shard.fs" />
     <Compile Include="Node.fs" />
     <Compile Include="Program.fs" />
+    <None Include="appsettings.json" CopyToOutputDirectory="Always" />
   </ItemGroup>
 	
   <ItemGroup>
@@ -19,9 +20,11 @@
     <PackageReference Include="Elmish" Version="4.3.0" />
     <PackageReference Include="FSharp.Discord" Version="0.0.37" />
     <PackageReference Include="FsToolkit.ErrorHandling" Version="4.18.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.4" />
   </ItemGroup>
 	
   <ItemGroup>
+    <ProjectReference Include="..\Lattice.Orchestrator.Contracts\Lattice.Orchestrator.Contracts.fsproj" />
     <ProjectReference Include="..\Lattice.Orchestrator.Domain\Lattice.Orchestrator.Domain.fsproj" />
   </ItemGroup>
 

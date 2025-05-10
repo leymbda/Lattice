@@ -23,7 +23,7 @@ HostBuilder()
         !services.ConfigureFunctionsApplicationInsights()
 
         !services.AddSingleton<CosmosClient>(fun _ -> new CosmosClient(ctx.Configuration.GetValue<string>("CosmosDb")))
-        !services.AddSingleton<WebPubSubServiceClient>(fun _ -> new WebPubSubServiceClient(ctx.Configuration.GetValue<string>("WebPubSub"), PoolHandler.HUB_NAME))
+        !services.AddSingleton<WebPubSubServiceClient>(fun _ -> new WebPubSubServiceClient(ctx.Configuration.GetValue<string>("WebPubSubConnectionString"), PoolHandler.HUB_NAME))
         !services.AddDurableTaskClient(fun builder -> !builder.UseGrpc())
 
         !services.AddSingleton<IEnv, Env>()
