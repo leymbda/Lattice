@@ -8,6 +8,7 @@ open System
 type Model = {
     Id: Guid
     Shards: Map<ShardId, Shard.Model>
+    Disconnect: DateTime option option
 }
 
 [<RequireQualifiedAccess>]
@@ -18,7 +19,7 @@ type Msg =
     | OnConnectSuccess
     | OnConnectError of exn
 
-    | Disconnect // TODO: Add optional DateTime to schedule shutdown
+    | Disconnect of DateTime option
     | OnDisconnect
 
     // TODO: Shard instance schedule start/close
@@ -68,17 +69,13 @@ let private shard model id msg =
 
 /// Trigger the given shard to send the event
 let private sendGatewayEvent model id event =
-    match model.Shards |> Map.tryFind id with
-    | None ->
-        model, Cmd.none
-
-    | Some shard ->
-        model, Cmd.ofMsg (Msg.Shard (id, Shard.Msg.SendGatewayEvent event))
+    model, Cmd.ofMsg (Msg.Shard (id, Shard.Msg.SendGatewayEvent event))
 
 let init id =
     {
         Id = id
         Shards = Map.empty
+        Disconnect = None
     },
     Cmd.ofMsg Msg.Connect
 
@@ -96,12 +93,16 @@ let update msg (model: Model) =
 
     | Msg.OnConnectError exn ->
         eprintfn "%A" exn
-        model, Cmd.none
+        model, Cmd.ofMsg (Msg.Disconnect None)
 
-    | Msg.Disconnect ->
-        model, Cmd.OfAsync.perform (disconnect model) () (fun _ -> Msg.OnDisconnect) // TODO: Should this handle potential error too?
-
-        // TODO: This should probably batch trigger Disconnect msg on all shards
+    | Msg.Disconnect shutdownAt ->
+        { model with Disconnect = Some shutdownAt },
+        model.Shards
+        |> Map.toSeq
+        |> Seq.map (fun (id, _) ->
+            Msg.Shard (id, Shard.Msg.Disconnect (Shard.DisconnectType.Requested, shutdownAt)) |> Cmd.ofMsg
+        )
+        |> Cmd.batch
 
     | Msg.OnDisconnect ->
         printfn "Disconnected node %A" model.Id
@@ -122,6 +123,26 @@ let subscribe model =
         )
         |> Sub.batch
 
-    Sub.batch [
-        shards
-    ]
+    let shutdown =
+        match model.Disconnect with
+        | None -> []
+        | Some shutdownAt ->
+            let timespan =
+                shutdownAt
+                |> Option.map (_.Subtract(DateTime.UtcNow))
+                |> Option.defaultValue (TimeSpan.FromSeconds 0)
+
+            let onShutdown dispatch () =
+                // TODO: Disconnect orchestrator websocket once implemented
+                dispatch Msg.OnDisconnect
+
+            [["shutdown"], fun dispatch -> Sub.delay timespan (onShutdown dispatch)]
+
+    List.empty
+    |> List.append shards
+    |> List.append shutdown
+
+let terminate msg =
+    match msg with
+    | Msg.OnDisconnect -> true
+    | _ -> false

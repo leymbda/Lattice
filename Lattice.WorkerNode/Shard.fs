@@ -3,15 +3,17 @@
 open Elmish
 open FSharp.Discord.Gateway
 open Lattice.Orchestrator.Domain
-
-type Model = {
-    Id: ShardId
-}
+open System
 
 type DisconnectType =
     | Requested
     | Unexpected
     | Irrecoverable
+
+type Model = {
+    Id: ShardId
+    Disconnect: (DisconnectType * DateTime option) option
+}
 
 [<RequireQualifiedAccess>]
 type Msg =
@@ -19,7 +21,7 @@ type Msg =
     | OnConnectSuccess
     | OnConnectError of exn
 
-    | Disconnect of type': DisconnectType // TODO: Add optional DateTime to schedule disconnect
+    | Disconnect of type': DisconnectType * shutdownAt: DateTime option
     | OnDisconnect of type': DisconnectType
 
     | SendGatewayEvent of GatewaySendEvent
@@ -33,11 +35,6 @@ let private connect model () = async {
     return () // TODO: Implement
 }
 
-/// Gracefully disconenct from the gateway
-let private disconnect model type' = async {
-    return type' // TODO: Implement
-}
-
 /// Send a gateway event to the gateway
 let private sendGatewayEvent model event = async {
     return () // TODO: Implement
@@ -49,7 +46,11 @@ let private receiveGatewayEvent model event = async {
 }
 
 let init id =
-    { Id = id }, Cmd.ofMsg Msg.Connect
+    {
+        Id = id
+        Disconnect = None
+    },
+    Cmd.ofMsg Msg.Connect
 
 let update msg (model: Model) =
     match msg with
@@ -62,13 +63,13 @@ let update msg (model: Model) =
 
     | Msg.OnConnectError exn ->
         eprintfn "%A" exn
-        model, Cmd.none
+        { model with Disconnect = Some (DisconnectType.Irrecoverable, None) }, Cmd.none
 
-    | Msg.Disconnect type' ->
-        model, Cmd.OfAsync.perform (disconnect model) type' Msg.OnDisconnect
+    | Msg.Disconnect (type', shutdownAt) ->
+        { model with Disconnect = Some (type', shutdownAt) }, Cmd.none
 
     | Msg.OnDisconnect type' ->
-        printfn "Disconnected shard %s from the gateway" (ShardId.toString model.Id)
+        printfn "Disconnected shard %s from the gateway due to %A" (ShardId.toString model.Id) type'
         model, Cmd.none
 
     | Msg.SendGatewayEvent event ->
@@ -86,4 +87,20 @@ let update msg (model: Model) =
         model, Cmd.none
 
 let subscribe model =
-    []
+    let shutdown =
+        match model.Disconnect with
+        | None -> []
+        | Some (type', shutdownAt) ->
+            let timespan =
+                shutdownAt
+                |> Option.map (_.Subtract(DateTime.UtcNow))
+                |> Option.defaultValue (TimeSpan.FromSeconds 0)
+
+            let onShutdown dispatch () =
+                // TODO: Disconnect gateway client once implemented
+                dispatch (Msg.OnDisconnect type')
+
+            [["shutdown"], fun dispatch -> Sub.delay timespan (onShutdown dispatch)]
+
+    List.empty
+    |> List.append shutdown
