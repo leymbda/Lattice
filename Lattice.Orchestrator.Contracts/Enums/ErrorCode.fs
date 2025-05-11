@@ -17,7 +17,7 @@ module ErrorCode =
         | ErrorCode.INTERNAL_SERVER_ERROR -> "Internal server error"
         | ErrorCode.MALFORMED_REQUEST_BODY -> "Malformed request body"
         | ErrorCode.FORBIDDEN -> "You are not authorized to access this resource"
-        | ErrorCode.APP_NOT_FOUND -> "Appl not found"
+        | ErrorCode.APP_NOT_FOUND -> "App not found"
         | ErrorCode.APP_NOT_ACTIVATED -> "App not activated"
         | ErrorCode.NODE_NOT_FOUND -> "Node not found"
         | ErrorCode.TEAM_NOT_FOUND -> "Team not found"

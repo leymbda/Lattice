@@ -147,6 +147,8 @@ let subscribe model =
 
         | _ -> []
 
+    // TODO: How do detect if client disconnects unexpectedly e.g. network failure/web pubsub offline?
+
     List.empty
     |> List.append shards
     |> List.append shutdown

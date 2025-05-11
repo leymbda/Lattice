@@ -21,65 +21,79 @@ module CosmosClient =
         | Application -> cosmosClient.GetContainer(COSMOS_DATABASE_NAME, APP_CONTAINER_NAME)
         | TeamCache -> cosmosClient.GetContainer(COSMOS_DATABASE_NAME, TEAM_CACHE_CONTAINER_NAME)
 
-let setUser (cosmosClient: CosmosClient) (user: Lattice.Orchestrator.Domain.User) =
+let setUser (cosmosClient: CosmosClient) (user: Lattice.Orchestrator.Domain.User) = task {
     try
-        cosmosClient
-        |> CosmosClient.getContainer User
-        |> _.UpsertItemAsync<UserModel>(UserModel.fromDomain user, PartitionKey user.Id)
-        |> Task.map (fun res -> res.Resource |> UserModel.toDomain |> Ok)
+        return!
+            cosmosClient
+            |> CosmosClient.getContainer User
+            |> _.UpsertItemAsync<UserModel>(UserModel.fromDomain user, PartitionKey user.Id)
+            |> Task.map (fun res -> res.Resource |> UserModel.toDomain |> Ok)
     with | _ ->
-        Task.FromResult <| Error ()
+        return Error ()
+}
 
-let getApp (cosmosClient: CosmosClient) appId =
+let getApp (cosmosClient: CosmosClient) appId = task {
     try
-        cosmosClient
-        |> CosmosClient.getContainer Application
-        |> _.ReadItemAsync<AppModel>(appId, PartitionKey appId)
-        |> Task.map (fun res -> res.Resource |> AppModel.toDomain |> Ok)
+        return!
+            cosmosClient
+            |> CosmosClient.getContainer Application
+            |> _.ReadItemAsync<AppModel>(appId, PartitionKey appId)
+            |> Task.map (fun res -> res.Resource |> AppModel.toDomain |> Ok)
     with | _ ->
-        Task.FromResult <| Error ()
+        return Error ()
+}
 
-let setApp (cosmosClient: CosmosClient) app =
+let setApp (cosmosClient: CosmosClient) app = task {
     try
-        cosmosClient
-        |> CosmosClient.getContainer Application
-        |> _.UpsertItemAsync<AppModel>(AppModel.fromDomain app, PartitionKey app.Id)
-        |> Task.map (fun res -> res.Resource |> AppModel.toDomain |> Ok)
+        return!
+            cosmosClient
+            |> CosmosClient.getContainer Application
+            |> _.UpsertItemAsync<AppModel>(AppModel.fromDomain app, PartitionKey app.Id)
+            |> Task.map (fun res -> res.Resource |> AppModel.toDomain |> Ok)
     with | _ ->
-        Task.FromResult <| Error ()
+        return Error ()
+}
 
-let removeApp (cosmosClient: CosmosClient) id =
+let removeApp (cosmosClient: CosmosClient) id = task {
     try
-        cosmosClient
-        |> CosmosClient.getContainer Application
-        |> _.DeleteItemAsync<AppModel>(id, PartitionKey id)
-        |> Task.map (fun _ -> Ok ())
+        return!
+            cosmosClient
+            |> CosmosClient.getContainer Application
+            |> _.DeleteItemAsync<AppModel>(id, PartitionKey id)
+            |> Task.map (fun _ -> Ok ())
     with | _ ->
-        Task.FromResult <| Error ()
+        return Error ()
+}
 
-let getTeam (cosmosClient: CosmosClient) appId =
+let getTeam (cosmosClient: CosmosClient) appId = task {
     try
-        cosmosClient
-        |> CosmosClient.getContainer TeamCache
-        |> _.ReadItemAsync<TeamCacheModel>(appId, PartitionKey appId)
-        |> Task.map (fun res -> res.Resource |> TeamCacheModel.toDomain |> Ok)
+        return!
+            cosmosClient
+            |> CosmosClient.getContainer TeamCache
+            |> _.ReadItemAsync<TeamCacheModel>(appId, PartitionKey appId)
+            |> Task.map (fun res -> res.Resource |> TeamCacheModel.toDomain |> Ok)
     with | _ ->
-        Task.FromResult <| Error ()
+        return Error ()
+}
 
-let setTeam (cosmosClient: CosmosClient) (team: Team) =
+let setTeam (cosmosClient: CosmosClient) (team: Team) = task {
     try
-        cosmosClient
-        |> CosmosClient.getContainer TeamCache
-        |> _.UpsertItemAsync<TeamCacheModel>(TeamCacheModel.fromDomain team, PartitionKey team.AppId)
-        |> Task.map (fun res -> res.Resource |> TeamCacheModel.toDomain |> Ok)
+        return!
+            cosmosClient
+            |> CosmosClient.getContainer TeamCache
+            |> _.UpsertItemAsync<TeamCacheModel>(TeamCacheModel.fromDomain team, PartitionKey team.AppId)
+            |> Task.map (fun res -> res.Resource |> TeamCacheModel.toDomain |> Ok)
     with | _ ->
-        Task.FromResult <| Error ()
+        return Error ()
+}
 
-let removeTeam (cosmosClient: CosmosClient) appId =
+let removeTeam (cosmosClient: CosmosClient) appId = task {
     try
-        cosmosClient
-        |> CosmosClient.getContainer TeamCache
-        |> _.DeleteItemAsync<TeamCacheModel>(appId, PartitionKey appId)
-        |> Task.map (fun _ -> Ok ())
+        return!
+            cosmosClient
+            |> CosmosClient.getContainer TeamCache
+            |> _.DeleteItemAsync<TeamCacheModel>(appId, PartitionKey appId)
+            |> Task.map (fun _ -> Ok ())
     with | _ ->
-        Task.FromResult <| Error ()
+        return Error ()
+}
