@@ -1,6 +1,7 @@
-﻿module Lattice.Orchestrator.Infrastructure.Pool.PoolHandler
+﻿namespace Lattice.Orchestrator.Infrastructure.Pool
 
 open FsToolkit.ErrorHandling
+open Lattice.Orchestrator.Application
 open Lattice.Orchestrator.Contracts
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Azure.Functions.Worker.Http
@@ -8,84 +9,96 @@ open System
 open System.Net
 open Thoth.Json.Net
 
-let [<Literal>] HUB_NAME = "latticehub"
+module PoolHandler =
+    let [<Literal>] HUB_NAME = "latticehub"
 
-[<Function "OnShardIrrecoverable">]
-let onShardIrrecoverable (
-    [<WebPubSubTrigger(HUB_NAME, WebPubSubEventType.User, "shardIrrecoverable")>] req: UserEventRequest
-) =
-    let message =
-        req.Data.ToString()
-        |> Decode.fromString ShardReceiveIrrecoverableClosureMessage.decoder
-        |> Result.map (fun v -> { v with NodeId = Guid req.ConnectionContext.UserId })
-        |> Result.defaultWith (failwith $"Invalid {nameof ShardReceiveIrrecoverableClosureMessage} received")
+type PoolHandler(env: IEnv) =
+    [<Function "OnShardIrrecoverable">]
+    member _.OnShardIrrecoverable (
+        [<WebPubSubTrigger(PoolHandler.HUB_NAME, WebPubSubEventType.User, "shardIrrecoverable")>] request: UserEventRequest
+    ) =
+        asyncResult {
+            let! message =
+                request.Data.ToString()
+                |> Decode.fromString ShardReceiveIrrecoverableClosureMessage.decoder
+                |> Result.map (fun v -> { v with NodeId = Guid request.ConnectionContext.UserId })
 
-    raise (NotImplementedException()) // TODO: Call use case
-    ()
-
-[<Function "OnHeartbeat">]
-let onHeartbeat (
-    [<WebPubSubTrigger(HUB_NAME, WebPubSubEventType.User, "heartbeat")>] req: UserEventRequest
-) =
-    let message =
-        req.Data.ToString()
-        |> Decode.fromString NodeReceiveHeartbeatMessage.decoder
-        |> Result.map (fun v -> { v with NodeId = Guid req.ConnectionContext.UserId })
-        |> Result.defaultWith (failwith $"Invalid {nameof NodeReceiveHeartbeatMessage} received")
-
-    raise (NotImplementedException()) // TODO: Call use case
-    ()
-
-[<Function "OnShutdownScheduled">]
-let onShutdownScheduled (
-    [<WebPubSubTrigger(HUB_NAME, WebPubSubEventType.User, "shutdownScheduled")>] req: UserEventRequest
-) =
-    let message =
-        req.Data.ToString()
-        |> Decode.fromString NodeReceiveScheduleShutdownMessage.decoder
-        |> Result.map (fun v -> { v with NodeId = Guid req.ConnectionContext.UserId })
-        |> Result.defaultWith (failwith $"Invalid {nameof NodeReceiveScheduleShutdownMessage} received")
-
-    raise (NotImplementedException()) // TODO: Call use case
-    ()
-    
-[<Function "OnConnected">]
-let onConnected (
-    [<WebPubSubTrigger(HUB_NAME, WebPubSubEventType.System, "connected")>] req: ConnectedEventRequest
-) =
-    let message =
-        {
-            NodeId = Guid req.ConnectionContext.UserId
-            ConnectedAt = DateTime.UtcNow
+            return ()
         }
+        |> AsyncResult.defaultWith (fun _ -> failwith $"Failed to handle OnShardIrrecoverable event")
+        |> Async.StartAsTask
 
-    raise (NotImplementedException()) // TODO: Call use case
-    ()
-    
-[<Function "OnDisconnected">]
-let onDisconnected (
-    [<WebPubSubTrigger(HUB_NAME, WebPubSubEventType.System, "disconnected")>] req: DisconnectedEventRequest
-) =
-    let message =
-        {
-            NodeId = Guid req.ConnectionContext.UserId
-            DisconnectedAt = DateTime.UtcNow
+    [<Function "OnHeartbeat">]
+    member _.OnHeartbeat (
+        [<WebPubSubTrigger(PoolHandler.HUB_NAME, WebPubSubEventType.User, "heartbeat")>] request: UserEventRequest
+    ) =
+        asyncResult {
+            let! message =
+                request.Data.ToString()
+                |> Decode.fromString NodeReceiveHeartbeatMessage.decoder
+                |> Result.map (fun v -> { v with NodeId = Guid request.ConnectionContext.UserId })
+
+            return ()
         }
+        |> AsyncResult.defaultWith failwith
+        |> Async.StartAsTask
 
-    raise (NotImplementedException()) // TODO: Call use case
-    ()
+    [<Function "OnShutdownScheduled">]
+    member _.OnShutdownScheduled (
+        [<WebPubSubTrigger(PoolHandler.HUB_NAME, WebPubSubEventType.User, "shutdownScheduled")>] request: UserEventRequest
+    ) =
+        asyncResult {
+            let! message =
+                request.Data.ToString()
+                |> Decode.fromString NodeReceiveScheduleShutdownMessage.decoder
+                |> Result.map (fun v -> { v with NodeId = Guid request.ConnectionContext.UserId })
+
+            return ()
+        }
+        |> AsyncResult.defaultWith failwith
+        |> Async.StartAsTask
     
-[<Function "Negotiate">]
-let negotiate (
-    [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "negotiate")>] req: HttpRequestData,
-    [<WebPubSubConnectionInput(Hub = HUB_NAME)>] connectionInfo: WebPubSubConnection
-) = task {
-    // TODO: Handle worker authentication
-    // TODO: Should this trigger be in this project or orchestrator?
+    [<Function "OnConnected">]
+    member _.OnConnected (
+        [<WebPubSubTrigger(PoolHandler.HUB_NAME, WebPubSubEventType.System, "connected")>] request: ConnectedEventRequest
+    ) =
+        asyncResult {
+            let message = {
+                NodeId = Guid request.ConnectionContext.UserId
+                ConnectedAt = DateTime.UtcNow
+            }
 
-    let res = req.CreateResponse HttpStatusCode.OK
-    do! res.WriteAsJsonAsync connectionInfo
-    return res
-}
+            return ()
+        }
+        |> AsyncResult.defaultWith failwith
+        |> Async.StartAsTask
+    
+    [<Function "OnDisconnected">]
+    member _.OnDisconnected (
+        [<WebPubSubTrigger(PoolHandler.HUB_NAME, WebPubSubEventType.System, "disconnected")>] request: DisconnectedEventRequest
+    ) =
+        asyncResult {
+            let message = {
+                NodeId = Guid request.ConnectionContext.UserId
+                DisconnectedAt = DateTime.UtcNow
+            }
 
-// TODO: Pubsub events should be defined in the contracts project to be built and sent from the worker node
+            return ()
+        }
+        |> AsyncResult.defaultWith failwith
+        |> Async.StartAsTask
+    
+    [<Function "Negotiate">]
+    member _.Negotiate (
+        [<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "negotiate")>] request: HttpRequestData,
+        [<WebPubSubConnectionInput(Hub = PoolHandler.HUB_NAME, UserId = "{query.userId}")>] connectionInfo: WebPubSubConnection
+    ) = task {
+        // TODO: Handle worker authentication
+        // TODO: Should this trigger be in this project or orchestrator?
+
+        let res = request.CreateResponse HttpStatusCode.OK
+        do! res.WriteAsJsonAsync connectionInfo
+        return res
+    }
+
+    // TODO: Pubsub events should be defined in the contracts project to be built and sent from the worker node

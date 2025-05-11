@@ -3,13 +3,17 @@
 open Azure.Messaging.WebPubSub.Clients
 open Elmish
 open FSharp.Discord.Gateway
+open FsToolkit.ErrorHandling
+open Lattice.Orchestrator.Contracts
 open Lattice.Orchestrator.Domain
 open System
+open System.Net.Http
 open System.Threading.Tasks
+open Thoth.Json.Net
 
 type Model = {
     Id: Guid
-    Uri: Uri
+    NegotiateUri: Uri
     Client: WebPubSubClient option
     Shards: Map<ShardId, Shard.Model>
     Disconnect: DateTime option option
@@ -35,11 +39,20 @@ type Msg =
     | SendGatewayEvent of ShardId * GatewaySendEvent
 
 /// Initiate connection to the orchestrator gateway
-let private connect model () = async {
-    let client = new WebPubSubClient(model.Uri)
-    do! client.StartAsync() |> Async.AwaitTask
-    return client
-}
+let private connect model () =
+    asyncResult {
+        // Get ws url from orchestrator
+        use client = new HttpClient()
+        let! res = client.PostAsync(model.NegotiateUri, null) |> Async.AwaitTask
+        let! content = res.Content.ReadAsStringAsync() |> Async.AwaitTask
+        let! negotiate = Decode.fromString NegotiateResponse.decoder content
+
+        // Create and start web pubsub client
+        let client = new WebPubSubClient(Uri negotiate.Url)
+        do! client.StartAsync() |> Async.AwaitTask
+        return client
+    }
+    |> AsyncResult.defaultWith failwith
 
 /// Handle elevated child cmd for shards
 let private shard model id msg =
@@ -66,14 +79,10 @@ let private shard model id msg =
         { model with Shards = shards },
         Cmd.map (fun msg -> Msg.Shard (id, msg)) cmd
 
-/// Trigger the given shard to send the event
-let private sendGatewayEvent model id event =
-    model, Cmd.ofMsg (Msg.Shard (id, Shard.Msg.SendGatewayEvent event))
-
-let init (id, uri) =
+let init (id, negotiateUri) =
     {
         Id = id
-        Uri = uri
+        NegotiateUri = negotiateUri
         Client = None
         Shards = Map.empty
         Disconnect = None
@@ -110,7 +119,7 @@ let update msg (model: Model) =
         { model with Client = None }, Cmd.none
 
     | Msg.SendGatewayEvent (id, event) ->
-        sendGatewayEvent model id event
+        model, Cmd.ofMsg (Msg.Shard (id, Shard.Msg.SendGatewayEvent event))
 
 let subscribe model =
     let shards =
