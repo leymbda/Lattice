@@ -16,27 +16,29 @@ type Model = {
     NegotiateUri: Uri
     Client: WebPubSubClient option
     Shards: Map<ShardId, Shard.Model>
-    Disconnect: DateTime option option
+    SendNextHeartbeatAt: DateTime option
+    DisconnectRequestedFor: DateTime option
+    ConnectedAt: DateTime option
+    DisconnectedAt: DateTime option
 }
-
-// TODO: Should this be a DU to handle different states a node can be in?
 
 [<RequireQualifiedAccess>]
 type Msg =
     | Shard of ShardId * Shard.Msg
 
-    | Connect
-    | OnConnectSuccess of WebPubSubClient
+    | Connect of negotiateUri: Uri
+    | OnConnectSuccess of client: WebPubSubClient * connectedAt: DateTime
     | OnConnectError of exn
 
-    | Disconnect of DateTime option
+    | ScheduleDisconnect of DateTime option
+    | Disconnect
     | OnDisconnect
 
     // TODO: Shard instance schedule start/close
-    // TODO: Shard irrecoverable closure bubble up (how? subscription maybe?)
-    // TODO: Node heartbeat
 
     | SendGatewayEvent of ShardId * GatewaySendEvent
+    | ShardIrrecoverableClosure of ShardId
+    | Heartbeat
 
 /// Initiate connection to the orchestrator gateway
 let private connect model () =
@@ -54,59 +56,52 @@ let private connect model () =
     }
     |> AsyncResult.defaultWith failwith
 
-/// Handle elevated child cmd for shards
-let private shard model id msg =
-    match model.Shards |> Map.tryFind id with
-    | None ->
-        model, Cmd.none
-
-    | Some shard ->
-        let res, cmd = Shard.update msg shard
-
-        let shards =
-            match msg with
-            | Shard.Msg.OnDisconnect Shard.DisconnectType.Requested ->
-                model.Shards |> Map.remove id
-
-            | Shard.Msg.OnDisconnect Shard.DisconnectType.Irrecoverable ->
-                model.Shards |> Map.remove id
-
-                // TODO: Notify orchestrator of irrecoverable closure (new cmd msg)
-
-            | _ ->
-                model.Shards |> Map.add id res
-
-        { model with Shards = shards },
-        Cmd.map (fun msg -> Msg.Shard (id, msg)) cmd
-
 let init (id, negotiateUri) =
     {
         Id = id
         NegotiateUri = negotiateUri
         Client = None
         Shards = Map.empty
-        Disconnect = None
+        SendNextHeartbeatAt = None
+        DisconnectRequestedFor = None
+        ConnectedAt = None
+        DisconnectedAt = None
     },
     Cmd.ofMsg Msg.Connect
 
 let update msg (model: Model) =
     match msg with
-    | Msg.Shard (id, msg) ->
-        shard model id msg
+    | Msg.Connect negotiateUri ->
+        let connect (negotiateUri: Uri) =
+            asyncResult {
+                use client = new HttpClient()
+                let! res = client.PostAsync(negotiateUri, null) |> Async.AwaitTask
+                let! content = res.Content.ReadAsStringAsync() |> Async.AwaitTask
+                let! negotiate = Decode.fromString NegotiateResponse.decoder content
 
-    | Msg.Connect ->
-        model, Cmd.OfAsync.either (connect model) () Msg.OnConnectSuccess Msg.OnConnectError
+                let client = new WebPubSubClient(Uri negotiate.Url)
+                do! client.StartAsync()
 
-    | Msg.OnConnectSuccess client ->
+                return client, DateTime.UtcNow
+            }
+            |> AsyncResult.defaultWith failwith
+
+        model, Cmd.OfAsync.either connect negotiateUri Msg.OnConnectSuccess Msg.OnConnectError
+
+    | Msg.OnConnectSuccess (client, connectedAt) ->
         printfn "Successfully connected node %A" model.Id
-        { model with Client = Some client }, Cmd.none
+        { model with
+            Client = Some client
+            SendNextHeartbeatAt = Some DateTime.UtcNow
+            ConnectedAt = Some connectedAt },
+        Cmd.none
 
     | Msg.OnConnectError exn ->
         eprintfn "%A" exn
-        model, Cmd.ofMsg (Msg.Disconnect None)
+        model, Cmd.ofMsg Msg.OnDisconnect
 
-    | Msg.Disconnect shutdownAt ->
-        { model with Disconnect = Some shutdownAt },
+    | Msg.ScheduleDisconnect shutdownAt ->
+        { model with DisconnectRequestedFor = Some (Option.defaultValue DateTime.UtcNow shutdownAt) },
         model.Shards
         |> Map.toSeq
         |> Seq.map (fun (id, _) ->
@@ -114,9 +109,57 @@ let update msg (model: Model) =
         )
         |> Cmd.batch
 
+    | Msg.Disconnect ->
+        let disconnect () =
+            asyncResult {
+                let! client = model.Client |> Result.requireSome ()
+                do! client.StopAsync()
+            }
+            |> AsyncResult.ignoreError
+
+        model, Cmd.OfAsync.perform disconnect () (fun _ -> Msg.OnDisconnect)
+
     | Msg.OnDisconnect ->
         printfn "Disconnected node %A" model.Id
-        { model with Client = None }, Cmd.none
+        { model with
+            Client = None
+            Shards = Map.empty
+            DisconnectRequestedFor = None
+            DisconnectedAt = Some DateTime.UtcNow },
+        Cmd.none
+        
+    | Msg.Shard (id, msg) ->
+        match model.Shards |> Map.tryFind id with
+        | None ->
+            eprintfn "Attempted shard operation on non-existed shard %s" (ShardId.toString id)
+            model, Cmd.none
+
+        | Some shard ->
+            let res, cmd = Shard.update msg shard
+
+            match msg with
+            | Shard.Msg.OnDisconnect Shard.DisconnectType.Requested ->
+                { model with Shards = model.Shards |> Map.remove id },
+                Cmd.map (fun msg -> Msg.Shard (id, msg)) cmd
+
+            | Shard.Msg.OnDisconnect Shard.DisconnectType.Irrecoverable ->
+                { model with Shards = model.Shards |> Map.remove id },
+                Cmd.batch [
+                    Cmd.map (fun msg -> Msg.Shard (id, msg)) cmd
+                    Cmd.ofMsg (Msg.ShardIrrecoverableClosure id)
+                ]
+
+            | _ ->
+                { model with Shards = model.Shards |> Map.add id res },
+                Cmd.map (fun msg -> Msg.Shard (id, msg)) cmd
+
+    | Msg.ShardIrrecoverableClosure id ->
+        // TODO: Notify orchestrator of irrecoverable closure
+        model, Cmd.none
+
+    | Msg.Heartbeat ->
+        // TODO: Notify orchestrator of currently connected shard IDs
+        { model with SendNextHeartbeatAt = Some (DateTime.UtcNow.AddSeconds 30) }, Cmd.none // TODO: How long should this wait before next?
 
     | Msg.SendGatewayEvent (id, event) ->
         model, Cmd.ofMsg (Msg.Shard (id, Shard.Msg.SendGatewayEvent event))
@@ -134,33 +177,34 @@ let subscribe model =
         |> Sub.batch
 
     let shutdown =
-        match model.Disconnect with
+        match model.DisconnectRequestedFor with
+        | None -> []
         | Some shutdownAt ->
-            let timespan =
-                shutdownAt
-                |> Option.map (_.Subtract(DateTime.UtcNow))
-                |> Option.defaultValue (TimeSpan.FromSeconds 0)
+            [["shutdown"], fun dispatch -> Sub.delay (shutdownAt.Subtract DateTime.UtcNow) (fun _ -> dispatch Msg.Disconnect)]
 
-            let onShutdown dispatch () =
-                model.Client
-                |> Option.map (_.StopAsync())
-                |> Option.defaultValue Task.CompletedTask
-                |> Async.AwaitTask
-                |> Async.RunSynchronously
-                
-                // TODO: Make this an async function itself
+    let disconnect =
+        match model.Client with
+        | None -> []
+        | Some client ->
+            let sub dispatch =
+                let handler _ = dispatch Msg.OnDisconnect |> Task.FromResult :> Task
+                client.add_Disconnected handler
+                { new IDisposable with member _.Dispose () = client.remove_Disconnected handler }
 
-                dispatch Msg.OnDisconnect
+            [["disconnect"], sub]
 
-            [["shutdown"], fun dispatch -> Sub.delay timespan (onShutdown dispatch)]
+    let heartbeat =
+        match model.SendNextHeartbeatAt with
+        | None -> []
+        | Some sendAt ->
+            [["heartbeat"; sendAt.ToString()], fun dispatch -> Sub.delay (sendAt.Subtract DateTime.UtcNow) (fun _ -> dispatch Msg.Heartbeat)]
 
-        | _ -> []
-
-    // TODO: How do detect if client disconnects unexpectedly e.g. network failure/web pubsub offline?
-
-    List.empty
-    |> List.append shards
-    |> List.append shutdown
+    Sub.batch [
+        shards
+        shutdown
+        disconnect
+        heartbeat
+    ]
 
 let terminate msg =
     match msg with
