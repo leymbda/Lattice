@@ -34,27 +34,11 @@ type Msg =
     | Disconnect
     | OnDisconnect
 
-    // TODO: Shard instance schedule start/close
-
     | SendGatewayEvent of ShardId * GatewaySendEvent
     | ShardIrrecoverableClosure of ShardId
+    | ShardScheduleStart of id: ShardId * startAt: DateTime
+    | ShardScheduleClose of id: ShardId * shutdownAt: DateTime
     | Heartbeat
-
-/// Initiate connection to the orchestrator gateway
-let private connect model () =
-    asyncResult {
-        // Get ws url from orchestrator
-        use client = new HttpClient()
-        let! res = client.PostAsync(model.NegotiateUri, null) |> Async.AwaitTask
-        let! content = res.Content.ReadAsStringAsync() |> Async.AwaitTask
-        let! negotiate = Decode.fromString NegotiateResponse.decoder content
-
-        // Create and start web pubsub client
-        let client = new WebPubSubClient(Uri negotiate.Url)
-        do! client.StartAsync() |> Async.AwaitTask
-        return client
-    }
-    |> AsyncResult.defaultWith failwith
 
 let init (id, negotiateUri) =
     {
@@ -67,7 +51,7 @@ let init (id, negotiateUri) =
         ConnectedAt = None
         DisconnectedAt = None
     },
-    Cmd.ofMsg Msg.Connect
+    Cmd.ofMsg (Msg.Connect negotiateUri)
 
 let update msg (model: Model) =
     match msg with
@@ -101,12 +85,12 @@ let update msg (model: Model) =
         model, Cmd.ofMsg Msg.OnDisconnect
 
     | Msg.ScheduleDisconnect shutdownAt ->
-        { model with DisconnectRequestedFor = Some (Option.defaultValue DateTime.UtcNow shutdownAt) },
+        let shutdownAt = Option.defaultValue DateTime.UtcNow shutdownAt
+
+        { model with DisconnectRequestedFor = Some shutdownAt },
         model.Shards
         |> Map.toSeq
-        |> Seq.map (fun (id, _) ->
-            Msg.Shard (id, Shard.Msg.Disconnect (Shard.DisconnectType.Requested, shutdownAt)) |> Cmd.ofMsg
-        )
+        |> Seq.map (fun (id, _) -> Msg.Shard (id, Shard.Msg.ScheduleDisconnect (Shard.DisconnectType.Requested, shutdownAt)) |> Cmd.ofMsg)
         |> Cmd.batch
 
     | Msg.Disconnect ->
@@ -156,6 +140,15 @@ let update msg (model: Model) =
     | Msg.ShardIrrecoverableClosure id ->
         // TODO: Notify orchestrator of irrecoverable closure
         model, Cmd.none
+        
+    | Msg.ShardScheduleStart (id, startAt) ->
+        let res, cmd = Shard.init id startAt
+
+        { model with Shards = model.Shards |> Map.add id res },
+        Cmd.map (fun msg -> Msg.Shard (id, msg)) cmd
+        
+    | Msg.ShardScheduleClose (id, shutdownAt) ->
+        model, Cmd.map (fun msg -> Msg.Shard (id, msg)) (Cmd.ofMsg (Shard.Msg.ScheduleDisconnect (Shard.DisconnectType.Requested, shutdownAt)))
 
     | Msg.Heartbeat ->
         // TODO: Notify orchestrator of currently connected shard IDs
@@ -187,7 +180,9 @@ let subscribe model =
         | None -> []
         | Some client ->
             let sub dispatch =
-                let handler _ = dispatch Msg.OnDisconnect |> Task.FromResult :> Task
+                let handler _ =
+                    dispatch Msg.OnDisconnect |> Task.FromResult :> Task
+
                 client.add_Disconnected handler
                 { new IDisposable with member _.Dispose () = client.remove_Disconnected handler }
 
@@ -198,12 +193,27 @@ let subscribe model =
         | None -> []
         | Some sendAt ->
             [["heartbeat"; sendAt.ToString()], fun dispatch -> Sub.delay (sendAt.Subtract DateTime.UtcNow) (fun _ -> dispatch Msg.Heartbeat)]
+            
+    let serverEvent =
+        match model.Client with
+        | None -> []
+        | Some client ->
+            let sub dispatch =
+                let handler (args: WebPubSubServerMessageEventArgs) = // TODO: Is ServerMessageReceived the correct type for these?
+                    // TODO: Read payload and dispatch appropriate message
+                    () |> Task.FromResult :> Task
+
+                client.add_ServerMessageReceived handler
+                { new IDisposable with member _.Dispose () = client.remove_ServerMessageReceived handler }
+
+            [["disconnect"], sub]
 
     Sub.batch [
         shards
         shutdown
         disconnect
         heartbeat
+        serverEvent
     ]
 
 let terminate msg =

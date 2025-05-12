@@ -2,6 +2,7 @@
 
 open Elmish
 open FSharp.Discord.Gateway
+open FsToolkit.ErrorHandling
 open Lattice.Orchestrator.Domain
 open System
 
@@ -12,7 +13,12 @@ type DisconnectType =
 
 type Model = {
     Id: ShardId
-    Disconnect: (DisconnectType * DateTime option) option
+    // TODO: Add client and handle its behaviour
+    DisabledUntil: DateTime
+    DisconnectRequestedFor: DateTime option
+    DisconnectType: DisconnectType option
+    ConnectedAt: DateTime option
+    DisconnectedAt: DateTime option
 }
 
 [<RequireQualifiedAccess>]
@@ -21,86 +27,87 @@ type Msg =
     | OnConnectSuccess
     | OnConnectError of exn
 
-    | Disconnect of type': DisconnectType * shutdownAt: DateTime option
+    | ScheduleDisconnect of type': DisconnectType * shutdownAt: DateTime
+    | Disconnect of type': DisconnectType
     | OnDisconnect of type': DisconnectType
 
     | SendGatewayEvent of GatewaySendEvent
     | OnSendGatewayEventError of exn
 
-    | ReceiveGatewayEvent of GatewayReceiveEvent
-    | OnReceiveGatewayEventError of exn
-
-/// Initiate connection to the gateway
-let private connect model () = async {
-    return () // TODO: Implement
-}
-
-/// Send a gateway event to the gateway
-let private sendGatewayEvent model event = async {
-    return () // TODO: Implement
-}
-
-/// Handle received gateway event by sending to orchestrated handler
-let private receiveGatewayEvent model event = async {
-    return () // TODO: Implement
-}
-
-let init id =
+let init id disabledUntil =
     {
         Id = id
-        Disconnect = None
+        DisabledUntil = disabledUntil
+        DisconnectRequestedFor = None
+        DisconnectType = None
+        ConnectedAt = None
+        DisconnectedAt = None
     },
     Cmd.ofMsg Msg.Connect
 
 let update msg (model: Model) =
     match msg with
     | Msg.Connect ->
-        model, Cmd.OfAsync.either (connect model) () (fun _ -> Msg.OnConnectSuccess) Msg.OnConnectError
+        let connect () =
+            asyncResult {
+                return () // TODO: Implement
+            }
+            |> AsyncResult.defaultWith failwith
+
+        model, Cmd.OfAsync.either connect () (fun _ -> Msg.OnConnectSuccess) Msg.OnConnectError
 
     | Msg.OnConnectSuccess ->
         printfn "Successfully connected shard %s to the gateway" (ShardId.toString model.Id)
-        model, Cmd.none
+        { model with ConnectedAt = Some DateTime.UtcNow }, Cmd.none
 
     | Msg.OnConnectError exn ->
         eprintfn "%A" exn
-        { model with Disconnect = Some (DisconnectType.Irrecoverable, None) }, Cmd.none
+        model, Cmd.ofMsg (Msg.Disconnect DisconnectType.Irrecoverable)
 
-    | Msg.Disconnect (type', shutdownAt) ->
-        { model with Disconnect = Some (type', shutdownAt) }, Cmd.none
+    | Msg.ScheduleDisconnect (type', shutdownAt) ->
+        { model with
+            DisconnectRequestedFor = Some shutdownAt
+            DisconnectType = Some type' },
+        Cmd.none
+
+    | Msg.Disconnect type' ->
+        let disconnect () =
+            asyncResult {
+                return () // TODO: Implement
+            }
+            |> AsyncResult.ignoreError
+
+        { model with DisconnectType = Some type' },
+        Cmd.OfAsync.perform disconnect () (fun _ -> Msg.OnDisconnect type')
 
     | Msg.OnDisconnect type' ->
+        // TODO: Attempt reconnect if type allows
+
         printfn "Disconnected shard %s from the gateway due to %A" (ShardId.toString model.Id) type'
-        model, Cmd.none
+        { model with DisconnectedAt = Some DateTime.UtcNow }, Cmd.none
 
     | Msg.SendGatewayEvent event ->
-        model, Cmd.OfAsync.attempt (sendGatewayEvent model) event Msg.OnSendGatewayEventError
+        let sendGatewayEvent (event: GatewaySendEvent) =
+            asyncResult {
+                return () // TODO: Implement
+            }
+            |> AsyncResult.defaultWith failwith
+
+        model, Cmd.OfAsync.attempt sendGatewayEvent event Msg.OnSendGatewayEventError
 
     | Msg.OnSendGatewayEventError exn ->
         eprintfn "%A" exn
         model, Cmd.none
 
-    | Msg.ReceiveGatewayEvent event ->
-        model, Cmd.OfAsync.attempt (receiveGatewayEvent model) event Msg.OnReceiveGatewayEventError
-        
-    | Msg.OnReceiveGatewayEventError exn ->
-        eprintfn "%A" exn
-        model, Cmd.none
-
 let subscribe model =
     let shutdown =
-        match model.Disconnect with
+        match model.DisconnectRequestedFor with
         | None -> []
-        | Some (type', shutdownAt) ->
-            let timespan =
-                shutdownAt
-                |> Option.map (_.Subtract(DateTime.UtcNow))
-                |> Option.defaultValue (TimeSpan.FromSeconds 0)
+        | Some shutdownAt ->
+            [["shutdown"], fun dispatch -> Sub.delay (shutdownAt.Subtract DateTime.UtcNow) (fun _ -> dispatch (Msg.Disconnect DisconnectType.Requested))]
 
-            let onShutdown dispatch () =
-                // TODO: Disconnect gateway client once implemented
-                dispatch (Msg.OnDisconnect type')
+    // TODO: Subscribe to if/when the ws itself dies
 
-            [["shutdown"], fun dispatch -> Sub.delay timespan (onShutdown dispatch)]
-
-    List.empty
-    |> List.append shutdown
+    Sub.batch [
+        shutdown
+    ]
