@@ -1,0 +1,70 @@
+name: Deploy
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  workflow_dispatch:
+
+env:
+  REGION: eastus2
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      BOT_TOKEN_ENCRYPTION_KEY: ${{ secrets.BOT_TOKEN_ENCRYPTION_KEY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET environment
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Test API project
+        run: |
+          dotnet test --configuration Release
+
+      - name: Log into Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ env.AZURE_CREDENTIALS }}
+
+      - name: Build infrastructure with Bicep
+        id: bicep
+        uses: azure/arm-deploy@v1
+        with:
+          scope: "resourceGroup"
+          resourceGroupName: ${{ env.RESOURCE_GROUP_NAME }}
+          template: .bicep/main.bicep
+          parameters: "location=${{ env.REGION }} clientId=${{ env.CLIENT_ID }} clientSecret=${{ env.CLIENT_SECRET }} botTokenEncryptionKey=${{ env.BOT_TOKEN_ENCRYPTION_KEY }}"
+          failOnStdErr: false
+          region: ${{ env.REGION }}
+
+      - name: Get subscription ID
+        id: get-subscription-id
+        run: |
+          SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+          echo "::add-mask::$SUBSCRIPTION_ID"
+          echo "SUBSCRIPTION_ID=$SUBSCRIPTION_ID" >> "$GITHUB_OUTPUT"
+
+      # TODO: Build and deploy SWA (not in bicep yet, required for auth and stuff too)
+
+      - name: Create and deploy API
+        run: |
+          dotnet publish Lattice.Orchestrator.AppHost --configuration Release --output ./output --self-contained --runtime linux-x64
+          pushd ./output
+          zip -r ../deploy.zip .
+          popd
+
+          az functionapp deployment source config-zip --subscription ${{ steps.get-subscription-id.outputs.SUBSCRIPTION_ID }} -g ${{ env.RESOURCE_GROUP_NAME }} -n ${{ steps.bicep.outputs.functionAppName }} --src ./deploy.zip
+
+      - name: Log out of Azure
+        run: |
+          az logout
